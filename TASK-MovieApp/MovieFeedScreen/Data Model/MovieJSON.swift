@@ -7,9 +7,8 @@
 
 import UIKit
 
-struct MoviePOJO: Codable {
+struct MovieJSON: Codable {
 
-    var page: Int
     var results: [Movie]
     var dates: Dates
     var total_pages: Int

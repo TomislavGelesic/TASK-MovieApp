@@ -9,15 +9,58 @@ import UIKit
 
 class MovieDetailTitleCell: UITableViewCell {
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+    
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.boldSystemFont(ofSize: 24)
+        label.textColor = .white
+        label.numberOfLines = 2
+        return label
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupViews()
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    
+    required init?(coder: NSCoder) {
+        fatalError("MovieDetailTitleCell required init failed...")
     }
+}
 
+extension MovieDetailTitleCell {
+    
+    func setupViews() {
+        backgroundColor = .darkGray
+        
+        addSubview(titleLabel)
+        
+        contentViewConstraints()
+        titleLabelConstraints()
+    }
+    
+    //MARK: Constraints
+    private func contentViewConstraints() {
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: self.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+    }
+    
+    private func titleLabelConstraints() {
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            titleLabel.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
+    func fill(with title: String) {
+        titleLabel.text = title
+    }
 }

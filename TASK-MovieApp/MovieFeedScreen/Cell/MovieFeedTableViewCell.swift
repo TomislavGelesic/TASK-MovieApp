@@ -12,9 +12,9 @@ class MovieFeedTableViewCell: UITableViewCell {
     //MARK: Properties
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -26,53 +26,51 @@ class MovieFeedTableViewCell: UITableViewCell {
     
     let yearLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.boldSystemFont(ofSize: 20)
         label.textColor = UIColor.white
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     let titleLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.boldSystemFont(ofSize: 16)
         label.textColor = UIColor.white
         label.numberOfLines = 2
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     let descriptionLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor.white
         label.numberOfLines = 2
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     let favouriteButton: UIButton = {
         let favouriteButton = UIButton()
-        favouriteButton.backgroundColor = .blue
-        favouriteButton.setTitle("F", for: .normal)
-        favouriteButton.layer.cornerRadius = 20
         favouriteButton.translatesAutoresizingMaskIntoConstraints = false
+        favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
+        favouriteButton.layer.cornerRadius = 20
         return favouriteButton
     }()
     
     let watchedButton: UIButton = {
         let watchedButton = UIButton()
-        watchedButton.backgroundColor = .red
-        watchedButton.setTitle("W", for: .normal)
-        watchedButton.layer.cornerRadius = 20
         watchedButton.translatesAutoresizingMaskIntoConstraints = false
+        watchedButton.setBackgroundImage(UIImage(named: "watched_unfilled"), for: .normal)
+        watchedButton.layer.cornerRadius = 20
         return watchedButton
     }()
     
     let container: UIView = {
         let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .black
         view.layer.cornerRadius = 20
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -96,11 +94,7 @@ extension MovieFeedTableViewCell {
         contentView.backgroundColor = .darkGray
         contentView.addSubview(container)
         
-        container.addSubview(titleLabel)
-        container.addSubview(descriptionLabel)
-        container.addSubview(imageViewMovie)
-        container.addSubview(watchedButton)
-        container.addSubview(favouriteButton)
+        container.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
         
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
@@ -108,6 +102,7 @@ extension MovieFeedTableViewCell {
         setupConstraints()
     }
     
+    //MARK: Constraints
     private func setupConstraints() {
         contentViewConstraints()
         containerConstraints()
@@ -170,7 +165,7 @@ extension MovieFeedTableViewCell {
     
     private func titleLabelCOnstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.bottomAnchor.constraint(equalTo: descriptionLabel.topAnchor),
+            titleLabel.topAnchor.constraint(equalTo: imageViewMovie.topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: imageViewMovie.trailingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10)
         ])
@@ -178,7 +173,7 @@ extension MovieFeedTableViewCell {
     
     private func descriptionLabelCOnstraints() {
         NSLayoutConstraint.activate([
-            descriptionLabel.bottomAnchor.constraint(equalTo: favouriteButton.topAnchor, constant: -10),
+            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             descriptionLabel.leadingAnchor.constraint(equalTo: imageViewMovie.trailingAnchor, constant: 10),
             descriptionLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10)
         ])
@@ -200,6 +195,31 @@ extension MovieFeedTableViewCell {
             watchedButton.heightAnchor.constraint(equalToConstant: 50),
             watchedButton.widthAnchor.constraint(equalTo: favouriteButton.heightAnchor)
         ])
+    }
+    
+}
+
+extension MovieFeedTableViewCell {
+    
+    func fill(with movie: Movie) {
+        if let imagePath = movie.poster_path {
+            self.imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
+        }
+        else {
+            self.imageViewMovie.backgroundColor = .white
+        }
+        self.yearLabel.text = getReleaseYear(releaseDate: movie.release_date)
+        self.titleLabel.text = movie.title
+        self.descriptionLabel.text = movie.overview
+    }
+    
+    private func getReleaseYear(releaseDate: String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
+        dateFormatter.dateFormat = "yyyy"
+        let year = dateFormatter.string(from: date)
+        return year
     }
     
 }

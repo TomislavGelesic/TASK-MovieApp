@@ -14,8 +14,8 @@ class MovieFeedViewController: UIViewController {
     //MARK: Properties
     let moviesTableView: UITableView = {
         let tableView = UITableView()
-                tableView.separatorStyle = .none
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.separatorStyle = .none
         return tableView
     }()
     
@@ -28,19 +28,23 @@ class MovieFeedViewController: UIViewController {
     //MARK: Life-cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .darkGray
+        setNavigationController()
+        setViewController()
         setupTableView()
         setupPullToRefreshControl()
         fetchData(spinnerOn: true)
-        
     }
-    
 }
 
 extension MovieFeedViewController {
     //MARK: Private Functions
+    private func setNavigationController() {
+        navigationController?.isNavigationBarHidden = true
+    }
     
+    private func setViewController() {
+        view.backgroundColor = .darkGray
+    }
     
     private func setupPullToRefreshControl() {
         moviesTableView.addSubview(pullToRefreshControl)
@@ -48,11 +52,10 @@ extension MovieFeedViewController {
     }
     //MARK: fetchData
     private func fetchData(spinnerOn: Bool) {
-        guard let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=7641bf39b204ff74468bc996eaad0b04") else { return }
+        let tomislav = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_NOW_PLAYING)\(Constants.MOVIE_API.KEY)"
+        guard let url = URL(string: tomislav) else { return }
         
-        if spinnerOn {
-            showSpinner()
-        }
+        if spinnerOn { showSpinner() }
         
         let session = URLSession.shared
         session.dataTask(with: url) { (data, response, error) in
@@ -62,9 +65,8 @@ extension MovieFeedViewController {
             }
             else {
                 if let data = data {
-                    
                     do{
-                        let json = try JSONDecoder().decode(MoviePOJO.self, from: data)
+                        let json = try JSONDecoder().decode(MovieJSON.self, from: data)
                         self.movies = json.results
                         DispatchQueue.main.async {
                             self.moviesTableView.reloadData()
@@ -73,17 +75,14 @@ extension MovieFeedViewController {
                         }
                     }
                     catch {
-                        self.showAPIFailAlert()
-                        print(error)
+                        DispatchQueue.main.async {
+                            self.showAPIFailAlert()
+                            print(error)
+                        }
                     }
                 }
             }
         }.resume()
-    }
-    
-    @objc func refreshNews() {
-        print("Retrieving update on news...")
-        fetchData(spinnerOn: false)
     }
     
     
@@ -96,17 +95,19 @@ extension MovieFeedViewController {
         }
     }
     
-    
-    
-    
+    @objc func refreshNews() {
+        print("Retrieving update on news...")
+        fetchData(spinnerOn: false) 
+    }
 }
+
 extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
         view.addSubview(moviesTableView)
         moviesTableView.delegate = self
         moviesTableView.dataSource = self
-        moviesTableView.register(MovieFeedTableViewCell.self, forCellReuseIdentifier: "MovieFeedTableViewCell")
+        moviesTableView.register(MovieFeedTableViewCell.self, forCellReuseIdentifier: MovieFeedTableViewCell.reuseIdentifier)
         moviesTableView.rowHeight = UITableView.automaticDimension
         moviesTableView.estimatedRowHeight = 170
         moviesTableViewConstraints()
@@ -127,13 +128,12 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MovieFeedTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.fillCell(with: movies[indexPath.row])
+        cell.fill(with: movies[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let movieDetailScreen = MovieDetailViewController(movie: movies[indexPath.row])
-        movieDetailScreen.modalPresentationStyle = .fullScreen
+        let movieDetailScreen = MovieDetailViewController(for: movies[indexPath.row].id)
         navigationController?.pushViewController(movieDetailScreen, animated: true)
     }
     

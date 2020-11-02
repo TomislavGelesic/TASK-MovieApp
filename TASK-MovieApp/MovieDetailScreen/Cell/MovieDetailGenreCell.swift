@@ -9,15 +9,59 @@ import UIKit
 
 class MovieDetailGenreCell: UITableViewCell {
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+    let genreLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .white
+        label.numberOfLines = 1
+        label.font = UIFont.systemFont(ofSize: 12)
+        return label
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupViews()
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    
+    required init?(coder: NSCoder) {
+        fatalError("MovieDetailTitleCell required init failed...")
     }
+}
 
+extension MovieDetailGenreCell {
+    
+    func setupViews() {
+        backgroundColor = .darkGray
+        
+        addSubview(genreLabel)
+        
+        contentViewConstraints()
+        titleLabelConstraints()
+    }
+    
+    
+    func fill(with genres: String) {
+        genreLabel.text = genres
+    }
+    
+    //MARK: Constraints
+    private func contentViewConstraints() {
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: self.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+    }
+    
+    private func titleLabelConstraints() {
+        NSLayoutConstraint.activate([
+            genreLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+            genreLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            genreLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
+            genreLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            genreLabel.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
 }

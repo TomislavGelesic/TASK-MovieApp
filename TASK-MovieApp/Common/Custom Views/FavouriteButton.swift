@@ -11,18 +11,27 @@ class FavouriteButton: UIButton {
     
     let favouriteButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "favourites"), for: .normal)
+        button.imageView?.contentMode = .scaleAspectFit
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        setConstraints()
     }
     
     required init(coder: NSCoder) {
         fatalError("FavouriteButton init(coder:) has not been implemented")
+    }
+    
+    private func setConstraints() {
+        NSLayoutConstraint.activate([
+            favouriteButton.topAnchor.constraint(equalTo: self.topAnchor),
+            favouriteButton.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            favouriteButton.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            favouriteButton.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
     }
     
 }
