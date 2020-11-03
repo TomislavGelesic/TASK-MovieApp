@@ -32,7 +32,7 @@ class MovieDetailTitleCell: UITableViewCell {
 extension MovieDetailTitleCell {
     
     func setupViews() {
-        backgroundColor = .darkGray
+        backgroundColor = .black
         
         addSubview(titleLabel)
         
@@ -46,17 +46,17 @@ extension MovieDetailTitleCell {
             contentView.topAnchor.constraint(equalTo: self.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            contentView.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
     
     private func titleLabelConstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
-            titleLabel.heightAnchor.constraint(equalToConstant: 40)
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
         ])
     }
     

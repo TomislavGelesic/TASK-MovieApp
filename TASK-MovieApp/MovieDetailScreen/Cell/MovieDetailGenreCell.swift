@@ -31,7 +31,7 @@ class MovieDetailGenreCell: UITableViewCell {
 extension MovieDetailGenreCell {
     
     func setupViews() {
-        backgroundColor = .darkGray
+        backgroundColor = .black
         
         addSubview(genreLabel)
         
@@ -56,10 +56,10 @@ extension MovieDetailGenreCell {
     
     private func titleLabelConstraints() {
         NSLayoutConstraint.activate([
-            genreLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            genreLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-            genreLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            genreLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            genreLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            genreLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            genreLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            genreLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             genreLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
     }

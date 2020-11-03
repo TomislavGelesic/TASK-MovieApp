@@ -13,7 +13,7 @@ class MovieDetailQuoteCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 24)
+        label.font = UIFont.systemFont(ofSize: 22)
         label.text = "Quote:"
         return label
     }()
@@ -40,7 +40,7 @@ class MovieDetailQuoteCell: UITableViewCell {
 extension MovieDetailQuoteCell {
     
     func setupViews() {
-        backgroundColor = .darkGray
+        backgroundColor = .black
         
         addSubviews([quoteTitleLabel, quoteLabel])
         
@@ -60,25 +60,26 @@ extension MovieDetailQuoteCell {
             contentView.topAnchor.constraint(equalTo: self.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            contentView.heightAnchor.constraint(equalToConstant: 90)
         ])
     }
     
     private func quoteTitleLabelConstraints() {
         NSLayoutConstraint.activate([
-            quoteTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            quoteTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            quoteTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            quoteTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            quoteTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            quoteTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             quoteTitleLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
     private func quoteLabelConstraints() {
             NSLayoutConstraint.activate([
-                quoteLabel.topAnchor.constraint(equalTo: quoteTitleLabel.bottomAnchor, constant: 5),
-                quoteLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-                quoteLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-                quoteLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5)
+                quoteLabel.topAnchor.constraint(equalTo: quoteTitleLabel.bottomAnchor, constant: 10),
+                quoteLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+                quoteLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+                quoteLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
             ])        
     }
     

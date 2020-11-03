@@ -7,9 +7,9 @@
 
 import UIKit
 
+let USER_DATA_KEY: String = "USER_DATA_KEY"
+
 class MovieFeedViewController: UIViewController {
-    
-    var movies = [Movie]()
     
     //MARK: Properties
     let moviesTableView: UITableView = {
@@ -25,6 +25,10 @@ class MovieFeedViewController: UIViewController {
         return control
     }()
     
+    var movies = [Movie]()
+    
+    let userDefaults = UserDefaults.standard
+    
     //MARK: Life-cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +41,7 @@ class MovieFeedViewController: UIViewController {
 }
 
 extension MovieFeedViewController {
+    
     //MARK: Private Functions
     private func setNavigationController() {
         navigationController?.isNavigationBarHidden = true
@@ -50,7 +55,7 @@ extension MovieFeedViewController {
         moviesTableView.addSubview(pullToRefreshControl)
         pullToRefreshControl.addTarget(self, action: #selector(refreshNews), for: .valueChanged)
     }
-    //MARK: fetchData
+
     private func fetchData(spinnerOn: Bool) {
         let tomislav = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_NOW_PLAYING)\(Constants.MOVIE_API.KEY)"
         guard let url = URL(string: tomislav) else { return }
@@ -85,7 +90,6 @@ extension MovieFeedViewController {
         }.resume()
     }
     
-    
     private func showAPIFailAlert(){
         let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel))
@@ -96,11 +100,12 @@ extension MovieFeedViewController {
     }
     
     @objc func refreshNews() {
-        print("Retrieving update on news...")
+        print("Retrieving update on movies...")
         fetchData(spinnerOn: false) 
     }
 }
 
+//MARK: UITABLE DELEGATE
 extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
@@ -127,8 +132,9 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let movie = movies[indexPath.row]
         let cell: MovieFeedTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.fill(with: movies[indexPath.row])
+        cell.fill(with: movie)
         return cell
     }
     
@@ -137,6 +143,5 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
         navigationController?.pushViewController(movieDetailScreen, animated: true)
     }
     
-    
-    
 }
+

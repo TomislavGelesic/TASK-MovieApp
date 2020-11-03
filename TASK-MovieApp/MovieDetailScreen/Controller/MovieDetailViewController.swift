@@ -16,6 +16,8 @@ class MovieDetailViewController: UIViewController {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = .black
         return tableView
     }()
     
@@ -68,12 +70,12 @@ extension MovieDetailViewController {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
-        navigationController?.navigationBar.backgroundColor = .darkGray
+        navigationController?.navigationBar.backgroundColor = .black
         navigationController?.navigationItem.setRightBarButtonItems([watchedBarButtonItem, favouriteBarButtonItem], animated: true)
     }
     
     private func setupViewController() {
-        view.backgroundColor = .darkGray
+        view.backgroundColor = .white
     }
     
     private func setupTableView() {

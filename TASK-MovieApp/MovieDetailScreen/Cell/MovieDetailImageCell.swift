@@ -39,7 +39,7 @@ class MovieDetailImageCell: UITableViewCell {
 extension MovieDetailImageCell {
     //MARK: Private Functions
     private func setupViews() {
-        contentView.backgroundColor = .darkGray
+        contentView.backgroundColor = .black
         contentView.addSubview(imageViewMovie)
         imageViewMovie.addSubview(gradientOverlay)
         

@@ -53,7 +53,6 @@ class MovieFeedTableViewCell: UITableViewCell {
     let favouriteButton: UIButton = {
         let favouriteButton = UIButton()
         favouriteButton.translatesAutoresizingMaskIntoConstraints = false
-        favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
         favouriteButton.layer.cornerRadius = 20
         return favouriteButton
     }()
@@ -61,7 +60,6 @@ class MovieFeedTableViewCell: UITableViewCell {
     let watchedButton: UIButton = {
         let watchedButton = UIButton()
         watchedButton.translatesAutoresizingMaskIntoConstraints = false
-        watchedButton.setBackgroundImage(UIImage(named: "watched_unfilled"), for: .normal)
         watchedButton.layer.cornerRadius = 20
         return watchedButton
     }()
@@ -74,6 +72,10 @@ class MovieFeedTableViewCell: UITableViewCell {
         return view
     }()
     
+    var movie = Movie(id: -1, poster_path: "-1", title: "-1", release_date: "-1", overview: "-1", genre_ids: [Int]())
+    let userDefaults = UserDefaults.standard
+    var watched: Bool = false
+    var favourite: Bool = false
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -88,7 +90,7 @@ class MovieFeedTableViewCell: UITableViewCell {
 
 extension MovieFeedTableViewCell {
     
-    //MARK: Private functions
+    //MARK: Functions
     private func setupViews() {
         
         contentView.backgroundColor = .darkGray
@@ -98,8 +100,85 @@ extension MovieFeedTableViewCell {
         
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
+        setupButtons()
         
         setupConstraints()
+    }
+    
+    private func setupButtons() {
+        favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
+        watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func favouriteButtonTapped() {
+        favourite = !favourite
+        userDefaults.setValue(favourite, forKey: "favourite\(movie.id)")
+        setFavouriteButtonImage()
+        print("favouriteButtonTapped")
+    }
+    
+    private func setFavouriteButtonImage() {
+        if checkIfFavouriteShouldBeActive(id: movie.id) {
+            favouriteButton.setImage(UIImage(named: "star_filled"), for: .normal)
+        }
+        else {
+            favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
+        }
+    }
+    
+    @objc func watchedButtonTapped() {
+        watched = !watched
+        userDefaults.setValue(watched, forKey: "watched\(movie.id)")
+        setWatchedButtonImage()
+        print("watchedButtonTapped")
+    }
+    
+    private func setWatchedButtonImage() {
+        if checkIfWatchedShouldBeActive(id: movie.id) {
+            watchedButton.setImage(UIImage(named: "watched_filled"), for: .normal)
+        }
+        else {
+            watchedButton.setImage(UIImage(named: "watched_unfilled"), for: .normal)
+        }
+    }
+    
+    func fill(with movie: Movie) {
+        
+        self.movie = movie
+        if let imagePath = movie.poster_path {
+            imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
+        }
+        else {
+            imageViewMovie.backgroundColor = .white
+        }
+        yearLabel.text = getReleaseYear(releaseDate: movie.release_date)
+        titleLabel.text = movie.title
+        descriptionLabel.text = movie.overview
+        setWatchedButtonImage()
+        setFavouriteButtonImage()
+    }
+    
+    private func getReleaseYear(releaseDate: String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
+        dateFormatter.dateFormat = "yyyy"
+        let year = dateFormatter.string(from: date)
+        return year
+    }
+    
+    private func checkIfFavouriteShouldBeActive(id: Int) -> Bool {
+        if userDefaults.bool(forKey: "favourite\(id)") {
+            return true
+        }
+        return false
+    }
+    
+    private func checkIfWatchedShouldBeActive(id: Int) -> Bool {
+        if userDefaults.bool(forKey: "watched\(id)") {
+            return true
+        }
+        return false
     }
     
     //MARK: Constraints
@@ -155,7 +234,7 @@ extension MovieFeedTableViewCell {
             gradientOverlay.trailingAnchor.constraint(equalTo: imageViewMovie.trailingAnchor)
         ])
     }
-     
+    
     private func yearLabelConstraints() {
         NSLayoutConstraint.activate([
             yearLabel.bottomAnchor.constraint(equalTo: gradientOverlay.bottomAnchor),
@@ -195,31 +274,6 @@ extension MovieFeedTableViewCell {
             watchedButton.heightAnchor.constraint(equalToConstant: 50),
             watchedButton.widthAnchor.constraint(equalTo: favouriteButton.heightAnchor)
         ])
-    }
-    
-}
-
-extension MovieFeedTableViewCell {
-    
-    func fill(with movie: Movie) {
-        if let imagePath = movie.poster_path {
-            self.imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
-        }
-        else {
-            self.imageViewMovie.backgroundColor = .white
-        }
-        self.yearLabel.text = getReleaseYear(releaseDate: movie.release_date)
-        self.titleLabel.text = movie.title
-        self.descriptionLabel.text = movie.overview
-    }
-    
-    private func getReleaseYear(releaseDate: String) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
-        dateFormatter.dateFormat = "yyyy"
-        let year = dateFormatter.string(from: date)
-        return year
     }
     
 }

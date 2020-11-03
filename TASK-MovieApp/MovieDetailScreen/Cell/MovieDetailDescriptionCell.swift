@@ -13,7 +13,7 @@ class MovieDetailDescriptionCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 24)
+        label.font = UIFont.systemFont(ofSize: 22)
         label.text = "Descritpion:"
         return label
     }()
@@ -40,7 +40,7 @@ class MovieDetailDescriptionCell: UITableViewCell {
 extension MovieDetailDescriptionCell {
     
     func setupViews() {
-        backgroundColor = .darkGray
+        backgroundColor = .black
         
         addSubviews([descriptionTitleLabel, descriptionLabel])
         
@@ -60,25 +60,26 @@ extension MovieDetailDescriptionCell {
             contentView.topAnchor.constraint(equalTo: self.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            contentView.heightAnchor.constraint(equalToConstant: 150)
         ])
     }
     
     private func quoteTitleLabelConstraints() {
         NSLayoutConstraint.activate([
-            descriptionTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            descriptionTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            descriptionTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            descriptionTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            descriptionTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            descriptionTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             descriptionTitleLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
     private func quoteLabelConstraints() {
             NSLayoutConstraint.activate([
-                descriptionLabel.topAnchor.constraint(equalTo: descriptionTitleLabel.bottomAnchor, constant: 5),
-                descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-                descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-                descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5)
+                descriptionLabel.topAnchor.constraint(equalTo: descriptionTitleLabel.bottomAnchor, constant: 10),
+                descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+                descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+                descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
             ])
     }
 }

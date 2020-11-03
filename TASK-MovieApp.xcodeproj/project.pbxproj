@@ -36,6 +36,8 @@
 		60282670254C699D00DB3C3A /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6028266F254C699D00DB3C3A /* Genre.swift */; };
 		6028267A254C830400DB3C3A /* MovieDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60282679254C830400DB3C3A /* MovieDetails.swift */; };
 		60282686254C912800DB3C3A /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60282685254C912800DB3C3A /* Movie.swift */; };
+		6044442B2551593100F6ADC2 /* UserDatum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6044442A2551593100F6ADC2 /* UserDatum.swift */; };
+		6044443025515D9D00F6ADC2 /* MovieFeedTableViewCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6044442F25515D9D00F6ADC2 /* MovieFeedTableViewCellDelegate.swift */; };
 		60A790DC25503CA0002F218F /* Extension+UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A790DB25503CA0002F218F /* Extension+UIView.swift */; };
 		60A790E125503EAC002F218F /* RowType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A790E025503EAC002F218F /* RowType.swift */; };
 /* End PBXBuildFile section */
@@ -72,6 +74,8 @@
 		6028266F254C699D00DB3C3A /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Genre.swift; path = "TASK-MovieApp/Common/Data Model/Genre.swift"; sourceTree = SOURCE_ROOT; };
 		60282679254C830400DB3C3A /* MovieDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieDetails.swift; path = "TASK-MovieApp/MovieDetailScreen/Data Model/MovieDetails.swift"; sourceTree = SOURCE_ROOT; };
 		60282685254C912800DB3C3A /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
+		6044442A2551593100F6ADC2 /* UserDatum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDatum.swift; sourceTree = "<group>"; };
+		6044442F25515D9D00F6ADC2 /* MovieFeedTableViewCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieFeedTableViewCellDelegate.swift; path = "TASK-MovieApp/MovieFeedScreen/Protocols/MovieFeedTableViewCellDelegate.swift"; sourceTree = SOURCE_ROOT; };
 		60A790DB25503CA0002F218F /* Extension+UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Extension+UIView.swift"; path = "TASK-MovieApp/Common/Extensions/Extension+UIView.swift"; sourceTree = SOURCE_ROOT; };
 		60A790E025503EAC002F218F /* RowType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -200,6 +204,7 @@
 		60282643254C21CC00DB3C3A /* MovieFeedScreen */ = {
 			isa = PBXGroup;
 			children = (
+				6044442E25515D8100F6ADC2 /* Protocols */,
 				6028266E254C695700DB3C3A /* Data Model */,
 				60282644254C21CC00DB3C3A /* Controller */,
 				60282646254C21CC00DB3C3A /* Cell */,
@@ -239,6 +244,7 @@
 			children = (
 				60282626254C21CC00DB3C3A /* MovieJSON.swift */,
 				60282685254C912800DB3C3A /* Movie.swift */,
+				6044442A2551593100F6ADC2 /* UserDatum.swift */,
 			);
 			path = "Data Model";
 			sourceTree = "<group>";
@@ -260,6 +266,14 @@
 				6028266F254C699D00DB3C3A /* Genre.swift */,
 			);
 			path = "Data Model";
+			sourceTree = "<group>";
+		};
+		6044442E25515D8100F6ADC2 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				6044442F25515D9D00F6ADC2 /* MovieFeedTableViewCellDelegate.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -347,8 +361,10 @@
 				6028265D254C21CC00DB3C3A /* RowData.swift in Sources */,
 				60282652254C21CC00DB3C3A /* ReusableView.swift in Sources */,
 				60282686254C912800DB3C3A /* Movie.swift in Sources */,
+				6044443025515D9D00F6ADC2 /* MovieFeedTableViewCellDelegate.swift in Sources */,
 				6028264D254C21CC00DB3C3A /* Extensions+UITableView.swift in Sources */,
 				6028267A254C830400DB3C3A /* MovieDetails.swift in Sources */,
+				6044442B2551593100F6ADC2 /* UserDatum.swift in Sources */,
 				6028264C254C21CC00DB3C3A /* Extensions+ReusableView.swift in Sources */,
 				6028265A254C21CC00DB3C3A /* MovieDetailDescriptionCell.swift in Sources */,
 				6028265C254C21CC00DB3C3A /* MovieDetailGenreCell.swift in Sources */,
