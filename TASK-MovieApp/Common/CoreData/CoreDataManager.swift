@@ -15,7 +15,7 @@ class CoreDataManager {
     private init() {}
     
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "MovieCoreDataModel")
+        let container = NSPersistentContainer(name: "TASK-MovieApp")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
@@ -23,10 +23,11 @@ class CoreDataManager {
         })
         return container
     }()
+    
 }
 
 extension CoreDataManager {
-    //MARK: Funcions
+    //MARK: Functions
     
     func saveContext () {
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
@@ -40,83 +41,79 @@ extension CoreDataManager {
         }
     }
     
-    func fetchAllCoreDataMovies() -> [MovieModel]? {
+    func getAllMovies() -> [Movie]? {
+        
+        var movies: [Movie]?
+        
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        
         do {
-            let coreDataMovies = try managedContext.fetch(MovieModel.fetchRequest()) as? [MovieModel]
-            if let movieModels = coreDataMovies {
-                return movieModels
-            }
-        } catch {
-            print("ERROR in CoreDataManager.sharedManager.fetchAllCoreDataMovies() . . .")
+            movies = try managedContext.fetch(Movie.fetchRequest())
+        } catch { print(error) }
+        
+        if let movies = movies {
+            return movies
         }
         return nil
     }
     
-    func updateOrInsertMovieInCoreData (id: Int, favourite: Bool, watched: Bool) {
-        guard let savedMovies = CoreDataManager.sharedManager.fetchAllCoreDataMovies() else { return }
+    func saveNewMovie(_ movie: Movie) {
         
-        for savedMovie in savedMovies {
-            if savedMovie.id == id {
-                savedMovie.favourite = favourite
-                savedMovie.watched = watched
-                CoreDataManager.sharedManager.saveContext()
-                return
-            }
-        }
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
-        let newMovie = MovieModel(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
-        newMovie.id = Int64(id)
-        newMovie.favourite = favourite
-        newMovie.watched = watched
+        var newMovie = Movie(context: managedContext)
+        newMovie = movie
         
         CoreDataManager.sharedManager.saveContext()
     }
     
-    func buttonTapped(button: ButtonSelection,id: Int) {
+    func deleteMovie(_ movie: Movie) {
         
-        switch button {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
-        case .favourite:
-            
-            if let savedMovies = CoreDataManager.sharedManager.fetchAllCoreDataMovies() {
-                for savedMovie in savedMovies {
-                    if savedMovie.id == id {
-                        if savedMovie.favourite {
-                            CoreDataManager.sharedManager.updateOrInsertMovieInCoreData(id: id, favourite: false, watched: savedMovie.watched)
-                        }
-                        else {
-                            CoreDataManager.sharedManager.updateOrInsertMovieInCoreData(id: id, favourite: true, watched: savedMovie.watched)
-                        }
-                        return
-                    }
-                }
-            }
-            else {
-                CoreDataManager.sharedManager.updateOrInsertMovieInCoreData(id: id, favourite: true, watched: false)
-            }
-            
-        case .watched:
-            
-            if let savedMovies = CoreDataManager.sharedManager.fetchAllCoreDataMovies() {
-                for savedMovie in savedMovies {
-                    if savedMovie.id == id {
-                        if savedMovie.watched {
-                            CoreDataManager.sharedManager.updateOrInsertMovieInCoreData(id: id, favourite: savedMovie.favourite, watched: false)
-                        }
-                        else {
-                            CoreDataManager.sharedManager.updateOrInsertMovieInCoreData(id: id, favourite: savedMovie.favourite, watched: true)
-                        }
-                        return
-                    }
-                }
-            }
-            else {
-                CoreDataManager.sharedManager.updateOrInsertMovieInCoreData(id: id, favourite: false, watched: true)
-            }
+        managedContext.delete(movie)
+        
+        CoreDataManager.sharedManager.saveContext()
+    }
+    
+    func updateMovie() {
+        CoreDataManager.sharedManager.saveContext()
+    }
+    
+    func getFavouriteMovies() -> [Movie]? {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
+        request.predicate = NSPredicate(format: "favourite == YES")
+        var movies: [Movie]?
+        do {
+            movies = try managedContext.fetch(request)
+        } catch  {
+            print(error)
         }
         
+        if let movies = movies {
+            return movies
+        }
+        return nil
     }
+    
+    func getWatchedMovies() -> [Movie]? {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
+        request.predicate = NSPredicate(format: "watched == YES")
+        var movies: [Movie]?
+        do {
+            movies = try managedContext.fetch(request)
+        } catch  {
+            print(error)
+        }
+        
+        if let movies = movies {
+            return movies
+        }
+        return nil
+    }
+    
 }
 
 

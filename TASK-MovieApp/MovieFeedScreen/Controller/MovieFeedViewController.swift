@@ -27,7 +27,7 @@ class MovieFeedViewController: UIViewController {
     
     var moviesJSONModel = [MovieJSONModel]()
     
-    var screenData = [MovieFeedScreenDatum]()
+    var screenData = [Movie]()
     
     //MARK: Life-cycle
     
@@ -37,6 +37,7 @@ class MovieFeedViewController: UIViewController {
         setupTableView()
         setupPullToRefreshControl()
         fetchData(spinnerOn: true) {
+            CoreDataManager.sharedManager.updateOrInsertInCoreData(from: self.moviesJSONModel)
             self.createScreenData()
             self.tableViewMovieFeed.reloadData()
             self.hideSpinner()
@@ -89,17 +90,7 @@ extension MovieFeedViewController {
     }
     
     private func createScreenData() {
-        for movie in moviesJSONModel {
-            screenData.append( MovieFeedScreenDatum(id: movie.id,
-                                                    poster_path: movie.poster_path,
-                                                    title: movie.title,
-                                                    release_date: movie.release_date,
-                                                    overview: movie.overview,
-                                                    genre_ids: movie.genre_ids,
-                                                    favourite: false,
-                                                    watched: false)
-            )
-        }
+        
     }
     
     private func updateMyMovieDataBase() {
@@ -162,6 +153,7 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
         let movieDetailScreen = MovieDetailViewController(for: screenData[indexPath.row].id)
         movieDetailScreen.modalPresentationStyle = .fullScreen
         self.present(movieDetailScreen, animated: true, completion: nil)
+        
     }
     
 }
