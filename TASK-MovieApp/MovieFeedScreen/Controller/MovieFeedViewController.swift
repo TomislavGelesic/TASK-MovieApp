@@ -7,8 +7,6 @@
 
 import UIKit
 
-let USER_DATA_KEY: String = "USER_DATA_KEY"
-
 class MovieFeedViewController: UIViewController {
     
     //MARK: Properties
@@ -21,6 +19,8 @@ class MovieFeedViewController: UIViewController {
     
     let pullToRefreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
+        control.tintColor = .white
+        control.backgroundColor = .darkGray
         control.attributedTitle = NSAttributedString(string: "Pull to refresh")
         return control
     }()
@@ -49,7 +49,7 @@ extension MovieFeedViewController {
     //MARK: Private Functions
     
     private func setViewController() {
-        view.backgroundColor = .white
+        view.backgroundColor = .darkGray
     }
     
     private func setupPullToRefreshControl() {
@@ -102,6 +102,10 @@ extension MovieFeedViewController {
         }
     }
     
+    private func updateMyMovieDataBase() {
+        //MARK: Do this here
+    }
+    
     private func showAPIFailAlert(){
         let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel))
@@ -121,7 +125,7 @@ extension MovieFeedViewController {
     }
 }
 
-//MARK: UITABLE DELEGATE
+
 extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
@@ -136,7 +140,7 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func moviesTableViewConstraints () {
         NSLayoutConstraint.activate([
-            tableViewMovieFeed.topAnchor.constraint(equalTo: view.topAnchor),
+            tableViewMovieFeed.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
             tableViewMovieFeed.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tableViewMovieFeed.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableViewMovieFeed.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -164,6 +168,7 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension MovieFeedViewController: MovieFeedTableViewCellDelegate {
     
+    
     func buttonTapped(button: ButtonSelection, id: Int) {
         CoreDataManager.sharedManager.buttonTapped(button: button, id: id)
         updateScreenDataWithCoreData()
@@ -183,5 +188,7 @@ extension MovieFeedViewController: MovieFeedTableViewCellDelegate {
         }
     }
     
+    
 }
+
 

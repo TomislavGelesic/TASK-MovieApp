@@ -3,9 +3,13 @@
     <entity name="MovieModel" representedClassName="MovieModel" syncable="YES" codeGenerationType="class">
         <attribute name="favourite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="overview" optional="YES" attributeType="String"/>
+        <attribute name="posterPath" optional="YES" attributeType="String"/>
+        <attribute name="releaseDate" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="watched" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="MovieModel" positionX="-63" positionY="-18" width="128" height="88"/>
+        <element name="MovieModel" positionX="-63" positionY="-18" width="128" height="148"/>
     </elements>
 </model>

@@ -53,7 +53,7 @@ extension MovieDetailImageCell {
         contentView.addSubview(imageViewMovie)
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(barView)
-        
+
         barView.backBarButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
         barView.favouriteBarButton.addTarget(self, action: #selector(favouriteBarButtonTapped), for: .touchUpInside)
         barView.watchedBarButton.addTarget(self, action: #selector(watchedBarButtonTapped), for: .touchUpInside)
@@ -65,11 +65,11 @@ extension MovieDetailImageCell {
     }
     
     @objc func backBarButtonTapped() {
+        print("backButtonPressed")
         movieDetailImageCellDelegate?.backButtonTapped()
     }
     
     @objc func favouriteBarButtonTapped() {
-        CoreDataManager.sharedManager.favouriteButtonTapped(id: movieID)
         movieDetailImageCellDelegate?.favouriteButtonTapped()
     }
     

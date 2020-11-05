@@ -210,15 +210,15 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
     func backButtonTapped() {
-        <#code#>
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
     
     func favouriteButtonTapped() {
-        <#code#>
+        print("")
     }
     
     func watchedButtonTapped() {
-        <#code#>
+        print("")
     }
     
     

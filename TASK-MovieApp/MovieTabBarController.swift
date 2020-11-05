@@ -20,7 +20,7 @@ class MovieTabBarController: UITabBarController {
         let favouritesNavigationController = createViewController(viewController: FavouriteMoviesViewController(), selected: UIImage(named: "star_filled")!, unselected: UIImage(named: "star_unfilled")!)
         let watchedNavigationController = createViewController(viewController: WatchedMoviesViewController(), selected: UIImage(named: "watched_filled")!, unselected: UIImage(named: "watched_unfilled")!)
         
-        viewControllers = [favouritesNavigationController, movieFeedNavigationController, watchedNavigationController]
+        viewControllers = [movieFeedNavigationController, favouritesNavigationController, watchedNavigationController]
 
     }
 

@@ -1,14 +1,13 @@
 //
-//  MovieTableViewCell.swift
+//  MovieWatchedTableViewCell.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 27/10/2020.
+//  Created by Tomislav Gelesic on 05/11/2020.
 //
 
 import UIKit
 
-class MovieFeedTableViewCell: UITableViewCell {
-    
+class MovieWatchedTableViewCell: UITableViewCell {
     //MARK: Properties
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -54,6 +53,7 @@ class MovieFeedTableViewCell: UITableViewCell {
         let favouriteButton = UIButton()
         favouriteButton.translatesAutoresizingMaskIntoConstraints = false
         favouriteButton.layer.cornerRadius = 20
+        favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         return favouriteButton
     }()
     
@@ -61,6 +61,7 @@ class MovieFeedTableViewCell: UITableViewCell {
         let watchedButton = UIButton()
         watchedButton.translatesAutoresizingMaskIntoConstraints = false
         watchedButton.layer.cornerRadius = 20
+        watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         return watchedButton
     }()
     
@@ -74,7 +75,7 @@ class MovieFeedTableViewCell: UITableViewCell {
     
     var screenData = MovieFeedScreenDatum(id: -1, poster_path: "-1", title: "-1", release_date: "-1", overview: "-1", genre_ids: [Int](), favourite: false, watched: false)
     
-    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
+    var movieWatchedTableViewCellDelegate: MovieWatchedTableViewCellDelegate?
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -86,8 +87,7 @@ class MovieFeedTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 }
-
-extension MovieFeedTableViewCell {
+extension MovieWatchedTableViewCell {
     
     //MARK: Functions
     private func setupViews() {
@@ -106,11 +106,11 @@ extension MovieFeedTableViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        movieFeedTableViewCellDelegate?.buttonTapped(button: .favourite, id: screenData.id)
+        movieWatchedTableViewCellDelegate?.buttonTapped(button: .favourite, id: screenData.id)
     }
     
     @objc func watchedButtonTapped() {
-        movieFeedTableViewCellDelegate?.buttonTapped(button: .watched, id: screenData.id)
+        movieWatchedTableViewCellDelegate?.buttonTapped(button: .watched, id: screenData.id)
     }
     
     func fill(with data: MovieFeedScreenDatum) {
@@ -136,7 +136,7 @@ extension MovieFeedTableViewCell {
         let year = dateFormatter.string(from: date)
         return year
     }
-
+    
     
     
     //MARK: Constraints
@@ -235,3 +235,4 @@ extension MovieFeedTableViewCell {
     }
     
 }
+

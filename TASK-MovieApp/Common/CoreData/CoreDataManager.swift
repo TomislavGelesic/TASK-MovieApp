@@ -60,28 +60,17 @@ extension CoreDataManager {
             if savedMovie.id == id {
                 savedMovie.favourite = favourite
                 savedMovie.watched = watched
-                do {
-                    try
-                        CoreDataManager.sharedManager.persistentContainer.viewContext.save()
-                } catch {
-                    print("error in updateOrInsertMovieInCoreData()")
-                }
+                CoreDataManager.sharedManager.saveContext()
                 return
             }
         }
         
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
-        
-        let newMovie = MovieModel(context: managedContext)
+        let newMovie = MovieModel(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
         newMovie.id = Int64(id)
         newMovie.favourite = favourite
         newMovie.watched = watched
         
-        do {
-            try managedContext.save()
-        } catch {
-            print("ERROR in updateOrInsertMovieInCoreData() here ...")
-        }
+        CoreDataManager.sharedManager.saveContext()
     }
     
     func buttonTapped(button: ButtonSelection,id: Int) {
@@ -128,9 +117,6 @@ extension CoreDataManager {
         }
         
     }
-    
-    
-    
 }
 
 
