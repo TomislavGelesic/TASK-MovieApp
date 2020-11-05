@@ -72,10 +72,9 @@ class MovieFeedTableViewCell: UITableViewCell {
         return view
     }()
     
-    var movie = Movie(id: -1, poster_path: "-1", title: "-1", release_date: "-1", overview: "-1", genre_ids: [Int]())
-    let userDefaults = UserDefaults.standard
-    var watched: Bool = false
-    var favourite: Bool = false
+    var screenData = MovieFeedScreenDatum(id: -1, poster_path: "-1", title: "-1", release_date: "-1", overview: "-1", genre_ids: [Int](), favourite: false, watched: false)
+    
+    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -92,16 +91,12 @@ extension MovieFeedTableViewCell {
     
     //MARK: Functions
     private func setupViews() {
-        
         contentView.backgroundColor = .darkGray
         contentView.addSubview(container)
-        
         container.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
-        
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
         setupButtons()
-        
         setupConstraints()
     }
     
@@ -111,51 +106,26 @@ extension MovieFeedTableViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        favourite = !favourite
-        userDefaults.setValue(favourite, forKey: "favourite\(movie.id)")
-        setFavouriteButtonImage()
-        print("favouriteButtonTapped")
-    }
-    
-    private func setFavouriteButtonImage() {
-        if checkIfFavouriteShouldBeActive(id: movie.id) {
-            favouriteButton.setImage(UIImage(named: "star_filled"), for: .normal)
-        }
-        else {
-            favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
-        }
+        movieFeedTableViewCellDelegate?.buttonTapped(button: .favourite, id: screenData.id)
     }
     
     @objc func watchedButtonTapped() {
-        watched = !watched
-        userDefaults.setValue(watched, forKey: "watched\(movie.id)")
-        setWatchedButtonImage()
-        print("watchedButtonTapped")
+        movieFeedTableViewCellDelegate?.buttonTapped(button: .watched, id: screenData.id)
     }
     
-    private func setWatchedButtonImage() {
-        if checkIfWatchedShouldBeActive(id: movie.id) {
-            watchedButton.setImage(UIImage(named: "watched_filled"), for: .normal)
-        }
-        else {
-            watchedButton.setImage(UIImage(named: "watched_unfilled"), for: .normal)
-        }
-    }
-    
-    func fill(with movie: Movie) {
+    func fill(with data: MovieFeedScreenDatum) {
         
-        self.movie = movie
-        if let imagePath = movie.poster_path {
+        screenData = data
+        
+        if let imagePath = screenData.poster_path {
             imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
         }
         else {
-            imageViewMovie.backgroundColor = .white
+            imageViewMovie.backgroundColor = .cyan
         }
-        yearLabel.text = getReleaseYear(releaseDate: movie.release_date)
-        titleLabel.text = movie.title
-        descriptionLabel.text = movie.overview
-        setWatchedButtonImage()
-        setFavouriteButtonImage()
+        yearLabel.text = getReleaseYear(releaseDate: screenData.release_date)
+        titleLabel.text = screenData.title
+        descriptionLabel.text = screenData.overview
     }
     
     private func getReleaseYear(releaseDate: String) -> String {
@@ -166,20 +136,8 @@ extension MovieFeedTableViewCell {
         let year = dateFormatter.string(from: date)
         return year
     }
+
     
-    private func checkIfFavouriteShouldBeActive(id: Int) -> Bool {
-        if userDefaults.bool(forKey: "favourite\(id)") {
-            return true
-        }
-        return false
-    }
-    
-    private func checkIfWatchedShouldBeActive(id: Int) -> Bool {
-        if userDefaults.bool(forKey: "watched\(id)") {
-            return true
-        }
-        return false
-    }
     
     //MARK: Constraints
     private func setupConstraints() {

@@ -50,7 +50,8 @@ extension MovieDetailGenreCell {
             contentView.topAnchor.constraint(equalTo: self.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            contentView.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -59,8 +60,7 @@ extension MovieDetailGenreCell {
             genreLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             genreLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             genreLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            genreLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            genreLabel.heightAnchor.constraint(equalToConstant: 40)
+            genreLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
         ])
     }
     

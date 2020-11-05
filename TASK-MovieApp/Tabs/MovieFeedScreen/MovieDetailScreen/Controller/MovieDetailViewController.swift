@@ -11,7 +11,7 @@ class MovieDetailViewController: UIViewController {
     
     var screenData: [RowData]
     var movieID: Int
-    var movieDetails: MovieDetails
+    var movieDetails: MovieDetailsJSONModel
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -21,23 +21,11 @@ class MovieDetailViewController: UIViewController {
         return tableView
     }()
     
-    let favouriteBarButtonItem: UIBarButtonItem = {
-        let button = UIBarButtonItem()
-        button.image = UIImage(named: "star_unfilled")
-        return button
-    }()
-    
-    let watchedBarButtonItem: UIBarButtonItem = {
-        let button = UIBarButtonItem()
-        button.image = UIImage(named: "watched_unfilled")
-        return button
-    }()
-    
     //MARK: init
     init(for id: Int) {
         self.movieID = id
         self.screenData = [RowData]()
-        self.movieDetails = MovieDetails()
+        self.movieDetails = MovieDetailsJSONModel()
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -45,13 +33,14 @@ class MovieDetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
+    
     //MARK: Life-cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationController()
         setupViewController()
         setupTableView()
-        fetchMovieDetails(spinnerOn: true) {
+        fetchMovieDetailsJSONModel(spinnerOn: true) {
             DispatchQueue.main.async {
                 self.screenData = self.createScreenData(from: self.movieDetails)
                 self.tableView.reloadData()
@@ -65,17 +54,8 @@ class MovieDetailViewController: UIViewController {
 extension MovieDetailViewController {
     //MARK: Private Functions
     
-    private func setupNavigationController() {
-        navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.isTranslucent = true
-        navigationController?.navigationBar.backgroundColor = .black
-        navigationController?.navigationItem.setRightBarButtonItems([watchedBarButtonItem, favouriteBarButtonItem], animated: true)
-    }
-    
     private func setupViewController() {
-        view.backgroundColor = .white
+        view.backgroundColor = .darkGray
     }
     
     private func setupTableView() {
@@ -105,7 +85,7 @@ extension MovieDetailViewController {
         ])
     }
     //MARK: fetchData
-    private func fetchMovieDetails(spinnerOn: Bool, completion: @escaping ()->()) {
+    private func fetchMovieDetailsJSONModel(spinnerOn: Bool, completion: @escaping ()->()) {
         guard let url = URL(string: Constants.MOVIE_API.BASE +
                                 Constants.MOVIE_API.GET_DETAILS_ON + "\(movieID)" +
                                 Constants.MOVIE_API.KEY
@@ -125,7 +105,7 @@ extension MovieDetailViewController {
                 if let data = data {
                     
                     do{
-                        let json = try JSONDecoder().decode(MovieDetails.self, from: data)
+                        let json = try JSONDecoder().decode(MovieDetailsJSONModel.self, from: data)
                         self.movieDetails = json
                         completion()
                     }
@@ -139,7 +119,7 @@ extension MovieDetailViewController {
     }
     
     
-    private func createScreenData(from details: MovieDetails) -> [RowData] {
+    private func createScreenData(from details: MovieDetailsJSONModel) -> [RowData] {
         var row = [RowData]()
         if let imagePath = details.poster_path {
             row.append(RowData.init(type: .image, string: imagePath))
@@ -203,7 +183,8 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
                 cell.imageViewMovie.backgroundColor = .cyan
                 return cell
             }
-            cell.fill(with: image)
+            cell.movieDetailImageCellDelegate = self
+            cell.fill(with: image, forID: movieID)
             return cell
         case .title:
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
@@ -224,6 +205,21 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
         }
     }
     
+}
+
+
+extension MovieDetailViewController: MovieDetailImageCellDelegate {
+    func backButtonTapped() {
+        <#code#>
+    }
+    
+    func favouriteButtonTapped() {
+        <#code#>
+    }
+    
+    func watchedButtonTapped() {
+        <#code#>
+    }
     
     
 }

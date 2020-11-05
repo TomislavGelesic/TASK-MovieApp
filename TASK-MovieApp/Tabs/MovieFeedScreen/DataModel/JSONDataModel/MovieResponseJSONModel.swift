@@ -7,9 +7,9 @@
 
 import UIKit
 
-struct MovieJSON: Codable {
+struct MovieResponseJSONModel: Codable {
 
-    var results: [Movie]
+    var results: [MovieJSONModel]
     var dates: Dates
     var total_pages: Int
     var total_results: Int

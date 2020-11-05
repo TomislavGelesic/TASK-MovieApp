@@ -23,6 +23,15 @@ class MovieDetailImageCell: UITableViewCell {
         return overlay
     }()
     
+    let barView: DetailBarView = {
+        let view = DetailBarView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var movieDetailImageCellDelegate: MovieDetailImageCellDelegate?
+    var movieID: Int = -1
+    
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -40,16 +49,38 @@ extension MovieDetailImageCell {
     //MARK: Private Functions
     private func setupViews() {
         contentView.backgroundColor = .black
+        
         contentView.addSubview(imageViewMovie)
         imageViewMovie.addSubview(gradientOverlay)
+        gradientOverlay.addSubview(barView)
+        
+        barView.backBarButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
+        barView.favouriteBarButton.addTarget(self, action: #selector(favouriteBarButtonTapped), for: .touchUpInside)
+        barView.watchedBarButton.addTarget(self, action: #selector(watchedBarButtonTapped), for: .touchUpInside)
         
         contentViewConstraints()
         imageViewMovieConstraints()
         gradientOverlayConstraints()
+        barViewConstraints()
     }
     
-    func fill(with image: UIImage) {
+    @objc func backBarButtonTapped() {
+        movieDetailImageCellDelegate?.backButtonTapped()
+    }
+    
+    @objc func favouriteBarButtonTapped() {
+        CoreDataManager.sharedManager.favouriteButtonTapped(id: movieID)
+        movieDetailImageCellDelegate?.favouriteButtonTapped()
+    }
+    
+    @objc func watchedBarButtonTapped() {
+        //should reload tableview or detail view button image
+        movieDetailImageCellDelegate?.watchedButtonTapped()
+    }
+    
+    func fill(with image: UIImage, forID id: Int) {
         imageViewMovie.image = image
+        movieID = id
     }
     
     //MARK: Constraints
@@ -78,6 +109,15 @@ extension MovieDetailImageCell {
             gradientOverlay.bottomAnchor.constraint(equalTo: imageViewMovie.bottomAnchor),
             gradientOverlay.leadingAnchor.constraint(equalTo: imageViewMovie.leadingAnchor),
             gradientOverlay.trailingAnchor.constraint(equalTo: imageViewMovie.trailingAnchor)
+        ])
+    }
+    
+    private func barViewConstraints() {
+        NSLayoutConstraint.activate([
+            barView.topAnchor.constraint(equalTo: gradientOverlay.topAnchor),
+            barView.leadingAnchor.constraint(equalTo: gradientOverlay.leadingAnchor, constant: 10),
+            barView.trailingAnchor.constraint(equalTo: gradientOverlay.trailingAnchor, constant:  -10),
+            barView.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     

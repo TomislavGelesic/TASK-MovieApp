@@ -2,10 +2,10 @@
 //  RowData.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 28/10/2020.
+//  Created by Tomislav Gelesic on 05/11/2020.
 //
 
-import UIKit
+import Foundation
 
 struct RowData {
     var type: RowType
