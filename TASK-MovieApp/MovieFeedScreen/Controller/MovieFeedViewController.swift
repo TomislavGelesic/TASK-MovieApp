@@ -14,6 +14,7 @@ class MovieFeedViewController: UIViewController {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
+        tableView.backgroundColor = .darkGray
         return tableView
     }()
     
@@ -33,7 +34,7 @@ class MovieFeedViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setViewController()
+        
         setupTableView()
         setupPullToRefreshControl()
         fetchData(spinnerOn: true) {
@@ -43,15 +44,16 @@ class MovieFeedViewController: UIViewController {
             self.hideSpinner()
         }
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        tableViewMovieFeed.reloadData()
+    }
 }
 
 extension MovieFeedViewController {
     
     //MARK: Private Functions
     
-    private func setViewController() {
-        view.backgroundColor = .darkGray
-    }
     
     private func setupPullToRefreshControl() {
         tableViewMovieFeed.addSubview(pullToRefreshControl)
@@ -102,10 +104,6 @@ extension MovieFeedViewController {
             return
         }
         print("Unable to create screen data")
-    }
-    
-    private func updateMyMovieDataBase() {
-        //MARK: TODO updateMyMovieDataBase
     }
     
     private func showAPIFailAlert(){
@@ -171,14 +169,12 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension MovieFeedViewController: ControllerDelegate {
     func favouriteButtonTapped(on movie: Movie) {
-        print("f tap")
         CoreDataManager.sharedManager.switchForId(type: .favourite, for: movie.id)
         fetchScreenData()
         tableViewMovieFeed.reloadData()
     }
     
     func watchedButtonTapped(on movie: Movie) {
-        print("w tap")
         CoreDataManager.sharedManager.switchForId(type: .watched, for: movie.id)
         fetchScreenData()
         tableViewMovieFeed.reloadData()

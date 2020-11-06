@@ -8,7 +8,7 @@
 import UIKit
 
 class MovieTabBarController: UITabBarController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupMovieTabBarController()
@@ -16,18 +16,39 @@ class MovieTabBarController: UITabBarController {
     
     private func setupMovieTabBarController() {
         
-        let movieFeedNavigationController = createViewController(viewController: MovieFeedViewController(), selected: UIImage(systemName: "video.circle.fill")!, unselected: UIImage(systemName: "video.circle")!)
-        let favouritesNavigationController = createViewController(viewController: FavouriteMoviesViewController(), selected: UIImage(named: "star_filled")!, unselected: UIImage(named: "star_unfilled")!)
-        let watchedNavigationController = createViewController(viewController: WatchedMoviesViewController(), selected: UIImage(named: "watched_filled")!, unselected: UIImage(named: "watched_unfilled")!)
+        let movieFeedController = createNavigationViewController(viewController: MovieFeedViewController(),
+                                                                 selected:       UIImage(systemName: "video.circle.fill"),
+                                                                 unselected:     UIImage(systemName: "video.circle"),
+                                                                 title:          "Now playing")
         
-        viewControllers = [movieFeedNavigationController, favouritesNavigationController, watchedNavigationController]
-
+        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(),
+                                                                  selected:       UIImage(named: "star_filled"),
+                                                                  unselected:     UIImage(named: "star_unfilled"),
+                                                                  title:          "Favourites")
+        
+        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(),
+                                                               selected:       UIImage(named: "watched_filled"),
+                                                               unselected:     UIImage(named: "watched_unfilled"),
+                                                               title:          "Watched")
+        
+        viewControllers = [movieFeedController, favouritesController, watchedController]
+        
     }
-
-    private func createViewController(viewController: UIViewController, selected: UIImage, unselected: UIImage) -> UIViewController {
-        viewController.tabBarItem.image = unselected
-        viewController.tabBarItem.selectedImage = selected
-        return viewController
+    
+    private func createNavigationViewController(viewController: UIViewController, selected: UIImage?, unselected: UIImage?, title: String) -> UIViewController {
+        
+        guard let selected = selected, let unselected = unselected else { fatalError("createNavigationViewController error in MovieTabBarController") }
+        
+        viewController.view.backgroundColor = .darkGray
+        viewController.title = title
+        
+        let controller = UINavigationController(rootViewController: viewController)
+        controller.tabBarItem.image = unselected
+        controller.tabBarItem.selectedImage = selected
+        controller.view.backgroundColor = .darkGray
+        controller.navigationBar.backgroundColor = .black
+        return controller
     }
-
+    
 }
+
