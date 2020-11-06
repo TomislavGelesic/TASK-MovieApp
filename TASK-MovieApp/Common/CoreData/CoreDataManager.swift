@@ -57,12 +57,26 @@ extension CoreDataManager {
         return nil
     }
     
-    func saveNewMovie(_ movie: Movie) {
+    func saveJSONModel(_ json: MovieJSONModel) {
         
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
-        var newMovie = Movie(context: managedContext)
-        newMovie = movie
+        let newMovie = Movie(context: managedContext)
+        
+        newMovie.id = Int64(json.id)
+        newMovie.title = json.title
+        newMovie.overview = json.overview
+        newMovie.posterPath = json.poster_path
+        newMovie.releaseDate = json.release_date
+        newMovie.favourite = false
+        newMovie.watched = false
+        
+        var genreIDs = String()
+        
+        for id in json.genre_ids {
+            genreIDs.append("\(id), ")
+        }
+        newMovie.genreIDs = genreIDs
         
         CoreDataManager.sharedManager.saveContext()
     }
@@ -78,6 +92,46 @@ extension CoreDataManager {
     
     func updateMovie() {
         CoreDataManager.sharedManager.saveContext()
+    }
+    
+    func switchForId(type: ButtonType, for id: Int64) {
+        
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
+        request.predicate = NSPredicate(format: "id == \(id)")
+        var movies: [Movie]?
+        do {
+            movies = try managedContext.fetch(request)
+        } catch  {
+            print(error)
+            return
+        }
+        
+        if let movies = movies {
+            
+            switch type {
+            case .favourite:
+                if movies[0].favourite == true {
+                    movies[0].favourite = false
+                }
+                else {
+                    movies[0].favourite = true
+                }
+                CoreDataManager.sharedManager.saveContext()
+                
+                
+            case .watched:
+                if movies[0].watched == true {
+                    movies[0].watched = false
+                }
+                else {
+                    movies[0].watched = true
+                }
+                CoreDataManager.sharedManager.saveContext()
+            }
+        }
+        
     }
     
     func getFavouriteMovies() -> [Movie]? {

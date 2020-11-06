@@ -37,8 +37,8 @@ class MovieFeedViewController: UIViewController {
         setupTableView()
         setupPullToRefreshControl()
         fetchData(spinnerOn: true) {
-            CoreDataManager.sharedManager.updateOrInsertInCoreData(from: self.moviesJSONModel)
-            self.createScreenData()
+            self.saveToCoreData(self.moviesJSONModel)
+            self.fetchScreenData()
             self.tableViewMovieFeed.reloadData()
             self.hideSpinner()
         }
@@ -89,12 +89,23 @@ extension MovieFeedViewController {
         }.resume()
     }
     
-    private func createScreenData() {
+    private func saveToCoreData(_ jsonModel: [MovieJSONModel]) {
+        for movie in jsonModel {
+            CoreDataManager.sharedManager.saveJSONModel(movie)
+        }
+    }
+    
+    private func fetchScreenData() {
         
+        if let data = CoreDataManager.sharedManager.getAllMovies(){
+            self.screenData = data
+            return
+        }
+        print("Unable to create screen data")
     }
     
     private func updateMyMovieDataBase() {
-        //MARK: Do this here
+        //MARK: TODO updateMyMovieDataBase
     }
     
     private func showAPIFailAlert(){
@@ -109,7 +120,7 @@ extension MovieFeedViewController {
     @objc func refreshNews() {
         print("Retrieving update on movies...")
         fetchData(spinnerOn: false) {
-                self.createScreenData()
+                self.fetchScreenData()
                 self.tableViewMovieFeed.reloadData()
                 self.pullToRefreshControl.endRefreshing()
         }
@@ -145,12 +156,12 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MovieFeedTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.fill(with: screenData[indexPath.row])
-        cell.movieFeedTableViewCellDelegate = self
+        cell.controllerDelegate = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let movieDetailScreen = MovieDetailViewController(for: screenData[indexPath.row].id)
+        let movieDetailScreen = MovieDetailViewController(for: Int(screenData[indexPath.row].id))
         movieDetailScreen.modalPresentationStyle = .fullScreen
         self.present(movieDetailScreen, animated: true, completion: nil)
         
@@ -158,26 +169,19 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
 }
 
-extension MovieFeedViewController: MovieFeedTableViewCellDelegate {
-    
-    
-    func buttonTapped(button: ButtonSelection, id: Int) {
-        CoreDataManager.sharedManager.buttonTapped(button: button, id: id)
-        updateScreenDataWithCoreData()
+extension MovieFeedViewController: ControllerDelegate {
+    func favouriteButtonTapped(on movie: Movie) {
+        print("f tap")
+        CoreDataManager.sharedManager.switchForId(type: .favourite, for: movie.id)
+        fetchScreenData()
         tableViewMovieFeed.reloadData()
     }
     
-    
-    private func updateScreenDataWithCoreData() {
-        
-        guard let savedMovies = CoreDataManager.sharedManager.fetchAllCoreDataMovies() else { return }
-        
-        for (index, movie) in savedMovies.enumerated() {
-            if screenData[index].id == movie.id {
-                screenData[index].favourite = movie.favourite
-                screenData[index].watched = movie.watched
-            }
-        }
+    func watchedButtonTapped(on movie: Movie) {
+        print("w tap")
+        CoreDataManager.sharedManager.switchForId(type: .watched, for: movie.id)
+        fetchScreenData()
+        tableViewMovieFeed.reloadData()
     }
     
     

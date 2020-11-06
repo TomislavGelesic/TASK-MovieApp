@@ -74,9 +74,8 @@ class MovieFeedTableViewCell: UITableViewCell {
         return view
     }()
     
-    var screenData = MovieFeedScreenDatum(id: -1, poster_path: "-1", title: "-1", release_date: "-1", overview: "-1", genre_ids: [Int](), favourite: false, watched: false)
-    
-    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
+    var controllerDelegate: ControllerDelegate?
+    var movie: Movie?
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -108,26 +107,46 @@ extension MovieFeedTableViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        movieFeedTableViewCellDelegate?.buttonTapped(button: .favourite, id: screenData.id)
+        if let movie = self.movie {
+            controllerDelegate?.favouriteButtonTapped(on: movie)
+        }
     }
     
     @objc func watchedButtonTapped() {
-        movieFeedTableViewCellDelegate?.buttonTapped(button: .watched, id: screenData.id)
+        if let movie = self.movie {
+            controllerDelegate?.watchedButtonTapped(on: movie)
+        }
     }
     
-    func fill(with data: MovieFeedScreenDatum) {
+    func fill(with movie: Movie) {
         
-        screenData = data
+        self.movie = movie
         
-        if let imagePath = screenData.poster_path {
+        if let imagePath = movie.posterPath {
             imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
         }
         else {
             imageViewMovie.backgroundColor = .cyan
         }
-        yearLabel.text = getReleaseYear(releaseDate: screenData.release_date)
-        titleLabel.text = screenData.title
-        descriptionLabel.text = screenData.overview
+        if let date = movie.releaseDate {
+            yearLabel.text = getReleaseYear(releaseDate: date)
+        }
+        titleLabel.text = movie.title
+        descriptionLabel.text = movie.overview
+        
+        if movie.favourite == true {
+            favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+        else {
+            favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+        
+        if movie.watched == true {
+            watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+        else {
+            watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        }
     }
     
     private func getReleaseYear(releaseDate: String) -> String {

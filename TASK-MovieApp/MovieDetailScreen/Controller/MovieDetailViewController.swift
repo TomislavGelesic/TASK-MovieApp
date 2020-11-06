@@ -9,9 +9,11 @@ import UIKit
 
 class MovieDetailViewController: UIViewController {
     
-    var screenData: [RowData]
+    var screenData: [RowData] = [RowData]()
     var movieID: Int
-    var movieDetails: MovieDetailsJSONModel
+    var movieDetails: MovieDetailsJSONModel =  MovieDetailsJSONModel()
+    var favouriteFlag: Bool = false
+    var watchedFlag: Bool = false
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -24,16 +26,12 @@ class MovieDetailViewController: UIViewController {
     //MARK: init
     init(for id: Int) {
         self.movieID = id
-        self.screenData = [RowData]()
-        self.movieDetails = MovieDetailsJSONModel()
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
     
     //MARK: Life-cycle
     override func viewDidLoad() {
@@ -184,7 +182,7 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
                 return cell
             }
             cell.movieDetailImageCellDelegate = self
-            cell.fill(with: image, forID: movieID)
+            cell.fill(with: image)
             return cell
         case .title:
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
@@ -210,11 +208,10 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
     func backButtonTapped() {
-        self.presentingViewController?.dismiss(animated: true, completion: nil)
+        
     }
     
     func favouriteButtonTapped() {
-        print("")
     }
     
     func watchedButtonTapped() {

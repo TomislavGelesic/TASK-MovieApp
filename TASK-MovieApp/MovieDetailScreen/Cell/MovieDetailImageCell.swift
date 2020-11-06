@@ -23,14 +23,28 @@ class MovieDetailImageCell: UITableViewCell {
         return overlay
     }()
     
-    let barView: DetailBarView = {
-        let view = DetailBarView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    let backButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "left_arrow")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        return button
+    }()
+    
+    let favouriteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        return button
+    }()
+    
+    let watchedButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        return button
     }()
     
     var movieDetailImageCellDelegate: MovieDetailImageCellDelegate?
-    var movieID: Int = -1
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -52,16 +66,18 @@ extension MovieDetailImageCell {
         
         contentView.addSubview(imageViewMovie)
         imageViewMovie.addSubview(gradientOverlay)
-        gradientOverlay.addSubview(barView)
-
-        barView.backBarButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
-        barView.favouriteBarButton.addTarget(self, action: #selector(favouriteBarButtonTapped), for: .touchUpInside)
-        barView.watchedBarButton.addTarget(self, action: #selector(watchedBarButtonTapped), for: .touchUpInside)
+        gradientOverlay.addSubviews([backButton, favouriteButton, watchedButton])
+        
+        backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
+        favouriteButton.addTarget(self, action: #selector(favouriteBarButtonTapped), for: .touchUpInside)
+        watchedButton.addTarget(self, action: #selector(watchedBarButtonTapped), for: .touchUpInside)
         
         contentViewConstraints()
         imageViewMovieConstraints()
         gradientOverlayConstraints()
-        barViewConstraints()
+        backButtonConstraints()
+        favouriteButtonConstraints()
+        watchedButtonConstraints()
     }
     
     @objc func backBarButtonTapped() {
@@ -70,17 +86,17 @@ extension MovieDetailImageCell {
     }
     
     @objc func favouriteBarButtonTapped() {
+        print("favouriteButtonPressed")
         movieDetailImageCellDelegate?.favouriteButtonTapped()
     }
     
     @objc func watchedBarButtonTapped() {
-        //should reload tableview or detail view button image
+        print("watchedButtonPressed")
         movieDetailImageCellDelegate?.watchedButtonTapped()
     }
     
-    func fill(with image: UIImage, forID id: Int) {
+    func fill(with image: UIImage) {
         imageViewMovie.image = image
-        movieID = id
     }
     
     //MARK: Constraints
@@ -112,13 +128,33 @@ extension MovieDetailImageCell {
         ])
     }
     
-    private func barViewConstraints() {
+    private func backButtonConstraints() {
+        
         NSLayoutConstraint.activate([
-            barView.topAnchor.constraint(equalTo: gradientOverlay.topAnchor),
-            barView.leadingAnchor.constraint(equalTo: gradientOverlay.leadingAnchor, constant: 10),
-            barView.trailingAnchor.constraint(equalTo: gradientOverlay.trailingAnchor, constant:  -10),
-            barView.heightAnchor.constraint(equalToConstant: 50)
+            backButton.topAnchor.constraint(equalTo: gradientOverlay.topAnchor, constant: 10),
+            backButton.leadingAnchor.constraint(equalTo: gradientOverlay.leadingAnchor, constant: 10),
+            backButton.widthAnchor.constraint(equalToConstant: 40),
+            backButton.heightAnchor.constraint(equalTo: backButton.widthAnchor)
         ])
     }
     
+    private func favouriteButtonConstraints() {
+        
+        NSLayoutConstraint.activate([
+            favouriteButton.topAnchor.constraint(equalTo: gradientOverlay.topAnchor, constant: 10),
+            favouriteButton.trailingAnchor.constraint(equalTo: gradientOverlay.trailingAnchor, constant: -10),
+            favouriteButton.widthAnchor.constraint(equalToConstant: 40),
+            favouriteButton.heightAnchor.constraint(equalTo: favouriteButton.widthAnchor)
+        ])
+    }
+    
+    private func watchedButtonConstraints() {
+        
+        NSLayoutConstraint.activate([
+            watchedButton.topAnchor.constraint(equalTo: gradientOverlay.topAnchor, constant: 10),
+            watchedButton.trailingAnchor.constraint(equalTo: favouriteButton.leadingAnchor, constant: -10),
+            watchedButton.widthAnchor.constraint(equalToConstant: 40),
+            watchedButton.heightAnchor.constraint(equalTo: watchedButton.widthAnchor)
+        ])
+    }
 }
