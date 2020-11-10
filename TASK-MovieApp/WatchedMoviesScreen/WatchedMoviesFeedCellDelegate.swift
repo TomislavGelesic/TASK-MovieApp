@@ -1,13 +1,13 @@
 //
-//  ControllerDelegate.swift
+//  WatchedMoviesFeedCellDelegate.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 06/11/2020.
+//  Created by Tomislav Gelesic on 10/11/2020.
 //
 
 import Foundation
 
-protocol ControllerDelegate {
+protocol WatchedMoviesFeedCellDelegate {
     func favouriteButtonTapped(cell: WatchedMoviesFeedCell)
     func watchedButtonTapped(cell: WatchedMoviesFeedCell)
 }

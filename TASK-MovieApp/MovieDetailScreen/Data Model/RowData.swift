@@ -11,9 +11,9 @@ struct RowData {
     var type: RowType
     var value: String
 
-    init(type: RowType, string: String) {
+    init(type: RowType, value: String) {
         self.type = type
-        self.value = string
+        self.value = value
     }
     
 }

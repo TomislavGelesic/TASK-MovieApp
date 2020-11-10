@@ -154,7 +154,7 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MovieFeedTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.fill(with: screenData[indexPath.row])
-        cell.controllerDelegate = self
+        cell.movieFeedTableViewCellDelegate = self
         return cell
     }
     
@@ -167,15 +167,17 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
 }
 
-extension MovieFeedViewController: ControllerDelegate {
-    func favouriteButtonTapped(on movie: Movie) {
-        CoreDataManager.sharedManager.switchForId(type: .favourite, for: movie.id)
+extension MovieFeedViewController: MovieFeedTableViewCellDelegate {
+    func favouriteButtonTapped(cell: MovieFeedTableViewCell) {
+        guard let id = cell.movie?.id else { return }
+        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
         fetchScreenData()
         tableViewMovieFeed.reloadData()
     }
     
-    func watchedButtonTapped(on movie: Movie) {
-        CoreDataManager.sharedManager.switchForId(type: .watched, for: movie.id)
+    func watchedButtonTapped(cell: MovieFeedTableViewCell) {
+        guard let id = cell.movie?.id else { return }
+        CoreDataManager.sharedManager.switchForId(type: .watched, for: Int64(id))
         fetchScreenData()
         tableViewMovieFeed.reloadData()
     }

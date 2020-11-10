@@ -74,7 +74,7 @@ class FavouriteMoviesFeedCell: UITableViewCell {
         return view
     }()
     
-    var controllerDelegate: ControllerDelegate?
+    var favouriteMoviesFeedCellDelegate: FavouriteMoviesFeedCellDelegate?
     var movie: Movie?
     
     //MARK: init
@@ -106,16 +106,12 @@ extension FavouriteMoviesFeedCell {
         watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
     }
     
-    @objc func favouriteButtonTapped() {
-        if let movie = self.movie {
-            controllerDelegate?.favouriteButtonTapped(on: movie)
-        }
+    @objc func favouriteButtonTapped() {        
+        favouriteMoviesFeedCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedButtonTapped() {
-        if let movie = self.movie {
-            controllerDelegate?.watchedButtonTapped(on: movie)
-        }
+        favouriteMoviesFeedCellDelegate?.watchedButtonTapped(cell: self)
     }
     
     func fill(with movie: Movie) {
@@ -157,7 +153,7 @@ extension FavouriteMoviesFeedCell {
         let year = dateFormatter.string(from: date)
         return year
     }
-
+    
     
     
     //MARK: Constraints

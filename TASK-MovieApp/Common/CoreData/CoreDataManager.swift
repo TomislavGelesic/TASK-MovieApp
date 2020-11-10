@@ -81,15 +81,6 @@ extension CoreDataManager {
         CoreDataManager.sharedManager.saveContext()
     }
     
-    func deleteMovie(_ movie: Movie) {
-        
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
-        
-        managedContext.delete(movie)
-        
-        CoreDataManager.sharedManager.saveContext()
-    }
-    
     func updateMovie() {
         CoreDataManager.sharedManager.saveContext()
     }
@@ -130,7 +121,10 @@ extension CoreDataManager {
                 }
                 CoreDataManager.sharedManager.saveContext()
             }
+        } else {
+            print("unseccesfull switchForId()")
         }
+        
         
     }
     
@@ -164,6 +158,62 @@ extension CoreDataManager {
         
         if let movies = movies {
             return movies
+        }
+        return nil
+    }
+    
+    func checkButtonStatus(for id: Int64, and type: ButtonType) -> Bool? {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
+        request.predicate = NSPredicate(format: "id == \(id)")
+        var movies: [Movie]?
+        do {
+            movies = try managedContext.fetch(request)
+        } catch  {
+            print(error)
+            return nil
+        }
+        
+        if let movies = movies {
+            
+            switch type {
+            case .favourite:
+                if movies[0].favourite == true {
+                    return true
+                }
+                else {
+                    return false
+                }
+            case .watched:
+                if movies[0].watched == true {
+                    return true
+                }
+                else {
+                    return false
+                }
+            }
+        }
+        return nil
+    }
+    
+    
+    func getMovie(for id: Int64, and type: ButtonType) -> Movie? {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
+        request.predicate = NSPredicate(format: "id == \(id)")
+        var movies: [Movie]?
+        do {
+            movies = try managedContext.fetch(request)
+        } catch  {
+            print(error)
+            return nil
+        }
+        
+        if let movies = movies {
+            
+            return movies[0]
         }
         return nil
     }

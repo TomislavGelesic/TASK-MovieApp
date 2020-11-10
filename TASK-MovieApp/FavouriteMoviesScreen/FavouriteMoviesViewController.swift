@@ -79,37 +79,34 @@ extension FavouriteMoviesViewController: UITableViewDataSource, UITableViewDeleg
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: FavouriteMoviesFeedCell = tableView.dequeueReusableCell(for: indexPath)
         cell.fill(with: screenData[indexPath.row])
-        cell.controllerDelegate = self
+        cell.favouriteMoviesFeedCellDelegate = self
         return cell
     }
     
 }
 
-extension FavouriteMoviesViewController: ControllerDelegate {
-    func favouriteButtonTapped(on movie: Movie) {
-        if movie.favourite == true {
-            CoreDataManager.sharedManager.deleteMovie(movie)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
-        else {
-            CoreDataManager.sharedManager.switchForId(type: .favourite, for: movie.id)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
+extension FavouriteMoviesViewController: FavouriteMoviesFeedCellDelegate {
+    
+    func favouriteButtonTapped(cell: FavouriteMoviesFeedCell) {
+        
+        guard let id = cell.movie?.id else { return }
+        
+        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        
+        fetchScreenData()
+        tableViewMovieFeed.reloadData()
     }
     
-    func watchedButtonTapped(on movie: Movie) {
-        if movie.favourite == true {
-            CoreDataManager.sharedManager.deleteMovie(movie)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
-        else {
-            CoreDataManager.sharedManager.switchForId(type: .watched, for: movie.id)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
+    func watchedButtonTapped(cell: FavouriteMoviesFeedCell) {
+        
+        guard let id = cell.movie?.id else { return }
+        
+        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        
+        fetchScreenData()
+        
+        tableViewMovieFeed.reloadData()
+        
     }
 }
 

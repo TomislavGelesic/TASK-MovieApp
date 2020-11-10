@@ -62,11 +62,12 @@ class MovieDetailImageCell: UITableViewCell {
 extension MovieDetailImageCell {
     //MARK: Private Functions
     private func setupViews() {
+        
         contentView.backgroundColor = .black
         
         contentView.addSubview(imageViewMovie)
         imageViewMovie.addSubview(gradientOverlay)
-        gradientOverlay.addSubviews([backButton, favouriteButton, watchedButton])
+        contentView.addSubviews([backButton, favouriteButton, watchedButton])
         
         backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
         favouriteButton.addTarget(self, action: #selector(favouriteBarButtonTapped), for: .touchUpInside)
@@ -87,16 +88,42 @@ extension MovieDetailImageCell {
     
     @objc func favouriteBarButtonTapped() {
         print("favouriteButtonPressed")
-        movieDetailImageCellDelegate?.favouriteButtonTapped()
+        movieDetailImageCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedBarButtonTapped() {
         print("watchedButtonPressed")
-        movieDetailImageCellDelegate?.watchedButtonTapped()
+        movieDetailImageCellDelegate?.watchedButtonTapped(cell: self)
     }
     
     func fill(with image: UIImage) {
         imageViewMovie.image = image
+    }
+    
+    func updateButtonImage(for id: Int64, and type: ButtonType) {
+    
+        guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: id, and: type) else { return }
+     
+        switch type {
+        case .favourite:
+            if status, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+        case .watched:
+            if status, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+        }
     }
     
     //MARK: Constraints

@@ -10,6 +10,11 @@ import UIKit
 class MovieFeedTableViewCell: UITableViewCell {
     
     //MARK: Properties
+    
+    
+    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
+    var movie: Movie?
+    
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -74,8 +79,6 @@ class MovieFeedTableViewCell: UITableViewCell {
         return view
     }()
     
-    var controllerDelegate: ControllerDelegate?
-    var movie: Movie?
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -107,15 +110,11 @@ extension MovieFeedTableViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        if let movie = self.movie {
-            controllerDelegate?.favouriteButtonTapped(on: movie)
-        }
+        movieFeedTableViewCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedButtonTapped() {
-        if let movie = self.movie {
-            controllerDelegate?.watchedButtonTapped(on: movie)
-        }
+        movieFeedTableViewCellDelegate?.watchedButtonTapped(cell: self)
     }
     
     func fill(with movie: Movie) {

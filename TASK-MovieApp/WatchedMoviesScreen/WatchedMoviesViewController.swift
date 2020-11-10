@@ -79,37 +79,30 @@ extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegat
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: WatchedMoviesFeedCell = tableView.dequeueReusableCell(for: indexPath)
         cell.fill(with: screenData[indexPath.row])
-        cell.controllerDelegate = self
+        cell.watchedMoviesFeedCellDelegate = self
         return cell
     }
     
 }
 
-extension WatchedMoviesViewController: ControllerDelegate {
-    func favouriteButtonTapped(on movie: Movie) {
-        if movie.favourite == true {
-            CoreDataManager.sharedManager.deleteMovie(movie)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
-        else {
-            CoreDataManager.sharedManager.switchForId(type: .favourite, for: movie.id)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
+extension WatchedMoviesViewController: WatchedMoviesFeedCellDelegate {
+    func favouriteButtonTapped(cell: WatchedMoviesFeedCell) {
+        
+        guard let id = cell.movie?.id else { return }
+        
+        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        fetchScreenData()
+        tableViewMovieFeed.reloadData()
     }
     
-    func watchedButtonTapped(on movie: Movie) {
-        if movie.favourite == true {
-            CoreDataManager.sharedManager.deleteMovie(movie)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
-        else {
-            CoreDataManager.sharedManager.switchForId(type: .watched, for: movie.id)
-            fetchScreenData()
-            tableViewMovieFeed.reloadData()
-        }
+    func watchedButtonTapped(cell: WatchedMoviesFeedCell) {
+        
+        guard let id = cell.movie?.id else { return }
+        
+        CoreDataManager.sharedManager.switchForId(type: .watched, for: Int64(id))
+        fetchScreenData()
+        tableViewMovieFeed.reloadData()
+        
     }
 }
 
