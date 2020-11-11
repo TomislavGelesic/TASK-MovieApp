@@ -26,11 +26,13 @@ class MovieDetailDescriptionCell: UITableViewCell {
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
     }
     
     required init?(coder: NSCoder) {
+        
         fatalError("MovieDetailTitleCell required init failed...")
     }
 }
@@ -38,6 +40,7 @@ class MovieDetailDescriptionCell: UITableViewCell {
 extension MovieDetailDescriptionCell {
     
     func setupViews() {
+        
         backgroundColor = .black
         
         contentView.addSubviews([descriptionTitleLabel, descriptionLabel])
@@ -48,12 +51,14 @@ extension MovieDetailDescriptionCell {
     
     
     func fill(with description: String) {
+        
         descriptionLabel.text = description
     }
     
     //MARK: Constraints
     
     private func quoteTitleLabelConstraints() {
+        
         descriptionTitleLabel.snp.makeConstraints { (make) in
             make.top.leading.equalTo(contentView).offset(10)
             make.trailing.equalTo(contentView).offset(-10)
@@ -62,6 +67,7 @@ extension MovieDetailDescriptionCell {
     }
     
     private func quoteLabelConstraints() {
+        
         descriptionLabel.snp.makeConstraints { (make) in
             make.leading.equalTo(contentView).offset(10)
             make.bottom.trailing.equalTo(contentView).offset(-10)
