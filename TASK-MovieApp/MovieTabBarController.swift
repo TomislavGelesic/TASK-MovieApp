@@ -12,6 +12,7 @@ class MovieTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupMovieTabBarController()
+        
     }
     
     private func setupMovieTabBarController() {

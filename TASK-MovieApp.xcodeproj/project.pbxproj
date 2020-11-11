@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -162,10 +162,10 @@
 			isa = PBXGroup;
 			children = (
 				606FD82D2552E24A00F5FBFF /* MovieTabBarController.swift */,
+				60282643254C21CC00DB3C3A /* MovieFeedScreen */,
+				60282638254C21CC00DB3C3A /* MovieDetailScreen */,
 				6019C1D825545BD6002141B0 /* WatchedMoviesScreen */,
 				6019C1D725545BC7002141B0 /* FavouriteMoviesScreen */,
-				60282638254C21CC00DB3C3A /* MovieDetailScreen */,
-				60282643254C21CC00DB3C3A /* MovieFeedScreen */,
 				60282623254C21CC00DB3C3A /* Common */,
 				60282661254C21D400DB3C3A /* Support */,
 			);
@@ -349,7 +349,6 @@
 				5443B676215104801A81731A /* Pods-TASK-MovieApp.debug.xcconfig */,
 				6722B3F6A7F5703D483BA3CC /* Pods-TASK-MovieApp.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};

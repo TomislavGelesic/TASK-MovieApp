@@ -6,19 +6,21 @@
 //
 
 import UIKit
+import SnapKit
 
 class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
+    
+    var screenData = [Movie]()
+    
     let tableViewMovieFeed: UITableView = {
         let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
         return tableView
     }()
     
-    var screenData = [Movie]()
     
     //MARK: Life-cycle
     
@@ -64,12 +66,10 @@ extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegat
     }
     
     private func moviesTableViewConstraints () {
-        NSLayoutConstraint.activate([
-            tableViewMovieFeed.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            tableViewMovieFeed.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableViewMovieFeed.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableViewMovieFeed.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+        tableViewMovieFeed.snp.makeConstraints { (make) in
+            make.top.equalTo(view).offset(50)
+            make.bottom.leading.trailing.equalTo(view)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

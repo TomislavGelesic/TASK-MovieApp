@@ -11,7 +11,6 @@ class MovieDetailQuoteCell: UITableViewCell {
 
     let quoteTitleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 22)
         label.text = "Quote:"
@@ -20,7 +19,6 @@ class MovieDetailQuoteCell: UITableViewCell {
     
     let quoteLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 14)
         label.numberOfLines = 0
@@ -42,9 +40,8 @@ extension MovieDetailQuoteCell {
     func setupViews() {
         backgroundColor = .black
         
-        addSubviews([quoteTitleLabel, quoteLabel])
+        contentView.addSubviews([quoteTitleLabel, quoteLabel])
         
-        contentViewConstraints()
         quoteTitleLabelConstraints()
         quoteLabelConstraints()
     }
@@ -55,31 +52,20 @@ extension MovieDetailQuoteCell {
     }
     
     //MARK: Constraints
-    private func contentViewConstraints() {
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: self.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            contentView.heightAnchor.constraint(equalToConstant: 90)
-        ])
-    }
     
     private func quoteTitleLabelConstraints() {
-        NSLayoutConstraint.activate([
-            quoteTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            quoteTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            quoteTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-        ])
+        quoteTitleLabel.snp.makeConstraints { (make) in
+            make.top.leading.equalTo(contentView).offset(10)
+            make.trailing.equalTo(contentView).offset(-10)
+            make.bottom.equalTo(quoteLabel.snp.top).offset(-10)
+        }
     }
     
     private func quoteLabelConstraints() {
-            NSLayoutConstraint.activate([
-                quoteLabel.topAnchor.constraint(equalTo: quoteTitleLabel.bottomAnchor, constant: 10),
-                quoteLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
-                quoteLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-                quoteLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-            ])        
+        quoteLabel.snp.makeConstraints { (make) in
+            make.leading.equalTo(contentView).offset(10)
+            make.bottom.trailing.equalTo(contentView).offset(-10)
+        }
     }
     
 }

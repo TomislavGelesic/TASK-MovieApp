@@ -6,19 +6,22 @@
 //
 
 import UIKit
+import SnapKit
 
 class MovieDetailViewController: UIViewController {
     
     var screenData: [RowData] = [RowData]()
-    var movieID: Int64
-    var movieDetails: MovieDetailsJSONModel =  MovieDetailsJSONModel()
-    var favouriteFlag: Bool = false
-    var watchedFlag: Bool = false
     
+    var movieID: Int64
+    
+    var movieDetails: MovieDetailsJSONModel =  MovieDetailsJSONModel()
+    
+    var favouriteFlag: Bool = false
+    
+    var watchedFlag: Bool = false    
     
     let tableView: UITableView = {
         let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .black
         return tableView
@@ -78,12 +81,9 @@ extension MovieDetailViewController {
     }
     
     private func tableViewConstraints(){
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+        tableView.snp.makeConstraints { (make) in
+            make.edges.equalTo(view)
+        }
     }
     //MARK: fetchData
     private func fetchMovieDetailsJSONModel(spinnerOn: Bool, completion: @escaping ()->()) {
