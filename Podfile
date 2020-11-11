@@ -8,5 +8,6 @@ target 'TASK-MovieApp' do
   # Pods for TASK-MovieApp
 
   pod 'SnapKit', '~> 4.0' 
+  pod 'Kingfisher', '~> 4.0'
 
 end

@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 class MovieDetailViewController: UIViewController {
     
@@ -87,7 +88,7 @@ extension MovieDetailViewController {
     }
     //MARK: fetchData
     private func fetchMovieDetailsJSONModel(spinnerOn: Bool, completion: @escaping ()->()) {
-        guard let url = URL(string: Constants.MOVIE_API.BASE +
+        guard let urlToGetMovies = URL(string: Constants.MOVIE_API.BASE +
                                 Constants.MOVIE_API.GET_DETAILS_ON + "\(movieID)" +
                                 Constants.MOVIE_API.KEY
         ) else { return }
@@ -97,7 +98,7 @@ extension MovieDetailViewController {
         }
         
         let session = URLSession.shared
-        session.dataTask(with: url) { (data, response, error) in
+        session.dataTask(with: urlToGetMovies) { (data, response, error) in
             if let error = error {
                 self.showAPIFailAlert()
                 print(error)
@@ -168,37 +169,43 @@ extension MovieDetailViewController {
 extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let item = screenData[indexPath.row]
         
         switch item.type {
         case .image:
             let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
-            guard let image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value))
+            guard  let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value)
             else {
                 cell.imageViewMovie.backgroundColor = .cyan
                 return cell
             }
+            cell.imageViewMovie.kf.setImage(with: urlToImage)
             cell.movieDetailImageCellDelegate = self
-            cell.fill(with: image)
             cell.updateButtonImage(for: movieID, and: .favourite)
             cell.updateButtonImage(for: movieID, and: .watched)
             return cell
+            
         case .title:
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with:  item.value)
             return cell
+            
         case .genre:
             let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with:  item.value)
             return cell
+            
         case .quote:
             let cell: MovieDetailQuoteCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with:  item.value)
             return cell
+            
         case .description:
             let cell: MovieDetailDescriptionCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with: item.value)
@@ -210,10 +217,13 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
 
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
+    
     func favouriteButtonTapped(cell: MovieDetailImageCell) {
         
         CoreDataManager.sharedManager.switchForId(type: .favourite, for: movieID)
+        
         guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: movieID, and: .favourite) else { return }
+        
         if status {
             cell.favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
@@ -227,7 +237,9 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     func watchedButtonTapped(cell: MovieDetailImageCell) {
         
         CoreDataManager.sharedManager.switchForId(type: .watched, for: movieID)
+        
         guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: movieID, and: .watched) else { return }
+        
         if status {
             cell.watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
@@ -240,6 +252,7 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     
     func backButtonTapped() {
+        
         dismiss(animated: true, completion: nil)
     }
 }

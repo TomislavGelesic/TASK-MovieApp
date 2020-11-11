@@ -80,22 +80,18 @@ extension MovieDetailImageCell {
     }
     
     @objc func backBarButtonTapped() {
-        print("backButtonPressed")
+        
         movieDetailImageCellDelegate?.backButtonTapped()
     }
     
     @objc func favouriteBarButtonTapped() {
-        print("favouriteButtonPressed")
+        
         movieDetailImageCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedBarButtonTapped() {
-        print("watchedButtonPressed")
+        
         movieDetailImageCellDelegate?.watchedButtonTapped(cell: self)
-    }
-    
-    func fill(with image: UIImage) {
-        imageViewMovie.image = image
     }
     
     func updateButtonImage(for id: Int64, and type: ButtonType) {
@@ -127,6 +123,7 @@ extension MovieDetailImageCell {
     //MARK: Constraints
     
     private func imageViewMovieConstraints() {
+        
         imageViewMovie.snp.makeConstraints { (make) in
             make.edges.equalTo(contentView)
             make.height.equalTo(300)
@@ -134,12 +131,14 @@ extension MovieDetailImageCell {
     }
     
     private func gradientOverlayConstraints() {
+        
         gradientOverlay.snp.makeConstraints { (make) in
             make.edges.equalTo(imageViewMovie)
         }
     }
     
     private func backButtonConstraints() {
+        
         backButton.snp.makeConstraints { (make) in
             make.top.leading.equalTo(gradientOverlay).offset(10)
             make.width.height.equalTo(40)
@@ -147,6 +146,7 @@ extension MovieDetailImageCell {
     }
     
     private func favouriteButtonConstraints() {
+        
         favouriteButton.snp.makeConstraints { (make) in
             make.top.equalTo(gradientOverlay).offset(10)
             make.trailing.equalTo(gradientOverlay).offset(-10)
@@ -155,6 +155,7 @@ extension MovieDetailImageCell {
     }
     
     private func watchedButtonConstraints() {
+        
         watchedButton.snp.makeConstraints { (make) in
             make.top.equalTo(gradientOverlay).offset(10)
             make.trailing.equalTo(favouriteButton.snp.leading).offset(-10)

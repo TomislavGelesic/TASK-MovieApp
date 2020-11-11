@@ -98,16 +98,20 @@ extension WatchedMoviesFeedCell {
     }
     
     private func setupButtons() {
+        
         favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
+        
         watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
     }
     
     @objc func favouriteButtonTapped() {
+        
         watchedMoviesFeedCellDelegate?.favouriteButtonTapped(cell: self)
         
     }
     
     @objc func watchedButtonTapped() {
+        
         watchedMoviesFeedCellDelegate?.watchedButtonTapped(cell: self)
         
     }
@@ -116,8 +120,10 @@ extension WatchedMoviesFeedCell {
         
         self.movie = movie
         
-        if let imagePath = movie.posterPath {
-            imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
+        if let imagePath = movie.posterPath,
+           let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+            
+            imageViewMovie.kf.setImage(with: urlToImage)
         }
         else {
             imageViewMovie.backgroundColor = .cyan
@@ -125,37 +131,48 @@ extension WatchedMoviesFeedCell {
         if let date = movie.releaseDate {
             yearLabel.text = getReleaseYear(releaseDate: date)
         }
+        
         titleLabel.text = movie.title
+        
         descriptionLabel.text = movie.overview
         
         if movie.favourite == true {
+            
             favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
+            
             favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         
         if movie.watched == true {
+            
             watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
+            
             watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
     }
     
     private func getReleaseYear(releaseDate: String) -> String {
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        
         guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
+        
         dateFormatter.dateFormat = "yyyy"
-        let year = dateFormatter.string(from: date)
-        return year
+        
+        return dateFormatter.string(from: date)
     }
     
     
     
     //MARK: Constraints
+    
     private func setupConstraints() {
+        
         containerConstraints()
         titleLabelCOnstraints()
         descriptionLabelCOnstraints()
@@ -165,6 +182,7 @@ extension WatchedMoviesFeedCell {
         favouriteButtonConstraints()
         watchedButtonConstraints()
     }
+    
     private func containerConstraints() {
         
         container.snp.makeConstraints { (make) in
@@ -174,14 +192,10 @@ extension WatchedMoviesFeedCell {
     }
     
     private func imageViewConstraints() {
-        
-        let imageViewMovieHeightConstraint = imageViewMovie.heightAnchor.constraint(equalToConstant: 160)
-        imageViewMovieHeightConstraint.priority = UILayoutPriority(999)
-        imageViewMovieHeightConstraint.isActive = true
        
         imageViewMovie.snp.makeConstraints { (make) in
             make.top.bottom.leading.equalTo(container)
-            make.width.equalTo(160)
+            make.width.height.equalTo(160)
         }
     }
     

@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import SnapKit
+import Kingfisher
 
 class MovieFeedTableViewCell: UITableViewCell {
     
@@ -120,8 +122,10 @@ extension MovieFeedTableViewCell {
         
         self.movie = movie
         
-        if let imagePath = movie.posterPath {
-            imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
+        if let imagePath = movie.posterPath,
+           let url = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+            
+            imageViewMovie.kf.setImage(with: url)
         }
         else {
             imageViewMovie.backgroundColor = .cyan
@@ -208,7 +212,8 @@ extension MovieFeedTableViewCell {
     private func titleLabelCOnstraints() {
         
         titleLabel.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(imageViewMovie).offset(10)
+            make.top.equalTo(imageViewMovie).offset(10)
+            make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
             make.trailing.equalTo(container).offset(-10)
         }
     }

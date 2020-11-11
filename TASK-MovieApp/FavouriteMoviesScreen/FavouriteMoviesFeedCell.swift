@@ -113,16 +113,21 @@ extension FavouriteMoviesFeedCell {
         
         self.movie = movie
         
-        if let imagePath = movie.posterPath {
-            imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
+        if let imagePath = movie.posterPath,
+           let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+            
+            imageViewMovie.kf.setImage(with: urlToImage)
         }
         else {
             imageViewMovie.backgroundColor = .cyan
         }
+        
         if let date = movie.releaseDate {
             yearLabel.text = getReleaseYear(releaseDate: date)
         }
+        
         titleLabel.text = movie.title
+        
         descriptionLabel.text = movie.overview
         
         if movie.favourite == true {
@@ -141,18 +146,22 @@ extension FavouriteMoviesFeedCell {
     }
     
     private func getReleaseYear(releaseDate: String) -> String {
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        
         guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
+        
         dateFormatter.dateFormat = "yyyy"
-        let year = dateFormatter.string(from: date)
-        return year
+        
+        return dateFormatter.string(from: date)
     }
     
     
     
     //MARK: Constraints
     private func setupConstraints() {
+        
         containerConstraints()
         titleLabelCOnstraints()
         descriptionLabelCOnstraints()
@@ -164,6 +173,7 @@ extension FavouriteMoviesFeedCell {
     }
     
     private func containerConstraints() {
+        
         container.snp.makeConstraints{(make) in
             make.top.leading.equalTo(contentView).offset(5)
             make.bottom.trailing.equalTo(contentView).offset(-5)
@@ -172,23 +182,21 @@ extension FavouriteMoviesFeedCell {
     
     private func imageViewConstraints() {
         
-        let imageViewMovieHeightConstraint = imageViewMovie.heightAnchor.constraint(equalToConstant: 160)
-        imageViewMovieHeightConstraint.priority = UILayoutPriority(999)
-        imageViewMovieHeightConstraint.isActive = true
-        
         imageViewMovie.snp.makeConstraints { (make) in
             make.top.bottom.leading.equalTo(container)
-            make.width.equalTo(160)
+            make.width.height.equalTo(160)
         }
     }
     
     private func overlayConstraints() {
+        
         gradientOverlay.snp.makeConstraints { (make) in
             make.edges.equalTo(imageViewMovie)
         }
     }
     
     private func yearLabelConstraints() {
+        
         yearLabel.snp.makeConstraints { (make) in
             make.bottom.equalTo(gradientOverlay)
             make.centerX.equalTo(gradientOverlay)
@@ -196,13 +204,16 @@ extension FavouriteMoviesFeedCell {
     }
     
     private func titleLabelCOnstraints() {
+        
         titleLabel.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(imageViewMovie).offset(10)
+            make.top.equalTo(imageViewMovie).offset(10)
+            make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
             make.trailing.equalTo(container).offset(-10)
         }
     }
     
     private func descriptionLabelCOnstraints() {
+        
         descriptionLabel.snp.makeConstraints { (make) in
             make.top.equalTo(titleLabel.snp.bottom).offset(10)
             make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
@@ -211,6 +222,7 @@ extension FavouriteMoviesFeedCell {
     }
     
     private func favouriteButtonConstraints() {
+        
         favouriteButton.snp.makeConstraints { (make) in
             make.bottom.equalTo(container).offset(-5)
             make.trailing.equalTo(container).offset(-15)
@@ -219,6 +231,7 @@ extension FavouriteMoviesFeedCell {
     }
     
     private func watchedButtonConstraints() {
+        
         watchedButton.snp.makeConstraints { (make) in
             make.bottom.equalTo(container).offset(-5)
             make.trailing.equalTo(favouriteButton.snp.leading).offset(-20)

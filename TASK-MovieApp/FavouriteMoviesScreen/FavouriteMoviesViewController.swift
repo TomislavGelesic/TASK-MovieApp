@@ -55,7 +55,9 @@ extension FavouriteMoviesViewController {
 extension FavouriteMoviesViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
+        
         view.addSubview(tableViewMovieFeed)
+        
         tableViewMovieFeed.delegate = self
         tableViewMovieFeed.dataSource = self
         tableViewMovieFeed.register(FavouriteMoviesFeedCell.self, forCellReuseIdentifier: FavouriteMoviesFeedCell.reuseIdentifier)
@@ -63,6 +65,7 @@ extension FavouriteMoviesViewController: UITableViewDataSource, UITableViewDeleg
         tableViewMovieFeed.estimatedRowHeight = 170
         
         //MARK: Constraints tableView
+        
         tableViewMovieFeed.snp.makeConstraints { (make) in
             make.top.equalTo(view).offset(50)
             make.bottom.leading.trailing.equalTo(view)
