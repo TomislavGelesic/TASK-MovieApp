@@ -11,9 +11,14 @@ class MovieTabBarController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupMovieTabBarController()
         
+        setupMovieTabBarController()
     }
+    
+}
+
+
+extension MovieTabBarController {
     
     private func setupMovieTabBarController() {
         
@@ -32,8 +37,9 @@ class MovieTabBarController: UITabBarController {
                                                                unselected:     UIImage(named: "watched_unfilled"),
                                                                title:          "Watched")
         
-        viewControllers = [movieFeedController, favouritesController, watchedController]
+        viewControllers = [favouritesController, movieFeedController, watchedController]
         
+        selectedIndex = 1
     }
     
     private func createNavigationViewController(viewController: UIViewController, selected: UIImage?, unselected: UIImage?, title: String) -> UIViewController {
