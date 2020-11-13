@@ -8,7 +8,9 @@
 import UIKit
 
 //MARK: Spinner Indicator
+
 let spinnerView = SpinnerView()
+
 extension UIViewController {
     
     func showSpinner() {

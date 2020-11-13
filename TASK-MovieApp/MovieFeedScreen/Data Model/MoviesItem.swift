@@ -8,7 +8,7 @@
 import UIKit
 
 
-struct MovieJSONModel: Codable {
+struct MoviesItem: Codable {
 
     var id: Int
     var poster_path: String?

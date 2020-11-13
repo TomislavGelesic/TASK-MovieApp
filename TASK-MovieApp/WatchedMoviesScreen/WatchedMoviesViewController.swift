@@ -58,7 +58,7 @@ extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegat
         view.addSubview(tableViewMovieFeed)
         tableViewMovieFeed.delegate = self
         tableViewMovieFeed.dataSource = self
-        tableViewMovieFeed.register(WatchedMoviesFeedCell.self, forCellReuseIdentifier: WatchedMoviesFeedCell.reuseIdentifier)
+        tableViewMovieFeed.register(WatchedMoviesListCell.self, forCellReuseIdentifier: WatchedMoviesListCell.reuseIdentifier)
         tableViewMovieFeed.rowHeight = UITableView.automaticDimension
         tableViewMovieFeed.estimatedRowHeight = 170
         moviesTableViewConstraints()
@@ -79,19 +79,19 @@ extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegat
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell: WatchedMoviesFeedCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: WatchedMoviesListCell = tableView.dequeueReusableCell(for: indexPath)
         
         cell.fill(with: screenData[indexPath.row])
-        cell.watchedMoviesFeedCellDelegate = self
+        cell.watchedMoviesListCellDelegate = self
         
         return cell
     }
     
 }
 
-extension WatchedMoviesViewController: WatchedMoviesFeedCellDelegate {
+extension WatchedMoviesViewController: WatchedMoviesListCellDelegate {
     
-    func favouriteButtonTapped(cell: WatchedMoviesFeedCell) {
+    func favouriteButtonTapped(cell: WatchedMoviesListCell) {
         
         guard let id = cell.movie?.id else { return }
         
@@ -102,7 +102,7 @@ extension WatchedMoviesViewController: WatchedMoviesFeedCellDelegate {
         tableViewMovieFeed.reloadData()
     }
     
-    func watchedButtonTapped(cell: WatchedMoviesFeedCell) {
+    func watchedButtonTapped(cell: WatchedMoviesListCell) {
         
         guard let id = cell.movie?.id else { return }
         

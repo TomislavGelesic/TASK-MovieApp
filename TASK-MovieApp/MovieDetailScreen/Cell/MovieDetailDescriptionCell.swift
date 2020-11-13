@@ -13,7 +13,7 @@ class MovieDetailDescriptionCell: UITableViewCell {
         let label = UILabel()
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 22)
-        label.text = "Descritpion:"
+        label.text = "Description:"
         return label
     }()
     

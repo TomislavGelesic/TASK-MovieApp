@@ -22,7 +22,7 @@ extension MovieTabBarController {
     
     private func setupMovieTabBarController() {
         
-        let movieFeedController = createNavigationViewController(viewController: MovieFeedViewController(),
+        let movieListController = createNavigationViewController(viewController: MovieListViewController(collectionViewLayout: UICollectionViewFlowLayout()),
                                                                  selected:       UIImage(systemName: "video.circle.fill"),
                                                                  unselected:     UIImage(systemName: "video.circle"),
                                                                  title:          "Now playing")
@@ -37,7 +37,7 @@ extension MovieTabBarController {
                                                                unselected:     UIImage(named: "watched_unfilled"),
                                                                title:          "Watched")
         
-        viewControllers = [favouritesController, movieFeedController, watchedController]
+        viewControllers = [favouritesController, movieListController, watchedController]
         
         selectedIndex = 1
     }

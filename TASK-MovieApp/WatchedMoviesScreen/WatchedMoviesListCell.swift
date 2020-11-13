@@ -1,19 +1,18 @@
 //
-//  MovieTableViewCell.swift
+//  WatchedMoviesCell.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 27/10/2020.
+//  Created by Tomislav Gelesic on 06/11/2020.
 //
 
 import UIKit
 import SnapKit
-import Kingfisher
 
-class MovieFeedTableViewCell: UITableViewCell {
+class WatchedMoviesListCell: UITableViewCell {
     
     //MARK: Properties
     
-    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
+    var watchedMoviesListCellDelegate: WatchedMoviesListCellDelegate?
     
     var movie: Movie?
     
@@ -85,37 +84,36 @@ class MovieFeedTableViewCell: UITableViewCell {
     }
 }
 
-extension MovieFeedTableViewCell {
+extension WatchedMoviesListCell {
     
     //MARK: Functions
-    
     private func setupViews() {
-        
         contentView.backgroundColor = .darkGray
         contentView.addSubview(container)
         container.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
-        
         setupButtons()
-        
         setupConstraints()
     }
     
     private func setupButtons() {
         
         favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
+        
         watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
     }
     
     @objc func favouriteButtonTapped() {
         
-        movieFeedTableViewCellDelegate?.favouriteButtonTapped(cell: self)
+        watchedMoviesListCellDelegate?.favouriteButtonTapped(cell: self)
+        
     }
     
     @objc func watchedButtonTapped() {
         
-        movieFeedTableViewCellDelegate?.watchedButtonTapped(cell: self)
+        watchedMoviesListCellDelegate?.watchedButtonTapped(cell: self)
+        
     }
     
     func fill(with movie: Movie) {
@@ -123,9 +121,9 @@ extension MovieFeedTableViewCell {
         self.movie = movie
         
         if let imagePath = movie.posterPath,
-           let url = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+           let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
             
-            imageViewMovie.kf.setImage(with: url)
+            imageViewMovie.kf.setImage(with: urlToImage)
         }
         else {
             imageViewMovie.backgroundColor = .cyan
@@ -133,20 +131,26 @@ extension MovieFeedTableViewCell {
         if let date = movie.releaseDate {
             yearLabel.text = getReleaseYear(releaseDate: date)
         }
+        
         titleLabel.text = movie.title
+        
         descriptionLabel.text = movie.overview
         
         if movie.favourite == true {
+            
             favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
+            
             favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         
         if movie.watched == true {
+            
             watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
+            
             watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
     }
@@ -162,10 +166,11 @@ extension MovieFeedTableViewCell {
         
         return dateFormatter.string(from: date)
     }
-
+    
     
     
     //MARK: Constraints
+    
     private func setupConstraints() {
         
         containerConstraints()
@@ -187,7 +192,7 @@ extension MovieFeedTableViewCell {
     }
     
     private func imageViewConstraints() {
-        
+       
         imageViewMovie.snp.makeConstraints { (make) in
             make.top.bottom.leading.equalTo(container)
             make.width.height.equalTo(160)
@@ -202,7 +207,6 @@ extension MovieFeedTableViewCell {
     }
     
     private func yearLabelConstraints() {
-        
         yearLabel.snp.makeConstraints { (make) in
             make.bottom.equalTo(gradientOverlay)
             make.centerX.equalTo(gradientOverlay)
@@ -210,7 +214,6 @@ extension MovieFeedTableViewCell {
     }
     
     private func titleLabelCOnstraints() {
-        
         titleLabel.snp.makeConstraints { (make) in
             make.top.equalTo(imageViewMovie).offset(10)
             make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
@@ -219,7 +222,6 @@ extension MovieFeedTableViewCell {
     }
     
     private func descriptionLabelCOnstraints() {
-        
         descriptionLabel.snp.makeConstraints { (make) in
             make.top.equalTo(titleLabel.snp.bottom).offset(10)
             make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
@@ -228,21 +230,18 @@ extension MovieFeedTableViewCell {
     }
     
     private func favouriteButtonConstraints() {
-        
         favouriteButton.snp.makeConstraints { (make) in
             make.bottom.equalTo(container).offset(-5)
-            make.trailing.equalTo(container).offset(-20)
+            make.trailing.equalTo(container).offset(-15)
             make.width.height.equalTo(50)
         }
     }
     
     private func watchedButtonConstraints() {
-        
         watchedButton.snp.makeConstraints { (make) in
             make.bottom.equalTo(container).offset(-5)
             make.trailing.equalTo(favouriteButton.snp.leading).offset(-20)
             make.width.height.equalTo(50)
         }
     }
-    
 }

@@ -1,18 +1,19 @@
 //
-//  WatchedMoviesCell.swift
+//  MovieTableViewCell.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 06/11/2020.
+//  Created by Tomislav Gelesic on 27/10/2020.
 //
 
 import UIKit
 import SnapKit
+import Kingfisher
 
-class WatchedMoviesFeedCell: UITableViewCell {
+class MoviesListCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    var watchedMoviesFeedCellDelegate: WatchedMoviesFeedCellDelegate?
+    var movieListCellDelegate: MovieListCellDelegate?
     
     var movie: Movie?
     
@@ -73,9 +74,11 @@ class WatchedMoviesFeedCell: UITableViewCell {
     }()
     
     
-    //MARK: init
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    //MARK: Initialization
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
         setupViews()
     }
     
@@ -84,36 +87,37 @@ class WatchedMoviesFeedCell: UITableViewCell {
     }
 }
 
-extension WatchedMoviesFeedCell {
+//MARK: Functions
+
+extension MoviesListCell {
     
-    //MARK: Functions
     private func setupViews() {
+        
         contentView.backgroundColor = .darkGray
         contentView.addSubview(container)
         container.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
+        
         setupButtons()
+        
         setupConstraints()
     }
     
     private func setupButtons() {
         
         favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
-        
         watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
     }
     
     @objc func favouriteButtonTapped() {
         
-        watchedMoviesFeedCellDelegate?.favouriteButtonTapped(cell: self)
-        
+        movieListCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedButtonTapped() {
         
-        watchedMoviesFeedCellDelegate?.watchedButtonTapped(cell: self)
-        
+        movieListCellDelegate?.watchedButtonTapped(cell: self)
     }
     
     func fill(with movie: Movie) {
@@ -121,9 +125,9 @@ extension WatchedMoviesFeedCell {
         self.movie = movie
         
         if let imagePath = movie.posterPath,
-           let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+           let url = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
             
-            imageViewMovie.kf.setImage(with: urlToImage)
+            imageViewMovie.kf.setImage(with: url)
         }
         else {
             imageViewMovie.backgroundColor = .cyan
@@ -131,26 +135,20 @@ extension WatchedMoviesFeedCell {
         if let date = movie.releaseDate {
             yearLabel.text = getReleaseYear(releaseDate: date)
         }
-        
         titleLabel.text = movie.title
-        
         descriptionLabel.text = movie.overview
         
         if movie.favourite == true {
-            
             favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
-            
             favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         
         if movie.watched == true {
-            
             watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
-            
             watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
     }
@@ -166,11 +164,10 @@ extension WatchedMoviesFeedCell {
         
         return dateFormatter.string(from: date)
     }
-    
+
     
     
     //MARK: Constraints
-    
     private func setupConstraints() {
         
         containerConstraints()
@@ -192,10 +189,10 @@ extension WatchedMoviesFeedCell {
     }
     
     private func imageViewConstraints() {
-       
+        
         imageViewMovie.snp.makeConstraints { (make) in
-            make.top.bottom.leading.equalTo(container)
-            make.width.height.equalTo(160)
+            make.top.leading.trailing.equalTo(container)
+            make.height.equalTo(160)
         }
     }
     
@@ -207,6 +204,7 @@ extension WatchedMoviesFeedCell {
     }
     
     private func yearLabelConstraints() {
+        
         yearLabel.snp.makeConstraints { (make) in
             make.bottom.equalTo(gradientOverlay)
             make.centerX.equalTo(gradientOverlay)
@@ -214,34 +212,35 @@ extension WatchedMoviesFeedCell {
     }
     
     private func titleLabelCOnstraints() {
+        
         titleLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(imageViewMovie).offset(10)
-            make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
-            make.trailing.equalTo(container).offset(-10)
+            make.top.equalTo(imageViewMovie.snp.bottom).offset(10)
+            make.leading.trailing.equalTo(container)
         }
     }
     
     private func descriptionLabelCOnstraints() {
+        
         descriptionLabel.snp.makeConstraints { (make) in
             make.top.equalTo(titleLabel.snp.bottom).offset(10)
-            make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
-            make.trailing.equalTo(container).offset(-10)
-        }
+            make.leading.trailing.equalTo(container)        }
     }
     
     private func favouriteButtonConstraints() {
+        
         favouriteButton.snp.makeConstraints { (make) in
-            make.bottom.equalTo(container).offset(-5)
-            make.trailing.equalTo(container).offset(-15)
+            make.top.trailing.equalTo(container).offset(10)
             make.width.height.equalTo(50)
         }
     }
     
     private func watchedButtonConstraints() {
+        
         watchedButton.snp.makeConstraints { (make) in
-            make.bottom.equalTo(container).offset(-5)
-            make.trailing.equalTo(favouriteButton.snp.leading).offset(-20)
+            make.top.equalTo(container).offset(10)
+            make.leading.equalTo(favouriteButton.snp.trailing).offset(10)
             make.width.height.equalTo(50)
         }
     }
+    
 }
