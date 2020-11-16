@@ -164,7 +164,7 @@
 			isa = PBXGroup;
 			children = (
 				606FD82D2552E24A00F5FBFF /* MovieTabBarController.swift */,
-				60282643254C21CC00DB3C3A /* MovieFeedScreen */,
+				60282643254C21CC00DB3C3A /* MovieListScreen */,
 				60282638254C21CC00DB3C3A /* MovieDetailScreen */,
 				6019C1D825545BD6002141B0 /* WatchedMoviesScreen */,
 				6019C1D725545BC7002141B0 /* FavouriteMoviesScreen */,
@@ -262,15 +262,15 @@
 			path = Cell;
 			sourceTree = "<group>";
 		};
-		60282643254C21CC00DB3C3A /* MovieFeedScreen */ = {
+		60282643254C21CC00DB3C3A /* MovieListScreen */ = {
 			isa = PBXGroup;
 			children = (
-				607D2F93255AB6FC00040996 /* MovieListCellDelegate.swift */,
 				60282644254C21CC00DB3C3A /* Controller */,
+				602ED6B125626CF200CE3D72 /* Protocols */,
 				60282646254C21CC00DB3C3A /* Cell */,
 				606FD83E2554267F00F5FBFF /* Data Model */,
 			);
-			path = MovieFeedScreen;
+			path = MovieListScreen;
 			sourceTree = "<group>";
 		};
 		60282644254C21CC00DB3C3A /* Controller */ = {
@@ -318,6 +318,14 @@
 				6028266F254C699D00DB3C3A /* Genre.swift */,
 			);
 			path = "Data Model";
+			sourceTree = "<group>";
+		};
+		602ED6B125626CF200CE3D72 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				607D2F93255AB6FC00040996 /* MovieListCellDelegate.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 		606FD81E2552BDBC00F5FBFF /* CoreData */ = {
