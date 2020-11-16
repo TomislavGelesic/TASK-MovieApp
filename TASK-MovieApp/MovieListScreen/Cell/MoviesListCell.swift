@@ -66,13 +66,6 @@ class MoviesListCell: UICollectionViewCell {
         return watchedButton
     }()
     
-    let container: UIView = {
-        let view = UIView()
-        view.backgroundColor = .black
-        view.layer.cornerRadius = 20
-        return view
-    }()
-    
     
     //MARK: Initialization
     
@@ -93,9 +86,9 @@ extension MoviesListCell {
     
     private func setupViews() {
         
-        contentView.backgroundColor = .darkGray
-        contentView.addSubview(container)
-        container.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
+        contentView.backgroundColor = .black
+        contentView.layer.cornerRadius = 20
+        contentView.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
         
@@ -169,8 +162,6 @@ extension MoviesListCell {
     
     //MARK: Constraints
     private func setupConstraints() {
-        
-        containerConstraints()
         titleLabelCOnstraints()
         descriptionLabelCOnstraints()
         imageViewConstraints()
@@ -180,19 +171,11 @@ extension MoviesListCell {
         watchedButtonConstraints()
     }
     
-    private func containerConstraints() {
-        
-        container.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(contentView).offset(5)
-            make.bottom.trailing.equalTo(contentView).offset(-5)
-        }
-    }
-    
     private func imageViewConstraints() {
         
         imageViewMovie.snp.makeConstraints { (make) in
-            make.top.leading.trailing.equalTo(container)
-            make.height.equalTo(160)
+            make.top.leading.trailing.equalTo(contentView)
+            make.height.equalTo(contentView.frame.height * 3/5)
         }
     }
     
@@ -215,21 +198,25 @@ extension MoviesListCell {
         
         titleLabel.snp.makeConstraints { (make) in
             make.top.equalTo(imageViewMovie.snp.bottom).offset(10)
-            make.leading.trailing.equalTo(container)
+            make.leading.equalTo(contentView).offset(10)
+            make.trailing.equalTo(contentView).offset(-10)
         }
     }
     
     private func descriptionLabelCOnstraints() {
         
         descriptionLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)
-            make.leading.trailing.equalTo(container)        }
+            make.top.equalTo(titleLabel.snp.bottom).offset(10)            
+            make.leading.equalTo(contentView).offset(10)
+            make.trailing.equalTo(contentView).offset(-10)
+        }
     }
     
     private func favouriteButtonConstraints() {
         
         favouriteButton.snp.makeConstraints { (make) in
-            make.top.trailing.equalTo(container).offset(10)
+            make.top.equalTo(contentView).offset(10)
+            make.trailing.equalTo(watchedButton.snp.leading).offset(10)
             make.width.height.equalTo(50)
         }
     }
@@ -237,8 +224,8 @@ extension MoviesListCell {
     private func watchedButtonConstraints() {
         
         watchedButton.snp.makeConstraints { (make) in
-            make.top.equalTo(container).offset(10)
-            make.leading.equalTo(favouriteButton.snp.trailing).offset(10)
+            make.top.equalTo(contentView).offset(10)
+            make.trailing.equalTo(contentView).offset(-10)
             make.width.height.equalTo(50)
         }
     }

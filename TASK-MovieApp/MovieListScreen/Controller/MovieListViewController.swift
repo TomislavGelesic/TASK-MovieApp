@@ -9,20 +9,28 @@ import UIKit
 import SnapKit
 import Alamofire
 
-class MovieListViewController: UICollectionViewController {
+class MovieListViewController: UIViewController {
     
     //MARK: Properties
-    var itemsPerRow: Int = 2
     
-    var screenData = [Movie]()
+    private var screenData = [Movie]()
     
-    let moviesCollectionView: UICollectionView = {
-        let collectionView = UICollectionView()
+    private let flowLayout: UICollectionViewFlowLayout = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 5
+        layout.minimumInteritemSpacing = 5
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        return layout
+    }()
+    
+    private let moviesCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.backgroundColor = .darkGray
         return collectionView
     }()
     
-    let pullToRefreshControl: UIRefreshControl = {
+    private let pullToRefreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
         control.tintColor = .white
         control.backgroundColor = .darkGray
@@ -56,6 +64,8 @@ extension MovieListViewController {
     private func setupCollectionView() {
         
         view.addSubview(moviesCollectionView)
+        
+        moviesCollectionView.collectionViewLayout = flowLayout
         moviesCollectionView.delegate = self
         moviesCollectionView.dataSource = self
         moviesCollectionView.register(MoviesListCell.self, forCellWithReuseIdentifier: MoviesListCell.reuseIdentifier)
@@ -146,14 +156,14 @@ extension MovieListViewController {
     }
 }
 
-extension MovieListViewController {
+extension MovieListViewController: UICollectionViewDataSource {
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return itemsPerRow
+        return screenData.count
     }
     
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: MoviesListCell = collectionView.dequeueReusableCell(for: indexPath)
         cell.fill(with: screenData[indexPath.row])
@@ -162,14 +172,28 @@ extension MovieListViewController {
         return cell
     }
     
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+}
+
+extension MovieListViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         let movieDetailScreen = MovieDetailViewController(for: Int(screenData[indexPath.row].id))
         movieDetailScreen.modalPresentationStyle = .fullScreen
         
         self.present(movieDetailScreen, animated: true, completion: nil)
     }
+}
+
+extension MovieListViewController: UICollectionViewDelegateFlowLayout {
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        
+        let cellWidth = (moviesCollectionView.frame.width - 30) / 2
+        let cellHeight = cellWidth * 1.5
+        return CGSize(width: cellWidth, height: cellHeight)
+    }
 }
 
 

@@ -22,7 +22,7 @@ extension MovieTabBarController {
     
     private func setupMovieTabBarController() {
         
-        let movieListController = createNavigationViewController(viewController: MovieListViewController(collectionViewLayout: UICollectionViewFlowLayout()),
+        let movieListController = createNavigationViewController(viewController: MovieListViewController(),
                                                                  selected:       UIImage(systemName: "video.circle.fill"),
                                                                  unselected:     UIImage(systemName: "video.circle"),
                                                                  title:          "Now playing")
