@@ -166,8 +166,8 @@ extension MoviesListCell {
         descriptionLabelCOnstraints()
         imageViewConstraints()
         overlayConstraints()
-        yearLabelConstraints()
         favouriteButtonConstraints()
+        yearLabelConstraints()
         watchedButtonConstraints()
     }
     
@@ -186,11 +186,29 @@ extension MoviesListCell {
         }
     }
     
+    private func favouriteButtonConstraints() {
+        
+        favouriteButton.snp.makeConstraints { (make) in
+            make.bottom.equalTo(gradientOverlay)
+            make.trailing.equalTo(gradientOverlay).offset(-5)
+            make.width.height.equalTo(50)
+        }
+    }
+    
     private func yearLabelConstraints() {
         
         yearLabel.snp.makeConstraints { (make) in
             make.bottom.equalTo(gradientOverlay)
             make.centerX.equalTo(gradientOverlay)
+        }
+    }
+    
+    private func watchedButtonConstraints() {
+        
+        watchedButton.snp.makeConstraints { (make) in
+            make.bottom.equalTo(gradientOverlay)
+            make.leading.equalTo(gradientOverlay).offset(5)
+            make.width.height.equalTo(50)
         }
     }
     
@@ -209,24 +227,6 @@ extension MoviesListCell {
             make.top.equalTo(titleLabel.snp.bottom).offset(10)            
             make.leading.equalTo(contentView).offset(10)
             make.trailing.equalTo(contentView).offset(-10)
-        }
-    }
-    
-    private func favouriteButtonConstraints() {
-        
-        favouriteButton.snp.makeConstraints { (make) in
-            make.top.equalTo(contentView).offset(10)
-            make.trailing.equalTo(watchedButton.snp.leading).offset(10)
-            make.width.height.equalTo(50)
-        }
-    }
-    
-    private func watchedButtonConstraints() {
-        
-        watchedButton.snp.makeConstraints { (make) in
-            make.top.equalTo(contentView).offset(10)
-            make.trailing.equalTo(contentView).offset(-10)
-            make.width.height.equalTo(50)
         }
     }
     
