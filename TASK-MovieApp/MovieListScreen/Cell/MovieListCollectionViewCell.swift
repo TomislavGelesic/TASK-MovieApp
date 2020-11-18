@@ -9,11 +9,11 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-class MoviesListCell: UICollectionViewCell {
+class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    var movieListCellDelegate: MovieListCellDelegate?
+    var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
     
     var movie: Movie?
     
@@ -82,7 +82,7 @@ class MoviesListCell: UICollectionViewCell {
 
 //MARK: Functions
 
-extension MoviesListCell {
+extension MovieListCollectionViewCell {
     
     private func setupViews() {
         
@@ -105,12 +105,12 @@ extension MoviesListCell {
     
     @objc func favouriteButtonTapped() {
         
-        movieListCellDelegate?.favouriteButtonTapped(cell: self)
+        movieListCollectionViewCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedButtonTapped() {
         
-        movieListCellDelegate?.watchedButtonTapped(cell: self)
+        movieListCollectionViewCellDelegate?.watchedButtonTapped(cell: self)
     }
     
     func configure(with movie: Movie) {

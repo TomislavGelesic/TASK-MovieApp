@@ -8,7 +8,7 @@
 import UIKit
 
 
-struct MoviesItem: Codable {
+struct MovieItem: Codable {
 
     var id: Int
     var poster_path: String?

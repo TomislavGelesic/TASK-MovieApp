@@ -24,7 +24,7 @@ class MovieListViewController: UIViewController {
         return layout
     }()
     
-    private let moviesCollectionView: UICollectionView = {
+    private let movieCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.backgroundColor = .darkGray
         return collectionView
@@ -47,13 +47,13 @@ class MovieListViewController: UIViewController {
         setupPullToRefreshControl()
         fetchData(spinnerOn: true) {
             self.fetchScreenData()
-            self.moviesCollectionView.reloadData()
+            self.movieCollectionView.reloadData()
             self.hideSpinner()
         }
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        moviesCollectionView.reloadData()
+        movieCollectionView.reloadData()
     }
 }
 
@@ -63,19 +63,19 @@ extension MovieListViewController {
     
     private func setupCollectionView() {
         
-        view.addSubview(moviesCollectionView)
+        view.addSubview(movieCollectionView)
         
-        moviesCollectionView.collectionViewLayout = flowLayout
-        moviesCollectionView.delegate = self
-        moviesCollectionView.dataSource = self
-        moviesCollectionView.register(MoviesListCell.self, forCellWithReuseIdentifier: MoviesListCell.reuseIdentifier)
+        movieCollectionView.collectionViewLayout = flowLayout
+        movieCollectionView.delegate = self
+        movieCollectionView.dataSource = self
+        movieCollectionView.register(MovieListCollectionViewCell.self, forCellWithReuseIdentifier: MovieListCollectionViewCell.reuseIdentifier)
         
-        moviesCollectionViewConstraints()
+        movieCollectionViewConstraints()
     }
     
-    private func moviesCollectionViewConstraints () {
+    private func movieCollectionViewConstraints () {
         
-        moviesCollectionView.snp.makeConstraints { (make) in
+        movieCollectionView.snp.makeConstraints { (make) in
             make.top.equalTo(view).offset(50)
             make.bottom.leading.trailing.equalTo(view)
         }
@@ -83,7 +83,7 @@ extension MovieListViewController {
     
     private func setupPullToRefreshControl() {
         
-        moviesCollectionView.addSubview(pullToRefreshControl)
+        movieCollectionView.addSubview(pullToRefreshControl)
         
         pullToRefreshControl.addTarget(self, action: #selector(refreshNews), for: .valueChanged)
     }
@@ -104,7 +104,7 @@ extension MovieListViewController {
                 }
                 else if let data = response.data {
                     do{
-                        let json = try JSONDecoder().decode(MoviesList.self, from: data)
+                        let json = try JSONDecoder().decode(MovieList.self, from: data)
                         self.saveToCoreData(json.results)
                         completion()
                     }
@@ -119,7 +119,7 @@ extension MovieListViewController {
             }
     }
     
-    private func saveToCoreData(_ data: [MoviesItem]) {
+    private func saveToCoreData(_ data: [MovieItem]) {
         
         for movie in data {
             CoreDataManager.sharedManager.saveJSONModel(movie)
@@ -150,7 +150,7 @@ extension MovieListViewController {
         
         fetchData(spinnerOn: false) {
             self.fetchScreenData()
-            self.moviesCollectionView.reloadData()
+            self.movieCollectionView.reloadData()
             self.pullToRefreshControl.endRefreshing()
         }
     }
@@ -165,9 +165,9 @@ extension MovieListViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell: MoviesListCell = collectionView.dequeueReusableCell(for: indexPath)
+        let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
         cell.configure(with: screenData[indexPath.row])
-        cell.movieListCellDelegate = self
+        cell.movieListCollectionViewCellDelegate = self
         
         return cell
     }
@@ -190,7 +190,7 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         
-        let cellWidth = (moviesCollectionView.frame.width - 30) / 2
+        let cellWidth = (movieCollectionView.frame.width - 30) / 2
         let cellHeight = cellWidth * 1.5
         return CGSize(width: cellWidth, height: cellHeight)
     }
@@ -198,9 +198,9 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
 
 
 
-extension MovieListViewController: MovieListCellDelegate {
+extension MovieListViewController: MovieListCollectionViewCellDelegate {
     
-    func favouriteButtonTapped(cell: MoviesListCell) {
+    func favouriteButtonTapped(cell: MovieListCollectionViewCell) {
         
         guard let id = cell.movie?.id else { return }
         
@@ -208,10 +208,10 @@ extension MovieListViewController: MovieListCellDelegate {
         
         fetchScreenData()
         
-        moviesCollectionView.reloadData()
+        movieCollectionView.reloadData()
     }
     
-    func watchedButtonTapped(cell: MoviesListCell) {
+    func watchedButtonTapped(cell: MovieListCollectionViewCell) {
         
         guard let id = cell.movie?.id else { return }
         
@@ -219,7 +219,7 @@ extension MovieListViewController: MovieListCellDelegate {
         
         fetchScreenData()
         
-        moviesCollectionView.reloadData()
+        movieCollectionView.reloadData()
     }
     
     

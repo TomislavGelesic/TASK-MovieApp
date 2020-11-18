@@ -59,7 +59,7 @@ extension CoreDataManager {
         return nil
     }
     
-    func saveJSONModel(_ json: MoviesItem) {
+    func saveJSONModel(_ json: MovieItem) {
         
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
