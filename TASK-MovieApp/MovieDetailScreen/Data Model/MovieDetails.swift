@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MovieDetailsJSONModel: Codable {
+struct MovieDetails: Codable {
     var id: Int
         var poster_path: String?
         var title: String
