@@ -131,14 +131,14 @@ extension MovieListCollectionViewCell {
         titleLabel.text = movie.title
         descriptionLabel.text = movie.overview
         
-        if movie.favourite == true {
+        if movie.favourite {
             favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
             favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         
-        if movie.watched == true {
+        if movie.watched {
             watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {

@@ -215,9 +215,9 @@
 		60282638254C21CC00DB3C3A /* MovieDetailScreen */ = {
 			isa = PBXGroup;
 			children = (
+				60282639254C21CC00DB3C3A /* Controller */,
 				608CED9D25545860003A8F11 /* Protocols */,
 				60282678254C82DC00DB3C3A /* Data Model */,
-				60282639254C21CC00DB3C3A /* Controller */,
 				6028263B254C21CC00DB3C3A /* Cell */,
 			);
 			path = MovieDetailScreen;
