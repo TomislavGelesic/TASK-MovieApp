@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class FavouriteButton: UIButton {
     
@@ -18,20 +19,21 @@ class FavouriteButton: UIButton {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setConstraints()
     }
     
     required init(coder: NSCoder) {
+        
         fatalError("FavouriteButton init(coder:) has not been implemented")
     }
     
+    
     private func setConstraints() {
-        NSLayoutConstraint.activate([
-            favouriteButton.topAnchor.constraint(equalTo: self.topAnchor),
-            favouriteButton.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            favouriteButton.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            favouriteButton.trailingAnchor.constraint(equalTo: self.trailingAnchor)
-        ])
+    
+        favouriteButton.snp.makeConstraints { (make) in
+            make.edges.equalTo(self)
+        }
     }
     
 }
