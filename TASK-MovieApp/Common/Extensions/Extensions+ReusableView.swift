@@ -8,7 +8,9 @@
 import UIKit
 
 extension ReusableView {
+    
     static var reuseIdentifier: String {
+        
         return String(describing: self)
     }
 }

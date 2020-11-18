@@ -8,6 +8,6 @@
 import Foundation
 
 protocol ControllerDelegate {
-    func favouriteButtonTapped(cell: WatchedMoviesFeedCell)
-    func watchedButtonTapped(cell: WatchedMoviesFeedCell)
+    func favouriteButtonTapped(cell: WatchedMoviesListCell)
+    func watchedButtonTapped(cell: WatchedMoviesListCell)
 }
