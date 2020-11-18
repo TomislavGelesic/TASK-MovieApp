@@ -21,8 +21,8 @@ class MovieDetailImageCell: UITableViewCell {
         return imageView
     }()
     
-    let gradientOverlay: ShadeGradientBottomToTopView = {
-        let overlay = ShadeGradientBottomToTopView()
+    let gradientOverlay: ShadeGradientOverlayView = {
+        let overlay = ShadeGradientOverlayView(direction: .bottomToTop)
         return overlay
     }()
     

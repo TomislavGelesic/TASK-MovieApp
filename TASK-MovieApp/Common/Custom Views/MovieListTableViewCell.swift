@@ -24,8 +24,8 @@ class MovieListTableViewCell: UITableViewCell {
         return imageView
     }()
     
-    let gradientOverlay: ShadeGradientTopToBottomView = {
-        let overlay = ShadeGradientTopToBottomView()
+    let gradientOverlay: ShadeGradientOverlayView = {
+        let overlay = ShadeGradientOverlayView(direction: .topToBottom)
         return overlay
     }()
     
