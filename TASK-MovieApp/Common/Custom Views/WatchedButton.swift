@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class WatchedButton: UIButton {
 
@@ -18,21 +19,20 @@ class WatchedButton: UIButton {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setConstraints()
         
+        setConstraints()
     }
     
     required init(coder: NSCoder) {
+        
         fatalError("WatchedButton init(coder:) has not been implemented")
     }
     
     private func setConstraints() {
-        NSLayoutConstraint.activate([
-            watchedButton.topAnchor.constraint(equalTo: self.topAnchor),
-            watchedButton.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            watchedButton.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            watchedButton.trailingAnchor.constraint(equalTo: self.trailingAnchor)
-        ])
+    
+        watchedButton.snp.makeConstraints { (make) in
+            make.edges.equalTo(self)
+        }
     }
     
 }

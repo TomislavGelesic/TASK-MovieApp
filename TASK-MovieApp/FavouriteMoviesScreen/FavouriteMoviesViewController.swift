@@ -14,7 +14,7 @@ class FavouriteMoviesViewController: UIViewController {
     
     var screenData = [Movie]()
     
-    let tableViewMovieFeed: UITableView = {
+    let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
@@ -28,12 +28,13 @@ class FavouriteMoviesViewController: UIViewController {
         
         setupTableView()
         fetchScreenData()
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
         fetchScreenData()
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
     }
 }
 
@@ -49,55 +50,58 @@ extension FavouriteMoviesViewController {
         }
         print("Unable to create screen data")
     }
-}
-
-
-extension FavouriteMoviesViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
         
-        view.addSubview(tableViewMovieFeed)
+        view.addSubview(tableView)
         
-        tableViewMovieFeed.delegate = self
-        tableViewMovieFeed.dataSource = self
-        tableViewMovieFeed.register(FavouriteMoviesFeedCell.self, forCellReuseIdentifier: FavouriteMoviesFeedCell.reuseIdentifier)
-        tableViewMovieFeed.rowHeight = UITableView.automaticDimension
-        tableViewMovieFeed.estimatedRowHeight = 170
+        tableView.dataSource = self
+        tableView.register(MovieCard.self, forCellReuseIdentifier: MovieCard.reuseIdentifier)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 170
         
-        //MARK: Constraints tableView
+        setTableViewConstraints()
+    }
+    
+    private func setTableViewConstraints() {
         
-        tableViewMovieFeed.snp.makeConstraints { (make) in
+        tableView.snp.makeConstraints { (make) in
             make.top.equalTo(view).offset(50)
             make.bottom.leading.trailing.equalTo(view)
         }
     }
+}
+
+extension FavouriteMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: FavouriteMoviesFeedCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.fill(with: screenData[indexPath.row])
-        cell.favouriteMoviesFeedCellDelegate = self
+        
+        let cell: MovieCard = tableView.dequeueReusableCell(for: indexPath)
+        cell.configure(with: screenData[indexPath.row])
+        cell.movieCardDelegate = self
         return cell
     }
     
 }
 
-extension FavouriteMoviesViewController: FavouriteMoviesFeedCellDelegate {
+extension FavouriteMoviesViewController: MovieCardDelegate {
     
-    func favouriteButtonTapped(cell: FavouriteMoviesFeedCell) {
+    func favouriteButtonTapped(cell: MovieCard) {
         
         guard let id = cell.movie?.id else { return }
         
         CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
         
         fetchScreenData()
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
     }
     
-    func watchedButtonTapped(cell: FavouriteMoviesFeedCell) {
+    func watchedButtonTapped(cell: MovieCard) {
         
         guard let id = cell.movie?.id else { return }
         
@@ -105,7 +109,7 @@ extension FavouriteMoviesViewController: FavouriteMoviesFeedCellDelegate {
         
         fetchScreenData()
         
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
         
     }
 }

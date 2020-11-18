@@ -14,7 +14,7 @@ class WatchedMoviesViewController: UIViewController {
     
     var screenData = [Movie]()
     
-    let tableViewMovieFeed: UITableView = {
+    let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
@@ -28,13 +28,13 @@ class WatchedMoviesViewController: UIViewController {
         
         setupTableView()
         fetchScreenData()
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         
         fetchScreenData()
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
     }
 }
 
@@ -48,30 +48,32 @@ extension WatchedMoviesViewController {
             self.screenData = data
         }
     }
-}
-
-
-extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
         
-        view.addSubview(tableViewMovieFeed)
-        tableViewMovieFeed.delegate = self
-        tableViewMovieFeed.dataSource = self
-        tableViewMovieFeed.register(WatchedMoviesListCell.self, forCellReuseIdentifier: WatchedMoviesListCell.reuseIdentifier)
-        tableViewMovieFeed.rowHeight = UITableView.automaticDimension
-        tableViewMovieFeed.estimatedRowHeight = 170
+        view.addSubview(tableView)
+        
+        tableView.dataSource = self
+        tableView.register(MovieCard.self, forCellReuseIdentifier: MovieCard.reuseIdentifier)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 170
+        
         moviesTableViewConstraints()
     }
     
     private func moviesTableViewConstraints () {
         
-        tableViewMovieFeed.snp.makeConstraints { (make) in
+        tableView.snp.makeConstraints { (make) in
             make.top.equalTo(view).offset(50)
             make.bottom.leading.trailing.equalTo(view)
         }
     }
     
+    
+    
+}
+
+extension WatchedMoviesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return screenData.count
@@ -79,19 +81,18 @@ extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegat
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell: WatchedMoviesListCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: MovieCard = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.fill(with: screenData[indexPath.row])
-        cell.watchedMoviesListCellDelegate = self
+        cell.configure(with: screenData[indexPath.row])
+        cell.movieCardDelegate = self
         
         return cell
     }
-    
 }
 
-extension WatchedMoviesViewController: WatchedMoviesListCellDelegate {
+extension WatchedMoviesViewController: MovieCardDelegate {
     
-    func favouriteButtonTapped(cell: WatchedMoviesListCell) {
+    func favouriteButtonTapped(cell: MovieCard) {
         
         guard let id = cell.movie?.id else { return }
         
@@ -99,10 +100,10 @@ extension WatchedMoviesViewController: WatchedMoviesListCellDelegate {
         
         fetchScreenData()
         
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
     }
     
-    func watchedButtonTapped(cell: WatchedMoviesListCell) {
+    func watchedButtonTapped(cell: MovieCard) {
         
         guard let id = cell.movie?.id else { return }
         
@@ -110,7 +111,7 @@ extension WatchedMoviesViewController: WatchedMoviesListCellDelegate {
         
         fetchScreenData()
         
-        tableViewMovieFeed.reloadData()
+        tableView.reloadData()
     }
 }
 

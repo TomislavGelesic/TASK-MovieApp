@@ -107,7 +107,7 @@ extension MovieDetailViewController {
                 }
                 else if let data = response.data {
                     do{
-                        let json = try JSONDecoder().decode(MovieDetailsJSONModel.self, from: data)
+                        let json = try JSONDecoder().decode(MovieDetails.self, from: data)
                         self.screenData = self.createScreenData(from: json)
                         completion()
                     }
@@ -122,8 +122,8 @@ extension MovieDetailViewController {
             }
     }
     
-    
     private func createScreenData(from details: MovieDetailsJSONModel) -> [ScreenData<MovieDetailScreenDataTypes, String>] {
+
         
         var screenData = [ScreenData<MovieDetailScreenDataTypes, String>]()
         
