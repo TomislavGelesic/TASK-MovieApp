@@ -1,18 +1,19 @@
 //
-//  WatchedMoviesCell.swift
+//  MovieCard.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 06/11/2020.
+//  Created by Tomislav Gelesic on 18.11.2020..
 //
+
 
 import UIKit
 import SnapKit
 
-class WatchedMoviesListCell: UITableViewCell {
+class MovieCard: UITableViewCell {
     
     //MARK: Properties
     
-    var watchedMoviesListCellDelegate: WatchedMoviesListCellDelegate?
+    var movieCardDelegate: MovieCardDelegate?
     
     var movie: Movie?
     
@@ -84,7 +85,7 @@ class WatchedMoviesListCell: UITableViewCell {
     }
 }
 
-extension WatchedMoviesListCell {
+extension MovieCard {
     
     //MARK: Functions
     private func setupViews() {
@@ -106,17 +107,17 @@ extension WatchedMoviesListCell {
     
     @objc func favouriteButtonTapped() {
         
-        watchedMoviesListCellDelegate?.favouriteButtonTapped(cell: self)
+        movieCardDelegate?.favouriteButtonTapped(cell: self)
         
     }
     
     @objc func watchedButtonTapped() {
         
-        watchedMoviesListCellDelegate?.watchedButtonTapped(cell: self)
+        movieCardDelegate?.watchedButtonTapped(cell: self)
         
     }
     
-    func fill(with movie: Movie) {
+    func configure(with movie: Movie) {
         
         self.movie = movie
         
