@@ -47,7 +47,7 @@ extension MovieDetailQuoteCell {
     }
     
     
-    func fill(with quote: String) {
+    func configure(with quote: String) {
         quoteLabel.text = quote
     }
     

@@ -204,22 +204,22 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
             
         case .title:
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with:  item.value)
+            cell.configure(with:  item.value)
             return cell
             
         case .genre:
             let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with:  item.value)
+            cell.configure(with:  item.value)
             return cell
             
         case .quote:
             let cell: MovieDetailQuoteCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with:  item.value)
+            cell.configure(with:  item.value)
             return cell
             
         case .description:
             let cell: MovieDetailDescriptionCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with: item.value)
+            cell.configure(with: item.value)
             return cell
         }
     }

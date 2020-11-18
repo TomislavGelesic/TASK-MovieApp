@@ -113,7 +113,7 @@ extension MoviesListCell {
         movieListCellDelegate?.watchedButtonTapped(cell: self)
     }
     
-    func fill(with movie: Movie) {
+    func configure(with movie: Movie) {
         
         self.movie = movie
         

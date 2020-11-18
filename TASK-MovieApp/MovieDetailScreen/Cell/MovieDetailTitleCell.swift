@@ -46,7 +46,7 @@ extension MovieDetailTitleCell {
         }
     }
     
-    func fill(with title: String) {
+    func configure(with title: String) {
         titleLabel.text = title
     }
 }

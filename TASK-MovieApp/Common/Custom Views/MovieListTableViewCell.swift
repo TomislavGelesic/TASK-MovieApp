@@ -9,11 +9,11 @@
 import UIKit
 import SnapKit
 
-class MovieCard: UITableViewCell {
+class MovieListTableViewCell: UITableViewCell {
     
     //MARK: Properties
     
-    var movieCardDelegate: MovieCardDelegate?
+    var movieListTableViewCellDelegate: MovieListTableViewCellDelegate?
     
     var movie: Movie?
     
@@ -85,7 +85,7 @@ class MovieCard: UITableViewCell {
     }
 }
 
-extension MovieCard {
+extension MovieListTableViewCell {
     
     //MARK: Functions
     private func setupViews() {
@@ -107,13 +107,13 @@ extension MovieCard {
     
     @objc func favouriteButtonTapped() {
         
-        movieCardDelegate?.favouriteButtonTapped(cell: self)
+        movieListTableViewCellDelegate?.favouriteButtonTapped(cell: self)
         
     }
     
     @objc func watchedButtonTapped() {
         
-        movieCardDelegate?.watchedButtonTapped(cell: self)
+        movieListTableViewCellDelegate?.watchedButtonTapped(cell: self)
         
     }
     

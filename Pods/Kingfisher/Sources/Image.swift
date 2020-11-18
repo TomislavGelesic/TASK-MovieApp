@@ -455,7 +455,7 @@ extension Kingfisher where Base: Image {
                 if let backgroundColor = backgroundColor {
                     let rectPath = UIBezierPath(rect: rect)
                     backgroundColor.setFill()
-                    rectPath.fill()
+                    rectPath.configure()
                 }
 
                 let path = UIBezierPath(roundedRect: rect,

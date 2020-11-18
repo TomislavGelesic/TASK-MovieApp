@@ -50,7 +50,7 @@ extension MovieDetailDescriptionCell {
     }
     
     
-    func fill(with description: String) {
+    func configure(with description: String) {
         
         descriptionLabel.text = description
     }

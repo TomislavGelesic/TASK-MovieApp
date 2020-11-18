@@ -54,7 +54,7 @@ extension WatchedMoviesViewController {
         view.addSubview(tableView)
         
         tableView.dataSource = self
-        tableView.register(MovieCard.self, forCellReuseIdentifier: MovieCard.reuseIdentifier)
+        tableView.register(MovieListTableViewCell.self, forCellReuseIdentifier: MovieListTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         
@@ -81,18 +81,18 @@ extension WatchedMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell: MovieCard = tableView.dequeueReusableCell(for: indexPath)
+        let cell: MovieListTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
         cell.configure(with: screenData[indexPath.row])
-        cell.movieCardDelegate = self
+        cell.movieListTableViewCellDelegate = self
         
         return cell
     }
 }
 
-extension WatchedMoviesViewController: MovieCardDelegate {
+extension WatchedMoviesViewController: MovieListTableViewCellDelegate {
     
-    func favouriteButtonTapped(cell: MovieCard) {
+    func favouriteButtonTapped(cell: MovieListTableViewCell) {
         
         guard let id = cell.movie?.id else { return }
         
@@ -103,7 +103,7 @@ extension WatchedMoviesViewController: MovieCardDelegate {
         tableView.reloadData()
     }
     
-    func watchedButtonTapped(cell: MovieCard) {
+    func watchedButtonTapped(cell: MovieListTableViewCell) {
         
         guard let id = cell.movie?.id else { return }
         

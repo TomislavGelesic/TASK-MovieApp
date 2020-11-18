@@ -39,7 +39,7 @@ extension MovieDetailGenreCell {
     }
     
     
-    func fill(with genres: String) {
+    func configure(with genres: String) {
         genreLabel.text = genres
     }
     

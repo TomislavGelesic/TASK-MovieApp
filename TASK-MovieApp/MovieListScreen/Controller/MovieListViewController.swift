@@ -166,7 +166,7 @@ extension MovieListViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: MoviesListCell = collectionView.dequeueReusableCell(for: indexPath)
-        cell.fill(with: screenData[indexPath.row])
+        cell.configure(with: screenData[indexPath.row])
         cell.movieListCellDelegate = self
         
         return cell
