@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct RowData {
-    var type: RowType
-    var value: String
+struct ScreenData<POSSIBLE_TYPE, VALUE_TYPE> {
+    var type: POSSIBLE_TYPE
+    var value: VALUE_TYPE
 
-    init(type: RowType, value: String) {
+    init(type: POSSIBLE_TYPE, value: VALUE_TYPE) {
         self.type = type
         self.value = value
     }
