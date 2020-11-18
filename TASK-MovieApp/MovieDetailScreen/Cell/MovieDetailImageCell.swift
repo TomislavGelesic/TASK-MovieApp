@@ -96,7 +96,7 @@ extension MovieDetailImageCell {
     
     func updateButtonImage(for id: Int64, and type: ButtonType) {
     
-        guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: id, and: type) else { return }
+        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: id, and: type) else { return }
      
         switch type {
         case .favourite:

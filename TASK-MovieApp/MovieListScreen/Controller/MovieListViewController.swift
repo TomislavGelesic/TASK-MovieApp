@@ -122,13 +122,13 @@ extension MovieListViewController {
     private func saveToCoreData(_ data: [MovieItem]) {
         
         for movie in data {
-            CoreDataManager.sharedManager.saveJSONModel(movie)
+            CoreDataManager.sharedInstance.saveJSONModel(movie)
         }
     }
     
     private func fetchScreenData() {
         
-        if let data = CoreDataManager.sharedManager.getAllMovies(){
+        if let data = CoreDataManager.sharedInstance.getAllMovies(){
             self.screenData = data
         }
     }
@@ -204,7 +204,7 @@ extension MovieListViewController: MovieListCollectionViewCellDelegate {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: Int64(id))
         
         fetchScreenData()
         
@@ -215,7 +215,7 @@ extension MovieListViewController: MovieListCollectionViewCellDelegate {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedManager.switchForId(type: .watched, for: Int64(id))
+        CoreDataManager.sharedInstance.switchForId(type: .watched, for: Int64(id))
         
         fetchScreenData()
         

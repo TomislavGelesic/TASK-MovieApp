@@ -44,7 +44,7 @@ extension FavouriteMoviesViewController {
     
     private func fetchScreenData() {
         
-        if let data = CoreDataManager.sharedManager.getFavouriteMovies(){
+        if let data = CoreDataManager.sharedInstance.getFavouriteMovies(){
             self.screenData = data
             return
         }
@@ -95,7 +95,7 @@ extension FavouriteMoviesViewController: MovieListTableViewCellDelegate {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: Int64(id))
         
         fetchScreenData()
         tableView.reloadData()
@@ -105,7 +105,7 @@ extension FavouriteMoviesViewController: MovieListTableViewCellDelegate {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: Int64(id))
         
         fetchScreenData()
         
