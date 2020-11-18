@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum RowType {
+enum MovieDetailScreenDataTypes {
     case image
     case title
     case quote

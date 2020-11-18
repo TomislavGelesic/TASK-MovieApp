@@ -12,7 +12,7 @@ import Alamofire
 
 class MovieDetailViewController: UIViewController {
     
-    var screenData: [RowData] = [RowData]()
+    var screenData = [ScreenData<MovieDetailScreenDataTypes, String>]()
     
     var movieID: Int64
     
@@ -123,23 +123,23 @@ extension MovieDetailViewController {
     }
     
     
-    private func createScreenData(from details: MovieDetailsJSONModel) -> [RowData] {
+    private func createScreenData(from details: MovieDetailsJSONModel) -> [ScreenData<MovieDetailScreenDataTypes, String>] {
         
-        var row = [RowData]()
+        var screenData = [ScreenData<MovieDetailScreenDataTypes, String>]()
         
         if let imagePath = details.poster_path {
-            row.append(RowData.init(type: .image, value: imagePath))
+            screenData.append(ScreenData.init(type: .image, value: imagePath))
         }
         else {
-            row.append(RowData.init(type: .image, value: ""))
+            screenData.append(ScreenData.init(type: .image, value: ""))
         }
         
-        row.append(RowData.init(type: .title, value: details.title))
-        row.append(RowData.init(type: .genre, value: genresToString(details.genres)))
-        row.append(RowData.init(type: .quote, value: details.tagline))
-        row.append(RowData.init(type: .description, value: details.overview))
+        screenData.append(ScreenData.init(type: .title, value: details.title))
+        screenData.append(ScreenData.init(type: .genre, value: genresToString(details.genres)))
+        screenData.append(ScreenData.init(type: .quote, value: details.tagline))
+        screenData.append(ScreenData.init(type: .description, value: details.overview))
         
-        return row
+        return screenData
     }
     
     private func genresToString (_ genres: [Genre]) -> String {
