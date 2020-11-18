@@ -122,7 +122,7 @@ extension MovieDetailViewController {
             }
     }
     
-    private func createScreenData(from details: MovieDetailsJSONModel) -> [ScreenData<MovieDetailScreenDataTypes, String>] {
+    private func createScreenData(from details: MovieDetails) -> [ScreenData<MovieDetailScreenDataTypes, String>] {
 
         
         var screenData = [ScreenData<MovieDetailScreenDataTypes, String>]()
