@@ -55,16 +55,14 @@ extension MovieDetailQuoteCell {
     
     private func quoteTitleLabelConstraints() {
         quoteTitleLabel.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(contentView).offset(10)
-            make.trailing.equalTo(contentView).offset(-10)
+            make.top.leading.trailing.equalTo(contentView).inset(UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 10))
             make.bottom.equalTo(quoteLabel.snp.top).offset(-10)
         }
     }
     
     private func quoteLabelConstraints() {
         quoteLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(contentView).offset(10)
-            make.bottom.trailing.equalTo(contentView).offset(-10)
+            make.bottom.leading.trailing.equalTo(contentView).inset(UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10))
         }
     }
     

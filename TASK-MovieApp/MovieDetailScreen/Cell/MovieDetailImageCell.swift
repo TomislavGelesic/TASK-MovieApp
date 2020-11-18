@@ -148,8 +148,7 @@ extension MovieDetailImageCell {
     private func favouriteButtonConstraints() {
         
         favouriteButton.snp.makeConstraints { (make) in
-            make.top.equalTo(gradientOverlay).offset(10)
-            make.trailing.equalTo(gradientOverlay).offset(-10)
+            make.top.trailing.equalTo(gradientOverlay).inset(UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 10))
             make.width.height.equalTo(40)
         }
     }

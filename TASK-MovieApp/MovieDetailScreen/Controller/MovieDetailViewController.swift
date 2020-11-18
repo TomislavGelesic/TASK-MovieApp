@@ -69,7 +69,6 @@ extension MovieDetailViewController {
         view.addSubview(tableView)
         
         tableView.dataSource = self
-        tableView.delegate = self
         
         tableView.register(MovieDetailImageCell.self, forCellReuseIdentifier: MovieDetailImageCell.reuseIdentifier)
         tableView.register(MovieDetailTitleCell.self, forCellReuseIdentifier: MovieDetailTitleCell.reuseIdentifier)
@@ -177,7 +176,7 @@ extension MovieDetailViewController {
 
 
 //MARK: TableView Delegates
-extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate {
+extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         

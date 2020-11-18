@@ -64,8 +64,7 @@ extension WatchedMoviesViewController {
     private func moviesTableViewConstraints () {
         
         tableView.snp.makeConstraints { (make) in
-            make.top.equalTo(view).offset(50)
-            make.bottom.leading.trailing.equalTo(view)
+            make.edges.equalTo(view)
         }
     }
     
