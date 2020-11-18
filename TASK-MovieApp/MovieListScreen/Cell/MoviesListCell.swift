@@ -162,6 +162,7 @@ extension MoviesListCell {
     
     //MARK: Constraints
     private func setupConstraints() {
+        
         titleLabelCOnstraints()
         descriptionLabelCOnstraints()
         imageViewConstraints()
