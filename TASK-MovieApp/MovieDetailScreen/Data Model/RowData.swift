@@ -2,18 +2,18 @@
 //  RowData.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 28/10/2020.
+//  Created by Tomislav Gelesic on 05/11/2020.
 //
 
-import UIKit
+import Foundation
 
 struct RowData {
     var type: RowType
     var value: String
 
-    init(type: RowType, string: String) {
+    init(type: RowType, value: String) {
         self.type = type
-        self.value = string
+        self.value = value
     }
     
 }

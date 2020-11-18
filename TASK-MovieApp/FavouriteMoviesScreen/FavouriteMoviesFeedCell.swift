@@ -1,20 +1,15 @@
 //
-//  MovieTableViewCell.swift
+//  FavouriteMoviesFeedCell.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 27/10/2020.
+//  Created by Tomislav Gelesic on 06/11/2020.
 //
 
 import UIKit
 
-class MovieFeedTableViewCell: UITableViewCell {
+class FavouriteMoviesFeedCell: UITableViewCell {
     
     //MARK: Properties
-    
-    
-    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
-    var movie: Movie?
-    
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -79,6 +74,8 @@ class MovieFeedTableViewCell: UITableViewCell {
         return view
     }()
     
+    var favouriteMoviesFeedCellDelegate: FavouriteMoviesFeedCellDelegate?
+    var movie: Movie?
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -91,7 +88,7 @@ class MovieFeedTableViewCell: UITableViewCell {
     }
 }
 
-extension MovieFeedTableViewCell {
+extension FavouriteMoviesFeedCell {
     
     //MARK: Functions
     private func setupViews() {
@@ -109,12 +106,12 @@ extension MovieFeedTableViewCell {
         watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
     }
     
-    @objc func favouriteButtonTapped() {
-        movieFeedTableViewCellDelegate?.favouriteButtonTapped(cell: self)
+    @objc func favouriteButtonTapped() {        
+        favouriteMoviesFeedCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedButtonTapped() {
-        movieFeedTableViewCellDelegate?.watchedButtonTapped(cell: self)
+        favouriteMoviesFeedCellDelegate?.watchedButtonTapped(cell: self)
     }
     
     func fill(with movie: Movie) {
@@ -156,7 +153,7 @@ extension MovieFeedTableViewCell {
         let year = dateFormatter.string(from: date)
         return year
     }
-
+    
     
     
     //MARK: Constraints

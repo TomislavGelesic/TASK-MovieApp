@@ -22,7 +22,7 @@ class MovieDetailQuoteCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
-        label.font = UIFont.boldSystemFont(ofSize: 12)
+        label.font = UIFont.boldSystemFont(ofSize: 14)
         label.numberOfLines = 0
         return label
     }()
@@ -69,8 +69,7 @@ extension MovieDetailQuoteCell {
         NSLayoutConstraint.activate([
             quoteTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             quoteTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            quoteTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            quoteTitleLabel.heightAnchor.constraint(equalToConstant: 40)
+            quoteTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
         ])
     }
     

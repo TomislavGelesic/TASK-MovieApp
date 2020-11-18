@@ -6,27 +6,30 @@
 //
 
 import UIKit
+import CoreData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
     var window: UIWindow?
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-       
-        
         window = UIWindow()
-        
-        let navigationController = UINavigationController(rootViewController: MovieFeedViewController())
-                                                          
-        window?.rootViewController = navigationController
+        window?.rootViewController = MovieTabBarController()
         window?.makeKeyAndVisible()
+        
+        UITabBar.appearance().barTintColor = .black
+        UITabBar.appearance().tintColor = .darkGray
         
         return true
     }
-
-
-
+    
+    
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        CoreDataManager.sharedManager.saveContext()
+      }
+    
 }
 

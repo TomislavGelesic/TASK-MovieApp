@@ -1,18 +1,17 @@
 //
-//  MovieTableViewCell.swift
+//  WatchedMoviesCell.swift
 //  TASK-MovieApp
 //
-//  Created by Tomislav Gelesic on 27/10/2020.
+//  Created by Tomislav Gelesic on 06/11/2020.
 //
 
 import UIKit
 
-class MovieFeedTableViewCell: UITableViewCell {
+class WatchedMoviesFeedCell: UITableViewCell {
     
     //MARK: Properties
     
-    
-    var movieFeedTableViewCellDelegate: MovieFeedTableViewCellDelegate?
+    var watchedMoviesFeedCellDelegate: WatchedMoviesFeedCellDelegate?
     var movie: Movie?
     
     let imageViewMovie: UIImageView = {
@@ -91,7 +90,7 @@ class MovieFeedTableViewCell: UITableViewCell {
     }
 }
 
-extension MovieFeedTableViewCell {
+extension WatchedMoviesFeedCell {
     
     //MARK: Functions
     private func setupViews() {
@@ -110,11 +109,15 @@ extension MovieFeedTableViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        movieFeedTableViewCellDelegate?.favouriteButtonTapped(cell: self)
+        if let movie = self.movie {
+            watchedMoviesFeedCellDelegate?.favouriteButtonTapped(cell: self)
+        }
     }
     
     @objc func watchedButtonTapped() {
-        movieFeedTableViewCellDelegate?.watchedButtonTapped(cell: self)
+        if let movie = self.movie {
+            watchedMoviesFeedCellDelegate?.watchedButtonTapped(cell: self)
+        }
     }
     
     func fill(with movie: Movie) {

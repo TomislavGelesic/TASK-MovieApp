@@ -47,7 +47,7 @@ extension MovieDetailTitleCell {
             contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            contentView.heightAnchor.constraint(equalToConstant: 80)
+            contentView.heightAnchor.constraint(equalToConstant: 60)
         ])
     }
     

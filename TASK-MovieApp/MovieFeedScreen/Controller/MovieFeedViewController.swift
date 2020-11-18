@@ -7,58 +7,61 @@
 
 import UIKit
 
-let USER_DATA_KEY: String = "USER_DATA_KEY"
-
 class MovieFeedViewController: UIViewController {
     
     //MARK: Properties
-    let moviesTableView: UITableView = {
+    let tableViewMovieFeed: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
+        tableView.backgroundColor = .darkGray
         return tableView
     }()
     
     let pullToRefreshControl: UIRefreshControl = {
         let control = UIRefreshControl()
+        control.tintColor = .white
+        control.backgroundColor = .darkGray
         control.attributedTitle = NSAttributedString(string: "Pull to refresh")
         return control
     }()
     
-    var movies = [Movie]()
+    var moviesJSONModel = [MovieJSONModel]()
     
-    let userDefaults = UserDefaults.standard
+    var screenData = [Movie]()
     
     //MARK: Life-cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavigationController()
-        setViewController()
+        
         setupTableView()
         setupPullToRefreshControl()
-        fetchData(spinnerOn: true)
+        fetchData(spinnerOn: true) {
+            self.saveToCoreData(self.moviesJSONModel)
+            self.fetchScreenData()
+            self.tableViewMovieFeed.reloadData()
+            self.hideSpinner()
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        tableViewMovieFeed.reloadData()
     }
 }
 
 extension MovieFeedViewController {
     
     //MARK: Private Functions
-    private func setNavigationController() {
-        navigationController?.isNavigationBarHidden = true
-    }
     
-    private func setViewController() {
-        view.backgroundColor = .darkGray
-    }
     
     private func setupPullToRefreshControl() {
-        moviesTableView.addSubview(pullToRefreshControl)
+        tableViewMovieFeed.addSubview(pullToRefreshControl)
         pullToRefreshControl.addTarget(self, action: #selector(refreshNews), for: .valueChanged)
     }
-
-    private func fetchData(spinnerOn: Bool) {
-        let tomislav = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_NOW_PLAYING)\(Constants.MOVIE_API.KEY)"
-        guard let url = URL(string: tomislav) else { return }
+    
+    private func fetchData(spinnerOn: Bool, completion: @escaping () -> ()) {
+        guard let url = URL(string: "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_NOW_PLAYING)\(Constants.MOVIE_API.KEY)") else { return }
         
         if spinnerOn { showSpinner() }
         
@@ -71,12 +74,10 @@ extension MovieFeedViewController {
             else {
                 if let data = data {
                     do{
-                        let json = try JSONDecoder().decode(MovieJSON.self, from: data)
-                        self.movies = json.results
+                        let json = try JSONDecoder().decode(MovieResponseJSONModel.self, from: data)
+                        self.moviesJSONModel = json.results
                         DispatchQueue.main.async {
-                            self.moviesTableView.reloadData()
-                            self.pullToRefreshControl.endRefreshing()
-                            self.hideSpinner()
+                            completion()
                         }
                     }
                     catch {
@@ -90,6 +91,21 @@ extension MovieFeedViewController {
         }.resume()
     }
     
+    private func saveToCoreData(_ jsonModel: [MovieJSONModel]) {
+        for movie in jsonModel {
+            CoreDataManager.sharedManager.saveJSONModel(movie)
+        }
+    }
+    
+    private func fetchScreenData() {
+        
+        if let data = CoreDataManager.sharedManager.getAllMovies(){
+            self.screenData = data
+            return
+        }
+        print("Unable to create screen data")
+    }
+    
     private func showAPIFailAlert(){
         let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel))
@@ -101,47 +117,72 @@ extension MovieFeedViewController {
     
     @objc func refreshNews() {
         print("Retrieving update on movies...")
-        fetchData(spinnerOn: false) 
+        fetchData(spinnerOn: false) {
+                self.fetchScreenData()
+                self.tableViewMovieFeed.reloadData()
+                self.pullToRefreshControl.endRefreshing()
+        }
     }
 }
 
-//MARK: UITABLE DELEGATE
+
 extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
-        view.addSubview(moviesTableView)
-        moviesTableView.delegate = self
-        moviesTableView.dataSource = self
-        moviesTableView.register(MovieFeedTableViewCell.self, forCellReuseIdentifier: MovieFeedTableViewCell.reuseIdentifier)
-        moviesTableView.rowHeight = UITableView.automaticDimension
-        moviesTableView.estimatedRowHeight = 170
+        view.addSubview(tableViewMovieFeed)
+        tableViewMovieFeed.delegate = self
+        tableViewMovieFeed.dataSource = self
+        tableViewMovieFeed.register(MovieFeedTableViewCell.self, forCellReuseIdentifier: MovieFeedTableViewCell.reuseIdentifier)
+        tableViewMovieFeed.rowHeight = UITableView.automaticDimension
+        tableViewMovieFeed.estimatedRowHeight = 170
         moviesTableViewConstraints()
     }
     
     private func moviesTableViewConstraints () {
         NSLayoutConstraint.activate([
-            moviesTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            moviesTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            moviesTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            moviesTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            tableViewMovieFeed.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            tableViewMovieFeed.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableViewMovieFeed.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableViewMovieFeed.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movies.count
+        return screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let movie = movies[indexPath.row]
         let cell: MovieFeedTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.fill(with: movie)
+        cell.fill(with: screenData[indexPath.row])
+        cell.movieFeedTableViewCellDelegate = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let movieDetailScreen = MovieDetailViewController(for: movies[indexPath.row].id)
-        navigationController?.pushViewController(movieDetailScreen, animated: true)
+        let movieDetailScreen = MovieDetailViewController(for: Int(screenData[indexPath.row].id))
+        movieDetailScreen.modalPresentationStyle = .fullScreen
+        self.present(movieDetailScreen, animated: true, completion: nil)
+        
     }
     
 }
+
+extension MovieFeedViewController: MovieFeedTableViewCellDelegate {
+    func favouriteButtonTapped(cell: MovieFeedTableViewCell) {
+        guard let id = cell.movie?.id else { return }
+        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        fetchScreenData()
+        tableViewMovieFeed.reloadData()
+    }
+    
+    func watchedButtonTapped(cell: MovieFeedTableViewCell) {
+        guard let id = cell.movie?.id else { return }
+        CoreDataManager.sharedManager.switchForId(type: .watched, for: Int64(id))
+        fetchScreenData()
+        tableViewMovieFeed.reloadData()
+    }
+    
+    
+}
+
 
