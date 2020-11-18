@@ -8,6 +8,8 @@
 import UIKit
 import CoreData
 
+//TODO: refactor
+
 class CoreDataManager {
     //MARK: Properties
     static let sharedManager = CoreDataManager()
