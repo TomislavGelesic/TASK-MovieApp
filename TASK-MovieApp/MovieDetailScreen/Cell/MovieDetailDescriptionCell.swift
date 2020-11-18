@@ -8,10 +8,9 @@
 import UIKit
 
 class MovieDetailDescriptionCell: UITableViewCell {
-
+    
     let descriptionTitleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 22)
         label.text = "Descritpion:"
@@ -20,19 +19,20 @@ class MovieDetailDescriptionCell: UITableViewCell {
     
     let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 14)
         label.numberOfLines = 0
         return label
     }()
-
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
     }
     
     required init?(coder: NSCoder) {
+        
         fatalError("MovieDetailTitleCell required init failed...")
     }
 }
@@ -40,45 +40,37 @@ class MovieDetailDescriptionCell: UITableViewCell {
 extension MovieDetailDescriptionCell {
     
     func setupViews() {
+        
         backgroundColor = .black
         
-        addSubviews([descriptionTitleLabel, descriptionLabel])
+        contentView.addSubviews([descriptionTitleLabel, descriptionLabel])
         
-        contentViewConstraints()
         quoteTitleLabelConstraints()
         quoteLabelConstraints()
     }
     
     
     func fill(with description: String) {
+        
         descriptionLabel.text = description
     }
     
     //MARK: Constraints
-    private func contentViewConstraints() {
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: self.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            contentView.heightAnchor.constraint(equalToConstant: 150)
-        ])
-    }
     
     private func quoteTitleLabelConstraints() {
-        NSLayoutConstraint.activate([
-            descriptionTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            descriptionTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-            descriptionTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-        ])
+        
+        descriptionTitleLabel.snp.makeConstraints { (make) in
+            make.top.leading.equalTo(contentView).offset(10)
+            make.trailing.equalTo(contentView).offset(-10)
+            make.bottom.equalTo(descriptionLabel.snp.top).offset(-10)
+        }
     }
     
     private func quoteLabelConstraints() {
-            NSLayoutConstraint.activate([
-                descriptionLabel.topAnchor.constraint(equalTo: descriptionTitleLabel.bottomAnchor, constant: 10),
-                descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
-                descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-                descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-            ])
+        
+        descriptionLabel.snp.makeConstraints { (make) in
+            make.leading.equalTo(contentView).offset(10)
+            make.bottom.trailing.equalTo(contentView).offset(-10)
+        }
     }
 }

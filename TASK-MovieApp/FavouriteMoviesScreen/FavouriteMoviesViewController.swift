@@ -6,19 +6,20 @@
 //
 
 import UIKit
+import SnapKit
 
 class FavouriteMoviesViewController: UIViewController {
     
     //MARK: Properties
+    
+    var screenData = [Movie]()
+    
     let tableViewMovieFeed: UITableView = {
         let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
         return tableView
     }()
-    
-    var screenData = [Movie]()
     
     //MARK: Life-cycle
     
@@ -54,22 +55,21 @@ extension FavouriteMoviesViewController {
 extension FavouriteMoviesViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
+        
         view.addSubview(tableViewMovieFeed)
+        
         tableViewMovieFeed.delegate = self
         tableViewMovieFeed.dataSource = self
         tableViewMovieFeed.register(FavouriteMoviesFeedCell.self, forCellReuseIdentifier: FavouriteMoviesFeedCell.reuseIdentifier)
         tableViewMovieFeed.rowHeight = UITableView.automaticDimension
         tableViewMovieFeed.estimatedRowHeight = 170
-        moviesTableViewConstraints()
-    }
-    
-    private func moviesTableViewConstraints () {
-        NSLayoutConstraint.activate([
-            tableViewMovieFeed.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            tableViewMovieFeed.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableViewMovieFeed.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableViewMovieFeed.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+        
+        //MARK: Constraints tableView
+        
+        tableViewMovieFeed.snp.makeConstraints { (make) in
+            make.top.equalTo(view).offset(50)
+            make.bottom.leading.trailing.equalTo(view)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

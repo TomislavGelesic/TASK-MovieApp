@@ -6,19 +6,20 @@
 //
 
 import UIKit
+import SnapKit
 
 class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
+    
+    var screenData = [Movie]()
+    
     let tableViewMovieFeed: UITableView = {
         let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
         return tableView
     }()
-    
-    var screenData = [Movie]()
     
     //MARK: Life-cycle
     
@@ -31,6 +32,7 @@ class WatchedMoviesViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
         fetchScreenData()
         tableViewMovieFeed.reloadData()
     }
@@ -44,9 +46,7 @@ extension WatchedMoviesViewController {
         
         if let data = CoreDataManager.sharedManager.getWatchedMovies(){
             self.screenData = data
-            return
         }
-        print("Unable to create screen data")
     }
 }
 
@@ -54,6 +54,7 @@ extension WatchedMoviesViewController {
 extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
+        
         view.addSubview(tableViewMovieFeed)
         tableViewMovieFeed.delegate = self
         tableViewMovieFeed.dataSource = self
@@ -64,34 +65,40 @@ extension WatchedMoviesViewController: UITableViewDataSource, UITableViewDelegat
     }
     
     private func moviesTableViewConstraints () {
-        NSLayoutConstraint.activate([
-            tableViewMovieFeed.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            tableViewMovieFeed.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableViewMovieFeed.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableViewMovieFeed.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+        
+        tableViewMovieFeed.snp.makeConstraints { (make) in
+            make.top.equalTo(view).offset(50)
+            make.bottom.leading.trailing.equalTo(view)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell: WatchedMoviesFeedCell = tableView.dequeueReusableCell(for: indexPath)
+        
         cell.fill(with: screenData[indexPath.row])
         cell.watchedMoviesFeedCellDelegate = self
+        
         return cell
     }
     
 }
 
 extension WatchedMoviesViewController: WatchedMoviesFeedCellDelegate {
+    
     func favouriteButtonTapped(cell: WatchedMoviesFeedCell) {
         
         guard let id = cell.movie?.id else { return }
         
         CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        
         fetchScreenData()
+        
         tableViewMovieFeed.reloadData()
     }
     
@@ -100,9 +107,10 @@ extension WatchedMoviesViewController: WatchedMoviesFeedCellDelegate {
         guard let id = cell.movie?.id else { return }
         
         CoreDataManager.sharedManager.switchForId(type: .watched, for: Int64(id))
-        fetchScreenData()
-        tableViewMovieFeed.reloadData()
         
+        fetchScreenData()
+        
+        tableViewMovieFeed.reloadData()
     }
 }
 

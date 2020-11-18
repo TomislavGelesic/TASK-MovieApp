@@ -6,13 +6,19 @@
 //
 
 import UIKit
+import SnapKit
+import Alamofire
 
 class MovieFeedViewController: UIViewController {
     
     //MARK: Properties
+    
+    var moviesJSONModel = [MovieJSONModel]()
+    
+    var screenData = [Movie]()
+    
     let tableViewMovieFeed: UITableView = {
         let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
         return tableView
@@ -26,10 +32,6 @@ class MovieFeedViewController: UIViewController {
         return control
     }()
     
-    var moviesJSONModel = [MovieJSONModel]()
-    
-    var screenData = [Movie]()
-    
     //MARK: Life-cycle
     
     override func viewDidLoad() {
@@ -38,7 +40,6 @@ class MovieFeedViewController: UIViewController {
         setupTableView()
         setupPullToRefreshControl()
         fetchData(spinnerOn: true) {
-            self.saveToCoreData(self.moviesJSONModel)
             self.fetchScreenData()
             self.tableViewMovieFeed.reloadData()
             self.hideSpinner()
@@ -61,34 +62,33 @@ extension MovieFeedViewController {
     }
     
     private func fetchData(spinnerOn: Bool, completion: @escaping () -> ()) {
-        guard let url = URL(string: "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_NOW_PLAYING)\(Constants.MOVIE_API.KEY)") else { return }
+        guard let urlGetNowPlaying = URL(string: "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_NOW_PLAYING)\(Constants.MOVIE_API.KEY)") else { return }
         
         if spinnerOn { showSpinner() }
         
-        let session = URLSession.shared
-        session.dataTask(with: url) { (data, response, error) in
-            if let error = error {
-                self.showAPIFailAlert()
-                print(error)
-            }
-            else {
-                if let data = data {
+        
+        Alamofire.request(urlGetNowPlaying)
+            .validate()
+            .response { (response) in
+                if let error = response.error {
+                    self.showAPIFailAlert()
+                    print(error)
+                }
+                else if let data = response.data {
                     do{
                         let json = try JSONDecoder().decode(MovieResponseJSONModel.self, from: data)
-                        self.moviesJSONModel = json.results
-                        DispatchQueue.main.async {
-                            completion()
-                        }
+                        self.saveToCoreData(json.results)
+                        completion()
                     }
                     catch {
-                        DispatchQueue.main.async {
-                            self.showAPIFailAlert()
-                            print(error)
-                        }
+                        self.showAPIFailAlert()
+                        print(error)
                     }
                 }
-            }
-        }.resume()
+                else {
+                    self.showAPIFailAlert()
+                }
+        }
     }
     
     private func saveToCoreData(_ jsonModel: [MovieJSONModel]) {
@@ -129,6 +129,7 @@ extension MovieFeedViewController {
 extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     
     private func setupTableView() {
+        
         view.addSubview(tableViewMovieFeed)
         tableViewMovieFeed.delegate = self
         tableViewMovieFeed.dataSource = self
@@ -139,19 +140,20 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     private func moviesTableViewConstraints () {
-        NSLayoutConstraint.activate([
-            tableViewMovieFeed.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            tableViewMovieFeed.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableViewMovieFeed.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableViewMovieFeed.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+        
+        tableViewMovieFeed.snp.makeConstraints { (make) in
+            make.top.equalTo(view).offset(50)
+            make.bottom.leading.trailing.equalTo(view)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell: MovieFeedTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.fill(with: screenData[indexPath.row])
         cell.movieFeedTableViewCellDelegate = self
@@ -159,8 +161,10 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         let movieDetailScreen = MovieDetailViewController(for: Int(screenData[indexPath.row].id))
         movieDetailScreen.modalPresentationStyle = .fullScreen
+        
         self.present(movieDetailScreen, animated: true, completion: nil)
         
     }
@@ -168,17 +172,26 @@ extension MovieFeedViewController: UITableViewDataSource, UITableViewDelegate {
 }
 
 extension MovieFeedViewController: MovieFeedTableViewCellDelegate {
+    
     func favouriteButtonTapped(cell: MovieFeedTableViewCell) {
+        
         guard let id = cell.movie?.id else { return }
+        
         CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        
         fetchScreenData()
+        
         tableViewMovieFeed.reloadData()
     }
     
     func watchedButtonTapped(cell: MovieFeedTableViewCell) {
+        
         guard let id = cell.movie?.id else { return }
+        
         CoreDataManager.sharedManager.switchForId(type: .watched, for: Int64(id))
+        
         fetchScreenData()
+        
         tableViewMovieFeed.reloadData()
     }
     

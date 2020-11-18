@@ -6,60 +6,66 @@
 //
 
 import UIKit
+import SnapKit
+import Kingfisher
+import Alamofire
 
 class MovieDetailViewController: UIViewController {
     
     var screenData: [RowData] = [RowData]()
-    var movieID: Int64
-    var movieDetails: MovieDetailsJSONModel =  MovieDetailsJSONModel()
-    var favouriteFlag: Bool = false
-    var watchedFlag: Bool = false
     
+    var movieID: Int64
+    
+    var favouriteFlag: Bool = false
+    
+    var watchedFlag: Bool = false    
     
     let tableView: UITableView = {
         let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .black
         return tableView
     }()
     
-    
-    
     //MARK: init
+    
     init(for id: Int) {
+        
         self.movieID = Int64(id)
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
+        
         fatalError("init(coder:) has not been implemented")
     }
     
     //MARK: Life-cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupViewController()
         setupTableView()
-        fetchMovieDetailsJSONModel(spinnerOn: true) {
-            DispatchQueue.main.async {
-                self.screenData = self.createScreenData(from: self.movieDetails)
-                self.tableView.reloadData()
-                self.hideSpinner()
-            }
-        }
         
+        fetchMovieDetailsJSONModel(spinnerOn: true) {
+            self.tableView.reloadData()
+            self.hideSpinner()
+        }
     }
 }
 
 extension MovieDetailViewController {
+    
     //MARK: Private Functions
     
     private func setupViewController() {
+        
         view.backgroundColor = .darkGray
     }
     
     private func setupTableView() {
+        
         view.addSubview(tableView)
         
         tableView.dataSource = self
@@ -78,36 +84,31 @@ extension MovieDetailViewController {
     }
     
     private func tableViewConstraints(){
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+        
+        tableView.snp.makeConstraints { (make) in
+            make.edges.equalTo(view)
+        }
     }
-    //MARK: fetchData
+    
     private func fetchMovieDetailsJSONModel(spinnerOn: Bool, completion: @escaping ()->()) {
-        guard let url = URL(string: Constants.MOVIE_API.BASE +
+        guard let urlToGetMovieDetails = URL(string: Constants.MOVIE_API.BASE +
                                 Constants.MOVIE_API.GET_DETAILS_ON + "\(movieID)" +
                                 Constants.MOVIE_API.KEY
         ) else { return }
         
-        if spinnerOn {
-            showSpinner()
-        }
+        if spinnerOn { showSpinner() }
         
-        let session = URLSession.shared
-        session.dataTask(with: url) { (data, response, error) in
-            if let error = error {
-                self.showAPIFailAlert()
-                print(error)
-            }
-            else {
-                if let data = data {
-                    
+        Alamofire.request(urlToGetMovieDetails)
+            .validate()
+            .response { (response) in
+                if let error = response.error {
+                    self.showAPIFailAlert()
+                    print(error)
+                }
+                else if let data = response.data {
                     do{
                         let json = try JSONDecoder().decode(MovieDetailsJSONModel.self, from: data)
-                        self.movieDetails = json
+                        self.screenData = self.createScreenData(from: json)
                         completion()
                     }
                     catch {
@@ -115,29 +116,37 @@ extension MovieDetailViewController {
                         print(error)
                     }
                 }
+                else {
+                    self.showAPIFailAlert()
+                }
             }
-        }.resume()
     }
     
     
     private func createScreenData(from details: MovieDetailsJSONModel) -> [RowData] {
+        
         var row = [RowData]()
+        
         if let imagePath = details.poster_path {
             row.append(RowData.init(type: .image, value: imagePath))
         }
         else {
             row.append(RowData.init(type: .image, value: ""))
         }
+        
         row.append(RowData.init(type: .title, value: details.title))
         row.append(RowData.init(type: .genre, value: genresToString(details.genres)))
         row.append(RowData.init(type: .quote, value: details.tagline))
         row.append(RowData.init(type: .description, value: details.overview))
+        
         return row
     }
     
     private func genresToString (_ genres: [Genre]) -> String {
+        
         var names = String()
         var i = 0
+        
         while i < genres.count {
             if i + 1 >= genres.count {
                 names.append(genres[i].name.lowercased())
@@ -150,12 +159,15 @@ extension MovieDetailViewController {
             }
             i += 1
         }
+        
         return names
     }
     
     private func showAPIFailAlert(){
+        
         let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        
         DispatchQueue.main.async {
             self.hideSpinner()
             self.present(alert, animated: true, completion: nil)
@@ -168,37 +180,43 @@ extension MovieDetailViewController {
 extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let item = screenData[indexPath.row]
         
         switch item.type {
         case .image:
             let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
-            guard let image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value))
+            guard  let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value)
             else {
                 cell.imageViewMovie.backgroundColor = .cyan
                 return cell
             }
+            cell.imageViewMovie.kf.setImage(with: urlToImage)
             cell.movieDetailImageCellDelegate = self
-            cell.fill(with: image)
             cell.updateButtonImage(for: movieID, and: .favourite)
             cell.updateButtonImage(for: movieID, and: .watched)
             return cell
+            
         case .title:
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with:  item.value)
             return cell
+            
         case .genre:
             let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with:  item.value)
             return cell
+            
         case .quote:
             let cell: MovieDetailQuoteCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with:  item.value)
             return cell
+            
         case .description:
             let cell: MovieDetailDescriptionCell = tableView.dequeueReusableCell(for: indexPath)
             cell.fill(with: item.value)
@@ -210,10 +228,13 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
 
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
+    
     func favouriteButtonTapped(cell: MovieDetailImageCell) {
         
         CoreDataManager.sharedManager.switchForId(type: .favourite, for: movieID)
+        
         guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: movieID, and: .favourite) else { return }
+        
         if status {
             cell.favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
@@ -227,7 +248,9 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     func watchedButtonTapped(cell: MovieDetailImageCell) {
         
         CoreDataManager.sharedManager.switchForId(type: .watched, for: movieID)
+        
         guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: movieID, and: .watched) else { return }
+        
         if status {
             cell.watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
@@ -240,6 +263,7 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     
     func backButtonTapped() {
+        
         dismiss(animated: true, completion: nil)
     }
 }

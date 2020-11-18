@@ -6,13 +6,18 @@
 //
 
 import UIKit
+import SnapKit
 
 class FavouriteMoviesFeedCell: UITableViewCell {
     
     //MARK: Properties
+    
+    var favouriteMoviesFeedCellDelegate: FavouriteMoviesFeedCellDelegate?
+    
+    var movie: Movie?
+    
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
         return imageView
@@ -20,13 +25,11 @@ class FavouriteMoviesFeedCell: UITableViewCell {
     
     let gradientOverlay: ShadeGradientTopToBottomView = {
         let overlay = ShadeGradientTopToBottomView()
-        overlay.translatesAutoresizingMaskIntoConstraints = false
         return overlay
     }()
     
     let yearLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.boldSystemFont(ofSize: 20)
         label.textColor = UIColor.white
         return label
@@ -34,7 +37,6 @@ class FavouriteMoviesFeedCell: UITableViewCell {
     
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.boldSystemFont(ofSize: 16)
         label.textColor = UIColor.white
         label.numberOfLines = 2
@@ -43,7 +45,6 @@ class FavouriteMoviesFeedCell: UITableViewCell {
     
     let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor.white
         label.numberOfLines = 2
@@ -52,7 +53,6 @@ class FavouriteMoviesFeedCell: UITableViewCell {
     
     let favouriteButton: UIButton = {
         let favouriteButton = UIButton()
-        favouriteButton.translatesAutoresizingMaskIntoConstraints = false
         favouriteButton.layer.cornerRadius = 20
         favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         return favouriteButton
@@ -60,7 +60,6 @@ class FavouriteMoviesFeedCell: UITableViewCell {
     
     let watchedButton: UIButton = {
         let watchedButton = UIButton()
-        watchedButton.translatesAutoresizingMaskIntoConstraints = false
         watchedButton.layer.cornerRadius = 20
         watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         return watchedButton
@@ -68,14 +67,10 @@ class FavouriteMoviesFeedCell: UITableViewCell {
     
     let container: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .black
         view.layer.cornerRadius = 20
         return view
     }()
-    
-    var favouriteMoviesFeedCellDelegate: FavouriteMoviesFeedCellDelegate?
-    var movie: Movie?
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -118,16 +113,21 @@ extension FavouriteMoviesFeedCell {
         
         self.movie = movie
         
-        if let imagePath = movie.posterPath {
-            imageViewMovie.image = UIImage(url: URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath))
+        if let imagePath = movie.posterPath,
+           let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+            
+            imageViewMovie.kf.setImage(with: urlToImage)
         }
         else {
             imageViewMovie.backgroundColor = .cyan
         }
+        
         if let date = movie.releaseDate {
             yearLabel.text = getReleaseYear(releaseDate: date)
         }
+        
         titleLabel.text = movie.title
+        
         descriptionLabel.text = movie.overview
         
         if movie.favourite == true {
@@ -146,19 +146,22 @@ extension FavouriteMoviesFeedCell {
     }
     
     private func getReleaseYear(releaseDate: String) -> String {
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        
         guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
+        
         dateFormatter.dateFormat = "yyyy"
-        let year = dateFormatter.string(from: date)
-        return year
+        
+        return dateFormatter.string(from: date)
     }
     
     
     
     //MARK: Constraints
     private func setupConstraints() {
-        contentViewConstraints()
+        
         containerConstraints()
         titleLabelCOnstraints()
         descriptionLabelCOnstraints()
@@ -169,86 +172,71 @@ extension FavouriteMoviesFeedCell {
         watchedButtonConstraints()
     }
     
-    private func contentViewConstraints() {
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: self.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
-        ])
-    }
-    
     private func containerConstraints() {
-        NSLayoutConstraint.activate([
-            container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5)
-        ])
+        
+        container.snp.makeConstraints{(make) in
+            make.top.leading.equalTo(contentView).offset(5)
+            make.bottom.trailing.equalTo(contentView).offset(-5)
+        }
     }
     
     private func imageViewConstraints() {
         
-        let imageViewMovieHeightConstraint = imageViewMovie.heightAnchor.constraint(equalToConstant: 160)
-        imageViewMovieHeightConstraint.priority = UILayoutPriority(999)
-        imageViewMovieHeightConstraint.isActive = true
-        
-        NSLayoutConstraint.activate([
-            imageViewMovie.topAnchor.constraint(equalTo: container.topAnchor),
-            imageViewMovie.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            imageViewMovie.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            imageViewMovie.widthAnchor.constraint(equalToConstant: 160)
-        ])
+        imageViewMovie.snp.makeConstraints { (make) in
+            make.top.bottom.leading.equalTo(container)
+            make.width.height.equalTo(160)
+        }
     }
     
     private func overlayConstraints() {
-        NSLayoutConstraint.activate([
-            gradientOverlay.topAnchor.constraint(equalTo: imageViewMovie.topAnchor),
-            gradientOverlay.bottomAnchor.constraint(equalTo: imageViewMovie.bottomAnchor),
-            gradientOverlay.leadingAnchor.constraint(equalTo: imageViewMovie.leadingAnchor),
-            gradientOverlay.trailingAnchor.constraint(equalTo: imageViewMovie.trailingAnchor)
-        ])
+        
+        gradientOverlay.snp.makeConstraints { (make) in
+            make.edges.equalTo(imageViewMovie)
+        }
     }
     
     private func yearLabelConstraints() {
-        NSLayoutConstraint.activate([
-            yearLabel.bottomAnchor.constraint(equalTo: gradientOverlay.bottomAnchor),
-            yearLabel.centerXAnchor.constraint(equalTo: gradientOverlay.centerXAnchor)
-        ])
+        
+        yearLabel.snp.makeConstraints { (make) in
+            make.bottom.equalTo(gradientOverlay)
+            make.centerX.equalTo(gradientOverlay)
+        }
     }
     
     private func titleLabelCOnstraints() {
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: imageViewMovie.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: imageViewMovie.trailingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10)
-        ])
+        
+        titleLabel.snp.makeConstraints { (make) in
+            make.top.equalTo(imageViewMovie).offset(10)
+            make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
+            make.trailing.equalTo(container).offset(-10)
+        }
     }
     
     private func descriptionLabelCOnstraints() {
-        NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            descriptionLabel.leadingAnchor.constraint(equalTo: imageViewMovie.trailingAnchor, constant: 10),
-            descriptionLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10)
-        ])
+        
+        descriptionLabel.snp.makeConstraints { (make) in
+            make.top.equalTo(titleLabel.snp.bottom).offset(10)
+            make.leading.equalTo(imageViewMovie.snp.trailing).offset(10)
+            make.trailing.equalTo(container).offset(-10)
+        }
     }
     
     private func favouriteButtonConstraints() {
-        NSLayoutConstraint.activate([
-            favouriteButton.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -5),
-            favouriteButton.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -15),
-            favouriteButton.heightAnchor.constraint(equalToConstant: 50),
-            favouriteButton.widthAnchor.constraint(equalTo: favouriteButton.heightAnchor)
-        ])
+        
+        favouriteButton.snp.makeConstraints { (make) in
+            make.bottom.equalTo(container).offset(-5)
+            make.trailing.equalTo(container).offset(-15)
+            make.width.height.equalTo(50)
+        }
     }
     
     private func watchedButtonConstraints() {
-        NSLayoutConstraint.activate([
-            watchedButton.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -5),
-            watchedButton.trailingAnchor.constraint(equalTo: favouriteButton.leadingAnchor, constant: -20),
-            watchedButton.heightAnchor.constraint(equalToConstant: 50),
-            watchedButton.widthAnchor.constraint(equalTo: favouriteButton.heightAnchor)
-        ])
+        
+        watchedButton.snp.makeConstraints { (make) in
+            make.bottom.equalTo(container).offset(-5)
+            make.trailing.equalTo(favouriteButton.snp.leading).offset(-20)
+            make.width.height.equalTo(50)
+        }
     }
     
 }
