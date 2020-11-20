@@ -10,8 +10,9 @@ import CoreData
 
 class CoreDataManager {
     //MARK: Properties
+    static let sharedInstance = CoreDataManager()
     
-    init() {}
+    private init() {}
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "TASK-MovieApp")
@@ -90,7 +91,7 @@ extension CoreDataManager {
     
     func switchValueOnMovie(on id: Int64, for type: ButtonType ) {
         
-        if var savedMovie = getMovie(for: id) {
+        if let savedMovie = getMovie(for: id) {
             switch type {
             case .favourite:
                 savedMovie.favourite = !savedMovie.favourite
@@ -129,12 +130,7 @@ extension CoreDataManager {
         
         managedContext.delete(movie)    }
     
-}
-
-extension CoreDataManager {
-    //MARK: Private functions
-    
-    private func getMovie(for id: Int64) -> Movie? {
+    func getMovie(for id: Int64) -> Movie? {
         let managedContext = persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>

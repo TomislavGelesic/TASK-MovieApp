@@ -11,12 +11,12 @@ import Alamofire
 
 class MovieListPresenter {
     
-    var coreDataManager = CoreDataManager()
+    var coreDataManager = CoreDataManager.sharedInstance
     
-    private var controllerDelegate: MovieListViewController?
+    weak var movieListViewControllerDelegate: MovieListViewController?
     
     init(delegate: MovieListViewController) {
-        controllerDelegate = delegate
+        movieListViewControllerDelegate = delegate
     }
     
     
@@ -46,13 +46,13 @@ extension MovieListPresenter {
         
         guard let getNowPlayingURL = URL(string: url) else { return [Movie]()}
         
-        controllerDelegate?.showSpinner()
+        movieListViewControllerDelegate?.showSpinner()
         
         Alamofire.request(getNowPlayingURL)
             .validate()
             .response { (response) in
                 if let error = response.error {
-                    self.controllerDelegate?.showAPIFailAlert()
+                    self.movieListViewControllerDelegate?.showAPIFailAlert()
                     print(error)
                 }
                 else if let data = response.data {
@@ -65,12 +65,12 @@ extension MovieListPresenter {
                         
                     }
                     catch {
-                        self.controllerDelegate?.showAPIFailAlert()
+                        self.movieListViewControllerDelegate?.showAPIFailAlert()
                         print(error)
                     }
                 }
                 else {
-                    self.controllerDelegate?.showAPIFailAlert()
+                    self.movieListViewControllerDelegate?.showAPIFailAlert()
                 }
             }
         

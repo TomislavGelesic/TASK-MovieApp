@@ -1,12 +1,14 @@
-//
-//  MovieDetailCellTableViewCell.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 28/10/2020.
-//
 
 import UIKit
 import SnapKit
+
+
+protocol MovieDetailImageCellDelegate: class {
+    
+    func backButtonTapped()
+    
+    func buttonTapped(id: Int64, type: ButtonType)
+}
 
 class MovieDetailImageCell: UITableViewCell {
     
@@ -70,9 +72,9 @@ extension MovieDetailImageCell {
         imageViewMovie.addSubview(gradientOverlay)
         contentView.addSubviews([backButton, favouriteButton, watchedButton])
         
-        backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
-        favouriteButton.addTarget(self, action: #selector(favouriteBarButtonTapped), for: .touchUpInside)
-        watchedButton.addTarget(self, action: #selector(watchedBarButtonTapped), for: .touchUpInside)
+        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+        favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
+        watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
         
         imageViewMovieConstraints()
         gradientOverlayConstraints()
@@ -153,22 +155,22 @@ extension MovieDetailImageCell {
     }
     
     //MARK: Delegate methods
-    @objc func backBarButtonTapped() {
+    @objc func backButtonTapped() {
         
         movieDetailImageCellDelegate?.backButtonTapped()
     }
     
-    @objc func favouriteBarButtonTapped() {
+    @objc func favouriteButtonTapped() {
         
         if let id = movieID {
-            movieDetailImageCellDelegate?.favouriteButtonTapped(on: id)
+            movieDetailImageCellDelegate?.buttonTapped(id: id, type: .favourite)
         }
     }
     
-    @objc func watchedBarButtonTapped() {
+    @objc func watchedButtonTapped() {
         
         if let id = movieID {
-            movieDetailImageCellDelegate?.watchedButtonTapped(on: id)
+            movieDetailImageCellDelegate?.buttonTapped(id: id, type: .watched)
         }
     }
 }

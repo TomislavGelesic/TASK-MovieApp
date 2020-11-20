@@ -1,12 +1,11 @@
 //
-//  Movie.swift
+//  MovieItem.swift
 //  TASK-MovieApp
 //
 //  Created by Tomislav Gelesic on 30/10/2020.
 //
 
 import UIKit
-
 
 struct MovieItem: Codable {
 

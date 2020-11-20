@@ -12,13 +12,11 @@ import Alamofire
 
 class MovieDetailViewController: UIViewController {
     
-    var screenData: DetailScreenData
+    var screenData: DetailScreenData = DetailScreenData(rowData: [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>](), watched: false, favourite: false, id: -1)
     
     var movieID: Int64
     
-    var favouriteFlag: Bool = false
-    
-    var watchedFlag: Bool = false    
+    var movieDetailPresenter: MovieDetailPresenter?
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -30,10 +28,9 @@ class MovieDetailViewController: UIViewController {
     //MARK: init
     
     init(_ movie: Movie) {
+        
         movieID = movie.id
-        favouriteFlag = movie.favourite
-        watchedFlag = movie.watched
-        screenData = DetailScreenData(rowData: [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>](), watched: false, favourite: false, id: -1)
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -50,16 +47,20 @@ class MovieDetailViewController: UIViewController {
         setupViewController()
         setupTableView()
         
-        fetchMovieDetailsJSONModel(spinnerOn: true) {
-            self.tableView.reloadData()
-            self.hideSpinner()
+        movieDetailPresenter = MovieDetailPresenter(delegate: self, for: movieID)
+        
+        if let data = movieDetailPresenter?.getNewScreenData() {
+            screenData = data
         }
+        
+        tableView.reloadData()
+        
     }
 }
 
 extension MovieDetailViewController {
     
-    //MARK: Private Functions
+    //MARK: Functions
     
     private func setupViewController() {
         
@@ -91,85 +92,7 @@ extension MovieDetailViewController {
         }
     }
     
-    private func fetchMovieDetailsJSONModel(spinnerOn: Bool, completion: @escaping ()->()) {
-       
-        let url = Constants.MOVIE_API.BASE +
-                  Constants.MOVIE_API.GET_DETAILS_ON +
-                  "\(Int(movieID))" +
-                  Constants.MOVIE_API.KEY
-        
-        guard let getMovieDetailsURL = URL(string: url) else { return }
-        
-        if spinnerOn { showSpinner() }
-        
-        Alamofire.request(getMovieDetailsURL)
-            .validate()
-            .response { (response) in
-                if let error = response.error {
-                    self.showAPIFailAlert()
-                    print(error)
-                }
-                else if let data = response.data {
-                    do{
-                        let jsonData = try JSONDecoder().decode(MovieDetails.self, from: data)
-                        
-                        self.screenData = self.createScreenData(from: jsonData)
-                        completion()
-                    }
-                    catch {
-                        self.showAPIFailAlert()
-                        print(error)
-                    }
-                }
-                else {
-                    self.showAPIFailAlert()
-                }
-            }
-    }
-    
-    private func createScreenData(from movieDetails: MovieDetails) -> DetailScreenData {
-        
-        return DetailScreenData(rowData: createRowData(from: movieDetails), watched: watchedFlag, favourite: favouriteFlag, id: movieID)
-    }
-    
-    private func createRowData(from movieDetails: MovieDetails) -> [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>] {
-        
-        var rowData = [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>]()
-        
-        if let imagePath = movieDetails.poster_path {
-            rowData.append(MovieDetailScreenRowData.init(type: .image, value: imagePath))
-        }
-        
-        rowData.append(MovieDetailScreenRowData.init(type: .title, value: movieDetails.title))
-        rowData.append(MovieDetailScreenRowData.init(type: .genre, value: genresToString(movieDetails.genres)))
-        rowData.append(MovieDetailScreenRowData.init(type: .quote, value: movieDetails.tagline))
-        rowData.append(MovieDetailScreenRowData.init(type: .description, value: movieDetails.overview))
-        
-        return rowData
-    }
-    
-    private func genresToString (_ genres: [Genre]) -> String {
-        
-        var names = String()
-        var i = 0
-        
-        while i < genres.count {
-            if i + 1 >= genres.count {
-                names.append(genres[i].name.lowercased())
-            } else {
-                if i == 0 {
-                    names.append(genres[i].name.capitalized + ", ")
-                } else {
-                    names.append(genres[i].name.lowercased() + ", ")
-                }
-            }
-            i += 1
-        }
-        
-        return names
-    }
-    
-    private func showAPIFailAlert(){
+    func showAPIFailAlert(){
         
         let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel))
@@ -182,7 +105,6 @@ extension MovieDetailViewController {
 }
 
 
-//MARK: TableView Delegates
 extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -235,20 +157,19 @@ extension MovieDetailViewController: UITableViewDataSource {
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
-    func favouriteButtonTapped(on id: Int64) {
+    func buttonTapped(id: Int64, type: ButtonType) {
         
-        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
+        switch type {
+        
+        case .favourite:
+            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
+            
+        case .watched:
+            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
+        }
         
         tableView.reloadData()
     }
-    
-    func watchedButtonTapped(on id: Int64) {
-        
-        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
-        
-        tableView.reloadData()
-    }
-    
     
     func backButtonTapped() {
         

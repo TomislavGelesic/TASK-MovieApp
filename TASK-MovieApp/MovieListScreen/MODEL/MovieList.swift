@@ -1,5 +1,5 @@
 //
-//  MoviePOJO.swift
+//  MovieList.swift
 //  TASK-MovieApp
 //
 //  Created by Tomislav Gelesic on 27/10/2020.
@@ -13,5 +13,4 @@ struct MovieList: Codable {
     var dates: Dates
     var total_pages: Int
     var total_results: Int
-    
 }
