@@ -10,9 +10,8 @@ import CoreData
 
 class CoreDataManager {
     //MARK: Properties
-    static let sharedInstance = CoreDataManager()
     
-    private init() {}
+    init() {}
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "TASK-MovieApp")
@@ -31,7 +30,7 @@ extension CoreDataManager {
     
     func saveContext () {
         
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        let managedContext = persistentContainer.viewContext
         
         if managedContext.hasChanges {
             do {
@@ -47,7 +46,7 @@ extension CoreDataManager {
         
         var movies: [Movie]?
         
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        let managedContext = persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         
@@ -84,7 +83,7 @@ extension CoreDataManager {
             
             savedMovie = movie
             
-            CoreDataManager.sharedInstance.saveContext()
+            saveContext()
             
         }
     }
@@ -99,14 +98,14 @@ extension CoreDataManager {
                 savedMovie.watched = !savedMovie.watched
             }
             
-            CoreDataManager.sharedInstance.saveContext()
+            saveContext()
             
         }
     }
     
     func createMovie(_ movie: MovieItem) -> Movie {
         
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        let managedContext = persistentContainer.viewContext
         
         let newMovie = Movie(context: managedContext)
         
@@ -126,7 +125,7 @@ extension CoreDataManager {
     
     func deleteMovie(_ movie: Movie) {
         
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        let managedContext = persistentContainer.viewContext
         
         managedContext.delete(movie)    }
     
@@ -136,7 +135,7 @@ extension CoreDataManager {
     //MARK: Private functions
     
     private func getMovie(for id: Int64) -> Movie? {
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        let managedContext = persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         request.predicate = NSPredicate(format: "id == \(id)")

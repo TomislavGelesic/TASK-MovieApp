@@ -9,6 +9,13 @@ import UIKit
 import SnapKit
 import Kingfisher
 
+
+protocol MovieListCollectionViewCellDelegate {
+    
+    func buttonTapped(on id: Int64, type: ButtonType)
+}
+
+
 class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
@@ -105,14 +112,14 @@ extension MovieListCollectionViewCell {
     
     @objc func favouriteButtonTapped() {
         if let id = movieId {
-            movieListCollectionViewCellDelegate?.favouriteButtonTapped(on: id)
+            movieListCollectionViewCellDelegate?.buttonTapped(on: id, type: .favourite)
         }
     }
     
     @objc func watchedButtonTapped() {
         
         if let id = movieId {
-            movieListCollectionViewCellDelegate?.watchedButtonTapped(on: id)
+            movieListCollectionViewCellDelegate?.buttonTapped(on: id, type: .watched)
         }
     }
     

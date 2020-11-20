@@ -45,7 +45,6 @@
 		606FD82E2552E24A00F5FBFF /* MovieTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606FD82D2552E24A00F5FBFF /* MovieTabBarController.swift */; };
 		606FD8382554097900F5FBFF /* MovieDetailImageCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606FD8372554097900F5FBFF /* MovieDetailImageCellDelegate.swift */; };
 		606FD84D25542F6100F5FBFF /* MovieDetailScreenRowData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606FD84C25542F6100F5FBFF /* MovieDetailScreenRowData.swift */; };
-		607D2F94255AB6FC00040996 /* MovieListCollectionViewCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607D2F93255AB6FC00040996 /* MovieListCollectionViewCellDelegate.swift */; };
 		60858755256521D200FCD5A1 /* MovieListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60858754256521D200FCD5A1 /* MovieListTableViewCell.swift */; };
 		608587582565226700FCD5A1 /* MovieListTableViewCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 608587572565226700FCD5A1 /* MovieListTableViewCellDelegate.swift */; };
 		60A790DC25503CA0002F218F /* Extension+UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A790DB25503CA0002F218F /* Extension+UIView.swift */; };
@@ -94,7 +93,6 @@
 		606FD82D2552E24A00F5FBFF /* MovieTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieTabBarController.swift; sourceTree = "<group>"; };
 		606FD8372554097900F5FBFF /* MovieDetailImageCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieDetailImageCellDelegate.swift; path = "TASK-MovieApp/MovieDetailScreen/Protocols/MovieDetailImageCellDelegate.swift"; sourceTree = SOURCE_ROOT; };
 		606FD84C25542F6100F5FBFF /* MovieDetailScreenRowData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieDetailScreenRowData.swift; path = "TASK-MovieApp/MovieDetailScreen/Data Model/MovieDetailScreenRowData.swift"; sourceTree = SOURCE_ROOT; };
-		607D2F93255AB6FC00040996 /* MovieListCollectionViewCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieListCollectionViewCellDelegate.swift; path = "TASK-MovieApp/MovieListScreen/Protocols/MovieListCollectionViewCellDelegate.swift"; sourceTree = SOURCE_ROOT; };
 		60858754256521D200FCD5A1 /* MovieListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieListTableViewCell.swift; sourceTree = "<group>"; };
 		608587572565226700FCD5A1 /* MovieListTableViewCellDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieListTableViewCellDelegate.swift; sourceTree = "<group>"; };
 		60A790DB25503CA0002F218F /* Extension+UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Extension+UIView.swift"; path = "TASK-MovieApp/Common/Extensions/Extension+UIView.swift"; sourceTree = SOURCE_ROOT; };
@@ -270,7 +268,6 @@
 				601464152567B5F400F60FBF /* VIEW */,
 				601464142567B5EC00F60FBF /* PRESENTER */,
 				601464132567B5E300F60FBF /* MODEL */,
-				602ED6B125626CF200CE3D72 /* Protocols */,
 			);
 			path = MovieListScreen;
 			sourceTree = "<group>";
@@ -306,14 +303,6 @@
 				604F9CC92565C18000AAE5FA /* ShadeGradientOverlayViewDirections.swift */,
 			);
 			path = "Data Model";
-			sourceTree = "<group>";
-		};
-		602ED6B125626CF200CE3D72 /* Protocols */ = {
-			isa = PBXGroup;
-			children = (
-				607D2F93255AB6FC00040996 /* MovieListCollectionViewCellDelegate.swift */,
-			);
-			path = Protocols;
 			sourceTree = "<group>";
 		};
 		606FD81E2552BDBC00F5FBFF /* CoreData */ = {
@@ -476,7 +465,6 @@
 				6028264F254C21CC00DB3C3A /* Extensions+UIViewController.swift in Sources */,
 				60282658254C21CC00DB3C3A /* MovieDetailQuoteCell.swift in Sources */,
 				60A790DC25503CA0002F218F /* Extension+UIView.swift in Sources */,
-				607D2F94255AB6FC00040996 /* MovieListCollectionViewCellDelegate.swift in Sources */,
 				604F9CCA2565C18000AAE5FA /* ShadeGradientOverlayViewDirections.swift in Sources */,
 				60282665254C22A000DB3C3A /* Constants.swift in Sources */,
 				60A790E125503EAC002F218F /* MovieDetailScreenRowTypes.swift in Sources */,
