@@ -15,7 +15,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
     
-    var movie: Movie?
+    var movieId: Int64?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -104,46 +104,39 @@ extension MovieListCollectionViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        
-        movieListCollectionViewCellDelegate?.favouriteButtonTapped(cell: self)
+        if let id = movieId {
+            movieListCollectionViewCellDelegate?.favouriteButtonTapped(on: id)
+        }
     }
     
     @objc func watchedButtonTapped() {
         
-        movieListCollectionViewCellDelegate?.watchedButtonTapped(cell: self)
+        if let id = movieId {
+            movieListCollectionViewCellDelegate?.watchedButtonTapped(on: id)
+        }
     }
     
     func configure(with movie: Movie) {
         
-        self.movie = movie
+        movieId = movie.id
         
         if let imagePath = movie.posterPath,
            let url = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
             
             imageViewMovie.kf.setImage(with: url)
         }
-        else {
-            imageViewMovie.backgroundColor = .cyan
-        }
+        
         if let date = movie.releaseDate {
             yearLabel.text = getReleaseYear(releaseDate: date)
         }
+        
         titleLabel.text = movie.title
+        
         descriptionLabel.text = movie.overview
         
-        if movie.favourite {
-            favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
+        setButtonImage(on: .favourite, selected: movie.favourite)
         
-        if movie.watched {
-            watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
+        setButtonImage(on: .watched, selected: movie.watched)
     }
     
     private func getReleaseYear(releaseDate: String) -> String {
@@ -157,7 +150,30 @@ extension MovieListCollectionViewCell {
         
         return dateFormatter.string(from: date)
     }
-
+    
+    func setButtonImage(on type: ButtonType, selected: Bool) {
+     
+        switch type {
+        case .favourite:
+            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+        case .watched:
+            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+        }
+    }
     
     
     //MARK: Constraints

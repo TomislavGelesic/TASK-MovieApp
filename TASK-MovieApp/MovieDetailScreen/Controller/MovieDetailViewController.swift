@@ -12,7 +12,7 @@ import Alamofire
 
 class MovieDetailViewController: UIViewController {
     
-    var screenData = [ScreenData<MovieDetailScreenDataTypes, String>]()
+    var screenData: DetailScreenData
     
     var movieID: Int64
     
@@ -29,9 +29,11 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for id: Int) {
-        
-        self.movieID = Int64(id)
+    init(_ movie: Movie) {
+        movieID = movie.id
+        favouriteFlag = movie.favourite
+        watchedFlag = movie.watched
+        screenData = DetailScreenData(rowData: [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>](), watched: false, favourite: false, id: -1)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -90,14 +92,17 @@ extension MovieDetailViewController {
     }
     
     private func fetchMovieDetailsJSONModel(spinnerOn: Bool, completion: @escaping ()->()) {
-        guard let urlToGetMovieDetails = URL(string: Constants.MOVIE_API.BASE +
-                                Constants.MOVIE_API.GET_DETAILS_ON + "\(movieID)" +
-                                Constants.MOVIE_API.KEY
-        ) else { return }
+       
+        let url = Constants.MOVIE_API.BASE +
+                  Constants.MOVIE_API.GET_DETAILS_ON +
+                  "\(Int(movieID))" +
+                  Constants.MOVIE_API.KEY
+        
+        guard let getMovieDetailsURL = URL(string: url) else { return }
         
         if spinnerOn { showSpinner() }
         
-        Alamofire.request(urlToGetMovieDetails)
+        Alamofire.request(getMovieDetailsURL)
             .validate()
             .response { (response) in
                 if let error = response.error {
@@ -106,8 +111,9 @@ extension MovieDetailViewController {
                 }
                 else if let data = response.data {
                     do{
-                        let json = try JSONDecoder().decode(MovieDetails.self, from: data)
-                        self.screenData = self.createScreenData(from: json)
+                        let jsonData = try JSONDecoder().decode(MovieDetails.self, from: data)
+                        
+                        self.screenData = self.createScreenData(from: jsonData)
                         completion()
                     }
                     catch {
@@ -121,24 +127,25 @@ extension MovieDetailViewController {
             }
     }
     
-    private func createScreenData(from details: MovieDetails) -> [ScreenData<MovieDetailScreenDataTypes, String>] {
-
+    private func createScreenData(from movieDetails: MovieDetails) -> DetailScreenData {
         
-        var screenData = [ScreenData<MovieDetailScreenDataTypes, String>]()
+        return DetailScreenData(rowData: createRowData(from: movieDetails), watched: watchedFlag, favourite: favouriteFlag, id: movieID)
+    }
+    
+    private func createRowData(from movieDetails: MovieDetails) -> [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>] {
         
-        if let imagePath = details.poster_path {
-            screenData.append(ScreenData.init(type: .image, value: imagePath))
+        var rowData = [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>]()
+        
+        if let imagePath = movieDetails.poster_path {
+            rowData.append(MovieDetailScreenRowData.init(type: .image, value: imagePath))
         }
-        else {
-            screenData.append(ScreenData.init(type: .image, value: ""))
-        }
         
-        screenData.append(ScreenData.init(type: .title, value: details.title))
-        screenData.append(ScreenData.init(type: .genre, value: genresToString(details.genres)))
-        screenData.append(ScreenData.init(type: .quote, value: details.tagline))
-        screenData.append(ScreenData.init(type: .description, value: details.overview))
+        rowData.append(MovieDetailScreenRowData.init(type: .title, value: movieDetails.title))
+        rowData.append(MovieDetailScreenRowData.init(type: .genre, value: genresToString(movieDetails.genres)))
+        rowData.append(MovieDetailScreenRowData.init(type: .quote, value: movieDetails.tagline))
+        rowData.append(MovieDetailScreenRowData.init(type: .description, value: movieDetails.overview))
         
-        return screenData
+        return rowData
     }
     
     private func genresToString (_ genres: [Genre]) -> String {
@@ -180,12 +187,12 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return screenData.count
+        return screenData.rowData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let item = screenData[indexPath.row]
+        let item = screenData.rowData[indexPath.row]
         
         switch item.type {
         case .image:
@@ -197,8 +204,8 @@ extension MovieDetailViewController: UITableViewDataSource {
             }
             cell.imageViewMovie.kf.setImage(with: urlToImage)
             cell.movieDetailImageCellDelegate = self
-            cell.updateButtonImage(for: movieID, and: .favourite)
-            cell.updateButtonImage(for: movieID, and: .watched)
+            cell.setButtonImage(on: .favourite, selected: screenData.favourite)
+            cell.setButtonImage(on: .watched, selected: screenData.watched)
             return cell
             
         case .title:
@@ -228,34 +235,16 @@ extension MovieDetailViewController: UITableViewDataSource {
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
-    func favouriteButtonTapped(cell: MovieDetailImageCell) {
+    func favouriteButtonTapped(on id: Int64) {
         
-        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: movieID)
-        
-        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: movieID, and: .favourite) else { return }
-        
-        if status {
-            cell.favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            cell.favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
+        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
         
         tableView.reloadData()
     }
     
-    func watchedButtonTapped(cell: MovieDetailImageCell) {
+    func watchedButtonTapped(on id: Int64) {
         
-        CoreDataManager.sharedInstance.switchForId(type: .watched, for: movieID)
-        
-        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: movieID, and: .watched) else { return }
-        
-        if status {
-            cell.watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            cell.watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
+        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
         
         tableView.reloadData()
     }

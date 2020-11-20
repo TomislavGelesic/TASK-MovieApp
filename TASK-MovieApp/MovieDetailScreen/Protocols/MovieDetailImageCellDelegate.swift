@@ -9,6 +9,6 @@ import Foundation
 
 protocol MovieDetailImageCellDelegate: class {
     func backButtonTapped()
-    func favouriteButtonTapped(cell: MovieDetailImageCell)
-    func watchedButtonTapped(cell: MovieDetailImageCell)
+    func favouriteButtonTapped(on: Int64)
+    func watchedButtonTapped(on: Int64)
 }

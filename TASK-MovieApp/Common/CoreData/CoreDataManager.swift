@@ -8,8 +8,6 @@
 import UIKit
 import CoreData
 
-//TODO: refactor
-
 class CoreDataManager {
     //MARK: Properties
     static let sharedInstance = CoreDataManager()
@@ -32,7 +30,9 @@ extension CoreDataManager {
     //MARK: Functions
     
     func saveContext () {
+        
         let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        
         if managedContext.hasChanges {
             do {
                 try managedContext.save()
@@ -43,133 +43,106 @@ extension CoreDataManager {
         }
     }
     
-    func getAllMovies() -> [Movie]? {
+    func getMovies(_ option: SavedMovies) -> [Movie]? {
         
         var movies: [Movie]?
         
         let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
+        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
+        
+        switch option {
+        case .all:
+            
+            print("Getting all movies from core data...")
+            
+        case .favourite:
+            
+            request.predicate = NSPredicate(format: "favourite == YES")
+            
+        case .watched:
+            
+            request.predicate = NSPredicate(format: "watched == YES")
+        }
+        
         do {
-            movies = try managedContext.fetch(Movie.fetchRequest())
-        } catch { print(error) }
+            movies = try managedContext.fetch(request)
+        } catch  {
+            print(error)
+        }
         
         if let movies = movies {
             return movies
         }
         return nil
+        
     }
     
-    func saveJSONModel(_ json: MovieItem) {
+    func updateMovie(_ movie: Movie) {
+        
+        if var savedMovie = getMovie(for: movie.id) {
+            
+            savedMovie = movie
+            
+            CoreDataManager.sharedInstance.saveContext()
+            
+        }
+    }
+    
+    func switchValueOnMovie(on id: Int64, for type: ButtonType ) {
+        
+        if var savedMovie = getMovie(for: id) {
+            switch type {
+            case .favourite:
+                savedMovie.favourite = !savedMovie.favourite
+            case .watched:
+                savedMovie.watched = !savedMovie.watched
+            }
+            
+            CoreDataManager.sharedInstance.saveContext()
+            
+        }
+    }
+    
+    func createMovie(_ movie: MovieItem) -> Movie {
         
         let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
         let newMovie = Movie(context: managedContext)
         
-        newMovie.id = Int64(json.id)
-        newMovie.title = json.title
-        newMovie.overview = json.overview
-        newMovie.posterPath = json.poster_path
-        newMovie.releaseDate = json.release_date
-        newMovie.favourite = false
-        newMovie.watched = false
+        newMovie.id           = Int64(movie.id)
+        newMovie.title        = movie.title
+        newMovie.overview     = movie.overview
+        newMovie.releaseDate  = movie.release_date
+        newMovie.favourite    = false
+        newMovie.watched      = false
         
-        var genreIDs = String()
-        
-        for id in json.genre_ids {
-            genreIDs.append("\(id), ")
+        if let path = movie.poster_path {
+            newMovie.posterPath = path
         }
-        newMovie.genreIDs = genreIDs
-        
-        CoreDataManager.sharedInstance.saveContext()
+
+        return newMovie
     }
     
-    func updateMovie() {
-        CoreDataManager.sharedInstance.saveContext()
-    }
-    
-    func switchForId(type: ButtonType, for id: Int64) {
+    func deleteMovie(_ movie: Movie) {
         
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        
+        managedContext.delete(movie)    }
+    
+}
+
+extension CoreDataManager {
+    //MARK: Private functions
+    
+    private func getMovie(for id: Int64) -> Movie? {
         let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         request.predicate = NSPredicate(format: "id == \(id)")
+        
         var movies: [Movie]?
-        do {
-            movies = try managedContext.fetch(request)
-        } catch  {
-            print(error)
-            return
-        }
         
-        if let movies = movies {
-            
-            switch type {
-            case .favourite:
-                if movies[0].favourite == true {
-                    movies[0].favourite = false
-                }
-                else {
-                    movies[0].favourite = true
-                }
-                CoreDataManager.sharedInstance.saveContext()
-                
-                
-            case .watched:
-                if movies[0].watched == true {
-                    movies[0].watched = false
-                }
-                else {
-                    movies[0].watched = true
-                }
-                CoreDataManager.sharedInstance.saveContext()
-            }
-        } else {
-            print("unseccesfull switchForId()")
-        }
-        
-        
-    }
-    
-    func getFavouriteMovies() -> [Movie]? {
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
-        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
-        request.predicate = NSPredicate(format: "favourite == YES")
-        var movies: [Movie]?
-        do {
-            movies = try managedContext.fetch(request)
-        } catch  {
-            print(error)
-        }
-        
-        if let movies = movies {
-            return movies
-        }
-        return nil
-    }
-    
-    func getWatchedMovies() -> [Movie]? {
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
-        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
-        request.predicate = NSPredicate(format: "watched == YES")
-        var movies: [Movie]?
-        do {
-            movies = try managedContext.fetch(request)
-        } catch  {
-            print(error)
-        }
-        
-        if let movies = movies {
-            return movies
-        }
-        return nil
-    }
-    
-    func checkButtonStatus(for id: Int64, and type: ButtonType) -> Bool? {
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
-        
-        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
-        request.predicate = NSPredicate(format: "id == \(id)")
-        var movies: [Movie]?
         do {
             movies = try managedContext.fetch(request)
         } catch  {
@@ -178,45 +151,9 @@ extension CoreDataManager {
         }
         
         if let movies = movies {
-            
-            switch type {
-            case .favourite:
-                if movies[0].favourite == true {
-                    return true
-                }
-                else {
-                    return false
-                }
-            case .watched:
-                if movies[0].watched == true {
-                    return true
-                }
-                else {
-                    return false
-                }
-            }
-        }
-        return nil
-    }
-    
-    
-    func getMovie(for id: Int64, and type: ButtonType) -> Movie? {
-        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
-        
-        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
-        request.predicate = NSPredicate(format: "id == \(id)")
-        var movies: [Movie]?
-        do {
-            movies = try managedContext.fetch(request)
-        } catch  {
-            print(error)
-            return nil
-        }
-        
-        if let movies = movies {
-            
             return movies[0]
         }
+        
         return nil
     }
     

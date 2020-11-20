@@ -14,6 +14,8 @@ class MovieDetailImageCell: UITableViewCell {
     
     var movieDetailImageCellDelegate: MovieDetailImageCellDelegate?
     
+    var movieID: Int64?
+    
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 20
@@ -79,47 +81,6 @@ extension MovieDetailImageCell {
         watchedButtonConstraints()
     }
     
-    @objc func backBarButtonTapped() {
-        
-        movieDetailImageCellDelegate?.backButtonTapped()
-    }
-    
-    @objc func favouriteBarButtonTapped() {
-        
-        movieDetailImageCellDelegate?.favouriteButtonTapped(cell: self)
-    }
-    
-    @objc func watchedBarButtonTapped() {
-        
-        movieDetailImageCellDelegate?.watchedButtonTapped(cell: self)
-    }
-    
-    func updateButtonImage(for id: Int64, and type: ButtonType) {
-    
-        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: id, and: type) else { return }
-     
-        switch type {
-        case .favourite:
-            if status, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
-        case .watched:
-            if status, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
-        }
-    }
-    
     //MARK: Constraints
     
     private func imageViewMovieConstraints() {
@@ -159,6 +120,55 @@ extension MovieDetailImageCell {
             make.top.equalTo(gradientOverlay).offset(10)
             make.trailing.equalTo(favouriteButton.snp.leading).offset(-10)
             make.width.height.equalTo(40)
+        }
+    }
+}
+
+
+extension MovieDetailImageCell {
+    //MARK: Functions
+    
+    func setButtonImage(on type: ButtonType, selected: Bool) {
+     
+        switch type {
+        case .favourite:
+            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+        case .watched:
+            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+        }
+    }
+    
+    //MARK: Delegate methods
+    @objc func backBarButtonTapped() {
+        
+        movieDetailImageCellDelegate?.backButtonTapped()
+    }
+    
+    @objc func favouriteBarButtonTapped() {
+        
+        if let id = movieID {
+            movieDetailImageCellDelegate?.favouriteButtonTapped(on: id)
+        }
+    }
+    
+    @objc func watchedBarButtonTapped() {
+        
+        if let id = movieID {
+            movieDetailImageCellDelegate?.watchedButtonTapped(on: id)
         }
     }
 }

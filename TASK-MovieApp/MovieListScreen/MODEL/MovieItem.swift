@@ -15,5 +15,4 @@ struct MovieItem: Codable {
     var title: String
     var release_date: String
     var overview: String
-    var genre_ids: [Int]
 }

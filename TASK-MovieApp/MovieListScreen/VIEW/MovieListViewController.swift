@@ -15,6 +15,8 @@ class MovieListViewController: UIViewController {
     
     private var screenData = [Movie]()
     
+    private var movieListPresenter = MovieListPresenter()
+    
     private let flowLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -46,7 +48,6 @@ class MovieListViewController: UIViewController {
         setupCollectionView()
         setupPullToRefreshControl()
         fetchData(spinnerOn: true) {
-            self.fetchScreenData()
             self.movieCollectionView.reloadData()
             self.hideSpinner()
         }
@@ -89,12 +90,14 @@ extension MovieListViewController {
     
     private func fetchData(spinnerOn: Bool, completion: @escaping () -> ()) {
         
-        guard let urlGetNowPlaying = URL(string: "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_NOW_PLAYING)\(Constants.MOVIE_API.KEY)") else { return }
+        let url = Constants.MOVIE_API.BASE + Constants.MOVIE_API.GET_NOW_PLAYING + Constants.MOVIE_API.KEY
+        
+        guard let getNowPlayingURL = URL(string: url) else { return }
         
         if spinnerOn { showSpinner() }
         
         
-        Alamofire.request(urlGetNowPlaying)
+        Alamofire.request(getNowPlayingURL)
             .validate()
             .response { (response) in
                 if let error = response.error {
@@ -102,9 +105,13 @@ extension MovieListViewController {
                     print(error)
                 }
                 else if let data = response.data {
-                    do{
-                        let json = try JSONDecoder().decode(MovieList.self, from: data)
-                        self.saveToCoreData(json.results)
+                    do {
+                        let jsonData = try JSONDecoder().decode(MovieList.self, from: data)
+                        
+                        if let screenData = self.createScreenData(from: jsonData.results) {
+                            self.screenData = screenData
+                        }
+                        
                         completion()
                     }
                     catch {
@@ -118,18 +125,26 @@ extension MovieListViewController {
             }
     }
     
-    private func saveToCoreData(_ data: [MovieItem]) {
+    private func createScreenData(from movies: [MovieItem]) -> [Movie]? {
+         
+        let savedMovies = CoreDataManager.sharedInstance.getMovies(.all)
         
-        for movie in data {
-            CoreDataManager.sharedInstance.saveJSONModel(movie)
+        var newMovies = [Movie]()
+        
+        for movieItem in movies {
+            newMovies.append(CoreDataManager.sharedInstance.createMovie(movieItem))
         }
+        
+        if let savedMovies = savedMovies {
+            let moviesToAdd = newMovies.filter { !savedMovies.contains($0) }
+            saveNewMovies(moviesToAdd)
+        }
+        return CoreDataManager.sharedInstance.getMovies(.all)
     }
     
-    private func fetchScreenData() {
+    func saveNewMovies(_ movies: [Movie]) {
         
-        if let data = CoreDataManager.sharedInstance.getAllMovies(){
-            self.screenData = data
-        }
+        CoreDataManager.sharedInstance.saveContext()
     }
     
     private func showAPIFailAlert(){
@@ -148,7 +163,6 @@ extension MovieListViewController {
         print("Retrieving update on movies...")
         
         fetchData(spinnerOn: false) {
-            self.fetchScreenData()
             self.movieCollectionView.reloadData()
             self.pullToRefreshControl.endRefreshing()
         }
@@ -177,7 +191,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let movieDetailScreen = MovieDetailViewController(for: Int(screenData[indexPath.row].id))
+        let movieDetailScreen = MovieDetailViewController(screenData[indexPath.row])
         movieDetailScreen.modalPresentationStyle = .fullScreen
         
         self.present(movieDetailScreen, animated: true, completion: nil)
@@ -187,8 +201,7 @@ extension MovieListViewController: UICollectionViewDelegate {
 extension MovieListViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        
+                
         let cellWidth = (movieCollectionView.frame.width - 30) / 2
         let cellHeight = cellWidth * 1.5
         return CGSize(width: cellWidth, height: cellHeight)
@@ -199,24 +212,24 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
 
 extension MovieListViewController: MovieListCollectionViewCellDelegate {
     
-    func favouriteButtonTapped(cell: MovieListCollectionViewCell) {
+    func favouriteButtonTapped(on id: Int64) {        
         
-        guard let id = cell.movie?.id else { return }
+        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
         
-        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: Int64(id))
-        
-        fetchScreenData()
+        if let screenData = CoreDataManager.sharedInstance.getMovies(.all) {
+            self.screenData = screenData
+        }
         
         movieCollectionView.reloadData()
     }
     
-    func watchedButtonTapped(cell: MovieListCollectionViewCell) {
+    func watchedButtonTapped(on id: Int64) {
         
-        guard let id = cell.movie?.id else { return }
+        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
         
-        CoreDataManager.sharedInstance.switchForId(type: .watched, for: Int64(id))
-        
-        fetchScreenData()
+        if let screenData = CoreDataManager.sharedInstance.getMovies(.all) {
+            self.screenData = screenData
+        }
         
         movieCollectionView.reloadData()
     }

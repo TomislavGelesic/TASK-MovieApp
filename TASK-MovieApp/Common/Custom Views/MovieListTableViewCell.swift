@@ -187,8 +187,7 @@ extension MovieListTableViewCell {
     private func containerConstraints() {
         
         container.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(contentView).offset(5)
-            make.bottom.trailing.equalTo(contentView).offset(-5)
+            make.edges.equalTo(contentView).inset(UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5))
         }
     }
     

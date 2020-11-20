@@ -8,6 +8,6 @@
 import Foundation
 
 protocol MovieListCollectionViewCellDelegate {
-    func favouriteButtonTapped(cell: MovieListCollectionViewCell)
-    func watchedButtonTapped(cell: MovieListCollectionViewCell)
+    func favouriteButtonTapped(on id: Int64)
+    func watchedButtonTapped(on id: Int64)
 }
