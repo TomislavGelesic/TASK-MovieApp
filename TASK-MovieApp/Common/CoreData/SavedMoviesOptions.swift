@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SavedMovies {
+enum SavedMoviesOptions {
     case all
     case favourite
     case watched

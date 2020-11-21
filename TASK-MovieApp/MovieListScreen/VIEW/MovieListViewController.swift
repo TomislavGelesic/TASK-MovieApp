@@ -50,7 +50,11 @@ class MovieListViewController: UIViewController {
         
         movieListPresenter = MovieListPresenter(delegate: self)
         
-        screenData = movieListPresenter?.getNewScreenData() ?? [Movie]()
+        if let data = movieListPresenter?.getNewScreenData() {
+            screenData = data
+        }
+        
+        movieCollectionView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {

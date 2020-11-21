@@ -13,6 +13,10 @@ class MovieListPresenter {
     
     var coreDataManager = CoreDataManager.sharedInstance
     
+    var movieAPIManager = MovieAPIManager()
+    
+    var movies = [Movie]()
+    
     weak var movieListViewControllerDelegate: MovieListViewController?
     
     init(delegate: MovieListViewController) {
@@ -39,42 +43,37 @@ extension MovieListPresenter {
         }
     }
     
-    func getNewScreenData() -> [Movie] {
-        var returnValue = [Movie]()
+    func getNewScreenData() -> [Movie]? {
         
-        let url = Constants.MOVIE_API.BASE + Constants.MOVIE_API.GET_NOW_PLAYING + Constants.MOVIE_API.KEY
-        
-        guard let getNowPlayingURL = URL(string: url) else { return [Movie]()}
+        let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
+        print(url)
+        guard let getNowPlayingURL = URL(string: url) else { return nil}
         
         movieListViewControllerDelegate?.showSpinner()
         
-        Alamofire.request(getNowPlayingURL)
-            .validate()
-            .response { (response) in
-                if let error = response.error {
-                    self.movieListViewControllerDelegate?.showAPIFailAlert()
-                    print(error)
-                }
-                else if let data = response.data {
-                    do {
-                        let jsonData = try JSONDecoder().decode(MovieList.self, from: data)
-                        
-                        if let screenData = self.createScreenData(from: jsonData.results) {
-                            returnValue = screenData
+        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieList.self) { (data, message) in
+            
+            if let data = data {
+
+                var temp = [Movie]()
+                
+                for item in data.results {
+                    
+                    if let movie = self.coreDataManager.getMovie(for: Int64(item.id)) {
+                        temp.append(movie)
+                    }
+                    else {
+                        if let newMovie = self.coreDataManager.createMovie(from: item) {
+                            temp.append(newMovie) 
                         }
-                        
-                    }
-                    catch {
-                        self.movieListViewControllerDelegate?.showAPIFailAlert()
-                        print(error)
                     }
                 }
-                else {
-                    self.movieListViewControllerDelegate?.showAPIFailAlert()
-                }
+                
+                self.movies = temp
             }
-        
-        return returnValue
+        }
+            
+        return movies
     }
     
     func updateScreenDataWithCoreData() -> [Movie] {
@@ -89,28 +88,6 @@ extension MovieListPresenter {
 extension MovieListPresenter {
     //MARK: Private functions
     
-        
-    
-    
-    private func createScreenData(from movies: [MovieItem]) -> [Movie]? {
-         
-        let savedMovies = coreDataManager.getMovies(.all)
-        
-        var newMovies = [Movie]()
-        
-        for movieItem in movies {
-            newMovies.append(coreDataManager.createMovie(movieItem))
-        }
-        
-        if let savedMovies = savedMovies {
-            
-            let moviesToAdd = newMovies.filter { !savedMovies.contains($0) }
-            
-            saveNewMovies(moviesToAdd)
-        }
-        
-        return coreDataManager.getMovies(.all)
-    }
     
     private func saveNewMovies(_ movies: [Movie]) {
         

@@ -43,7 +43,7 @@ extension CoreDataManager {
         }
     }
     
-    func getMovies(_ option: SavedMovies) -> [Movie]? {
+    func getMovies(_ option: SavedMoviesOptions) -> [Movie]? {
         
         var movies: [Movie]?
         
@@ -53,15 +53,12 @@ extension CoreDataManager {
         
         switch option {
         case .all:
-            
             print("Getting all movies from core data...")
             
         case .favourite:
-            
             request.predicate = NSPredicate(format: "favourite == YES")
             
         case .watched:
-            
             request.predicate = NSPredicate(format: "watched == YES")
         }
         
@@ -78,78 +75,105 @@ extension CoreDataManager {
         
     }
     
-    func updateMovie(_ movie: Movie) {
+    func getMovie(for id: Int64) -> Movie? {
         
-        if var savedMovie = getMovie(for: movie.id) {
+        let managedContext = persistentContainer.viewContext
+        
+        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
+        
+        request.predicate = NSPredicate(format: "id == \(id)")
+        
+        do {
             
-            savedMovie = movie
+            let results = try managedContext.fetch(request)
+             
+            if results.count != 0 {
+                return results.first
+            }
             
-            saveContext()
+            return nil
             
+        } catch  {
+            print(error)
+            return nil
         }
+    }
+    
+//    func updateMovie(_ movie: Movie) {
+//
+//        if let savedMovie = getMovie(for: movie.id) {
+//
+//            savedMovie.favourite   = movie.favourite
+//            savedMovie.watched     = movie.watched
+//            savedMovie.genreIDs    = movie.genreIDs
+//            savedMovie.posterPath  = movie.posterPath
+//            savedMovie.releaseDate = movie.releaseDate
+//            savedMovie.overview    = movie.overview
+//            savedMovie.title       = movie.title
+//
+//            saveContext()
+//            return
+//        }
+//
+//        saveContext()
+//    }
+    
+    func createMovie(from item: MovieItem) -> Movie? {
+        
+        let managedContext = persistentContainer.viewContext
+        
+        let movie = Movie(context: managedContext)
+        
+        movie.setValue(Int64(item.id), forKey: "id")
+        movie.setValue(item.title, forKey: "title")
+        movie.setValue(item.overview, forKey: "overview")
+        movie.setValue(item.poster_path, forKey: "posterPath")
+        movie.setValue(item.release_date, forKey: "releaseDate")
+        movie.setValue(false, forKey: "favourite")
+        movie.setValue(false, forKey: "watched")
+        
+        saveContext()
+        
+        if let movie = getMovie(for: Int64(item.id)) {
+            
+            print("saved new item with id: \(item.id)")
+            return movie
+        }
+        return nil
     }
     
     func switchValueOnMovie(on id: Int64, for type: ButtonType ) {
         
-        if let savedMovie = getMovie(for: id) {
-            switch type {
-            case .favourite:
-                savedMovie.favourite = !savedMovie.favourite
-            case .watched:
-                savedMovie.watched = !savedMovie.watched
-            }
-            
-            saveContext()
-            
+        guard let savedMovie = getMovie(for: id) else { return }
+        
+        switch type {
+        case .favourite:
+            savedMovie.favourite = !savedMovie.favourite
+        case .watched:
+            savedMovie.watched = !savedMovie.watched
         }
-    }
-    
-    func createMovie(_ movie: MovieItem) -> Movie {
         
-        let managedContext = persistentContainer.viewContext
+        saveContext()
         
-        let newMovie = Movie(context: managedContext)
-        
-        newMovie.id           = Int64(movie.id)
-        newMovie.title        = movie.title
-        newMovie.overview     = movie.overview
-        newMovie.releaseDate  = movie.release_date
-        newMovie.favourite    = false
-        newMovie.watched      = false
-        
-        if let path = movie.poster_path {
-            newMovie.posterPath = path
-        }
-
-        return newMovie
     }
     
     func deleteMovie(_ movie: Movie) {
         
         let managedContext = persistentContainer.viewContext
         
-        managedContext.delete(movie)    }
+        managedContext.delete(movie)
+        
+        saveContext()
+    }
     
-    func getMovie(for id: Int64) -> Movie? {
-        let managedContext = persistentContainer.viewContext
+    func deleteAll() {
         
-        let request = Movie.fetchRequest() as NSFetchRequest<Movie>
-        request.predicate = NSPredicate(format: "id == \(id)")
-        
-        var movies: [Movie]?
-        
-        do {
-            movies = try managedContext.fetch(request)
-        } catch  {
-            print(error)
-            return nil
+        if let moviesToDelete = getMovies(.all) {
+            
+            for movie in moviesToDelete {
+                deleteMovie(movie)
+            }
         }
-        
-        if let movies = movies {
-            return movies[0]
-        }
-        
-        return nil
     }
     
 }

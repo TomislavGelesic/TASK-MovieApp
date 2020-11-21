@@ -61,19 +61,20 @@ extension MovieDetailPresenter {
                     self.movieDetailViewControllerDelegate?.showAPIFailAlert()
                     print(error)
                 }
-                else if let data = response.data {
+                
+                if let data = response.data {
                     do {
+                        
                         let jsonData = try JSONDecoder().decode(MovieDetails.self, from: data)
                         
                         returnValue = self.createScreenData(from: jsonData)
                     }
                     catch {
+                        
                         self.movieDetailViewControllerDelegate?.showAPIFailAlert()
+                        
                         print(error)
-                    }
-                }
-                else {
-                    self.movieDetailViewControllerDelegate?.showAPIFailAlert()
+                    }                    
                 }
             }
         
