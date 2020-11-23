@@ -119,9 +119,8 @@ extension MovieDetailViewController: UITableViewDataSource {
         switch item.type {
         case .image:
             let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
-            let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value)
             
-            cell.imageViewMovie.setImage(url: urlToImage)
+            cell.imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value)
             cell.movieDetailImageCellDelegate = self
             cell.setButtonImage(on: .favourite, selected: screenData.favourite)
             cell.setButtonImage(on: .watched, selected: screenData.watched)

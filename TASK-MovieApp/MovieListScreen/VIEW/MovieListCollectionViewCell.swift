@@ -125,10 +125,9 @@ extension MovieListCollectionViewCell {
         
         movieId = movie.id
         
-        if let imagePath = movie.posterPath,
-           let url = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+        if let imagePath = movie.posterPath {
             
-            imageViewMovie.setImage(url: url)
+            imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
         }
         
         if let date = movie.releaseDate {
