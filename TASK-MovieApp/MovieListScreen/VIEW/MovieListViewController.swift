@@ -144,7 +144,9 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension MovieListViewController: CellButtonDelegate {
+    
     func cellButtonTapped(on cell: MovieListCollectionViewCell, id: Int64, type: ButtonType) {
+        
         movieListPresenter?.buttonTapped(on: id, type: type)
         
         switch type {

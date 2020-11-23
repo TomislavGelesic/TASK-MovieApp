@@ -77,6 +77,7 @@ extension MovieListPresenter {
 }
 
 extension MovieListPresenter: ButtonTapped {
+    
     func buttonTapped(on id: Int64, type: ButtonType) {
         
         switch type {

@@ -153,6 +153,11 @@ extension CoreDataManager {
             savedMovie.watched = !savedMovie.watched
         }
         
+        if !savedMovie.favourite, !savedMovie.watched {
+            deleteMovie(savedMovie)
+            return
+        }
+        
         saveContext()
         
     }
