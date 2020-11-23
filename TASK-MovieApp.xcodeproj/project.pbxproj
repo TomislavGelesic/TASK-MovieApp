@@ -35,6 +35,8 @@
 		60282670254C699D00DB3C3A /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6028266F254C699D00DB3C3A /* Genre.swift */; };
 		60282686254C912800DB3C3A /* MovieItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60282685254C912800DB3C3A /* MovieItem.swift */; };
 		604369A7256BAE8A00CB5CFF /* ButtonTapped.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604369A6256BAE8A00CB5CFF /* ButtonTapped.swift */; };
+		604369AD256BC51400CB5CFF /* SpinnerViewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604369AC256BC51400CB5CFF /* SpinnerViewManager.swift */; };
+		604369B1256BD02C00CB5CFF /* SpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604369B0256BD02C00CB5CFF /* SpinnerView.swift */; };
 		6044443E2551E0E500F6ADC2 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6044443D2551E0E500F6ADC2 /* CoreDataManager.swift */; };
 		60467FB6255DD05300348ACD /* Extensions+UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60467FB5255DD05300348ACD /* Extensions+UICollectionView.swift */; };
 		60467FBE255DD0DD00348ACD /* Extensions+UICollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60467FBD255DD0DD00348ACD /* Extensions+UICollectionViewCell.swift */; };
@@ -69,10 +71,10 @@
 		60282618254C20D000DB3C3A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6028261A254C20D000DB3C3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		60282626254C21CC00DB3C3A /* MovieList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieList.swift; sourceTree = "<group>"; };
-		60282627254C21CC00DB3C3A /* Dates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Dates.swift; path = "TASK-MovieApp/Common/Data Model/Dates.swift"; sourceTree = SOURCE_ROOT; };
+		60282627254C21CC00DB3C3A /* Dates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Dates.swift; path = "TASK-MovieApp/Common/Model/Dates.swift"; sourceTree = SOURCE_ROOT; };
 		6028262C254C21CC00DB3C3A /* Extensions+UITableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Extensions+UITableView.swift"; sourceTree = "<group>"; };
 		6028262D254C21CC00DB3C3A /* Extensions+UITableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Extensions+UITableViewCell.swift"; sourceTree = "<group>"; };
-		6028262E254C21CC00DB3C3A /* Extensions+UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Extensions+UIViewController.swift"; sourceTree = "<group>"; };
+		6028262E254C21CC00DB3C3A /* Extensions+UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Extensions+UIViewController.swift"; path = "TASK-MovieApp/Common/Extensions/Extensions+UIViewController.swift"; sourceTree = SOURCE_ROOT; };
 		60282632254C21CC00DB3C3A /* ReusableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReusableView.swift; sourceTree = "<group>"; };
 		60282634254C21CC00DB3C3A /* ShadeGradientOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadeGradientOverlayView.swift; sourceTree = "<group>"; };
 		6028263A254C21CC00DB3C3A /* MovieDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailViewController.swift; sourceTree = "<group>"; };
@@ -83,13 +85,15 @@
 		60282640254C21CC00DB3C3A /* MovieDetailGenreCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailGenreCell.swift; sourceTree = "<group>"; };
 		60282647254C21CC00DB3C3A /* MovieListCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieListCollectionViewCell.swift; sourceTree = "<group>"; };
 		60282664254C22A000DB3C3A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		6028266F254C699D00DB3C3A /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Genre.swift; path = "TASK-MovieApp/Common/Data Model/Genre.swift"; sourceTree = SOURCE_ROOT; };
+		6028266F254C699D00DB3C3A /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Genre.swift; path = "TASK-MovieApp/Common/Model/Genre.swift"; sourceTree = SOURCE_ROOT; };
 		60282685254C912800DB3C3A /* MovieItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieItem.swift; sourceTree = "<group>"; };
 		604369A6256BAE8A00CB5CFF /* ButtonTapped.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonTapped.swift; sourceTree = "<group>"; };
+		604369AC256BC51400CB5CFF /* SpinnerViewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpinnerViewManager.swift; path = "TASK-MovieApp/Common/SpinnerViewManager.swift"; sourceTree = SOURCE_ROOT; };
+		604369B0256BD02C00CB5CFF /* SpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpinnerView.swift; path = "TASK-MovieApp/Common/Custom Views/SpinnerView.swift"; sourceTree = SOURCE_ROOT; };
 		6044443D2551E0E500F6ADC2 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoreDataManager.swift; path = "TASK-MovieApp/Common/CoreData/CoreDataManager.swift"; sourceTree = SOURCE_ROOT; };
 		60467FB5255DD05300348ACD /* Extensions+UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions+UICollectionView.swift"; sourceTree = "<group>"; };
 		60467FBD255DD0DD00348ACD /* Extensions+UICollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions+UICollectionViewCell.swift"; sourceTree = "<group>"; };
-		604BC030255557DA00C47CA7 /* ButtonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ButtonType.swift; path = "TASK-MovieApp/Common/ButtonType.swift"; sourceTree = SOURCE_ROOT; };
+		604BC030255557DA00C47CA7 /* ButtonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ButtonType.swift; path = "TASK-MovieApp/Common/Model/ButtonType.swift"; sourceTree = SOURCE_ROOT; };
 		604F9CC92565C18000AAE5FA /* ShadeGradientOverlayViewDirections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadeGradientOverlayViewDirections.swift; sourceTree = "<group>"; };
 		6058934625659ECE003681E6 /* MovieDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieDetails.swift; path = "TASK-MovieApp/MovieDetailScreen/MODEL/MovieDetails.swift"; sourceTree = SOURCE_ROOT; };
 		605C508825543B93009D923F /* MovieListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieListViewController.swift; sourceTree = "<group>"; };
@@ -235,11 +239,11 @@
 		60282623254C21CC00DB3C3A /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				601464322567F6E600F60FBF /* Networking */,
-				604BC030255557DA00C47CA7 /* ButtonType.swift */,
 				60282664254C22A000DB3C3A /* Constants.swift */,
+				604369AC256BC51400CB5CFF /* SpinnerViewManager.swift */,
+				604369AA256BC45200CB5CFF /* Model */,
+				601464322567F6E600F60FBF /* Networking */,
 				606FD81E2552BDBC00F5FBFF /* CoreData */,
-				6028267D254C837300DB3C3A /* Data Model */,
 				6028262A254C21CC00DB3C3A /* Extensions */,
 				60282631254C21CC00DB3C3A /* Protocols */,
 				60282633254C21CC00DB3C3A /* Custom Views */,
@@ -276,6 +280,7 @@
 			children = (
 				60282634254C21CC00DB3C3A /* ShadeGradientOverlayView.swift */,
 				60858754256521D200FCD5A1 /* MovieListTableViewCell.swift */,
+				604369B0256BD02C00CB5CFF /* SpinnerView.swift */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -312,14 +317,15 @@
 			path = Support;
 			sourceTree = "<group>";
 		};
-		6028267D254C837300DB3C3A /* Data Model */ = {
+		604369AA256BC45200CB5CFF /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				604BC030255557DA00C47CA7 /* ButtonType.swift */,
 				60282627254C21CC00DB3C3A /* Dates.swift */,
 				6028266F254C699D00DB3C3A /* Genre.swift */,
 				604F9CC92565C18000AAE5FA /* ShadeGradientOverlayViewDirections.swift */,
 			);
-			path = "Data Model";
+			path = Model;
 			sourceTree = "<group>";
 		};
 		606FD81E2552BDBC00F5FBFF /* CoreData */ = {
@@ -467,6 +473,7 @@
 				604BC031255557DA00C47CA7 /* ButtonType.swift in Sources */,
 				6058934725659ECE003681E6 /* MovieDetails.swift in Sources */,
 				6028265F254C21CC00DB3C3A /* MovieListCollectionViewCell.swift in Sources */,
+				604369AD256BC51400CB5CFF /* SpinnerViewManager.swift in Sources */,
 				60467FB6255DD05300348ACD /* Extensions+UICollectionView.swift in Sources */,
 				601464202567BB9900F60FBF /* DetailScreenData.swift in Sources */,
 				6014640325669E7800F60FBF /* SavedMoviesOptions.swift in Sources */,
@@ -503,6 +510,7 @@
 				6028265B254C21CC00DB3C3A /* MovieDetailImageCell.swift in Sources */,
 				601464342567F71E00F60FBF /* MovieAPIManager.swift in Sources */,
 				60282670254C699D00DB3C3A /* Genre.swift in Sources */,
+				604369B1256BD02C00CB5CFF /* SpinnerView.swift in Sources */,
 				608587582565226700FCD5A1 /* MovieListTableViewCellDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -7,18 +7,18 @@
 
 import UIKit
 
-//MARK: Spinner Indicator
-
 
 extension UIViewController {
     
     
     func showSpinner() {
         
+        SpinnerViewManager.addSpinnerView(to: self.view)
     }
     
     func hideSpinner() {
         
+        SpinnerViewManager.removeSpinnerView()
     }
 }
 
