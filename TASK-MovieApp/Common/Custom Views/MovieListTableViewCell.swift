@@ -107,13 +107,13 @@ extension MovieListTableViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        movieListTableViewCellDelegate?.favouriteButtonTapped(cell: self)
+        movieListTableViewCellDelegate?.buttonTapped(cell: self, type: .favourite)
         
     }
     
     @objc func watchedButtonTapped() {
         
-        movieListTableViewCellDelegate?.watchedButtonTapped(cell: self)
+        movieListTableViewCellDelegate?.buttonTapped(cell: self, type: .watched)
         
     }
     

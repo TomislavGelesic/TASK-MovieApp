@@ -8,17 +8,23 @@
 import Foundation
 import Alamofire
 
+protocol MovieDetailPresenterDelegate: class {
+    func startSpinner()
+    func stopSpinner()
+    func showAlert()
+}
+
 class MovieDetailPresenter {
     
-    weak var movieDetailViewControllerDelegate: MovieDetailViewController?
+    weak var movieDetailPresenterDelegate: MovieDetailPresenterDelegate?
     
     var coreDataManager = CoreDataManager.sharedInstance
     
     var movieID: Int64
     
-    init(delegate: MovieDetailViewController, for id: Int64) {
+    init(delegate: MovieDetailPresenterDelegate, for id: Int64) {
         
-        movieDetailViewControllerDelegate = delegate
+        movieDetailPresenterDelegate = delegate
         
         movieID = id
     }
@@ -52,13 +58,13 @@ extension MovieDetailPresenter {
         
         guard let getMovieDetailsURL = URL(string: url) else { return nil}
         
-        movieDetailViewControllerDelegate?.showSpinner()
+        movieDetailPresenterDelegate?.startSpinner()
         
         Alamofire.request(getMovieDetailsURL)
             .validate()
             .response { (response) in
                 if let error = response.error {
-                    self.movieDetailViewControllerDelegate?.showAPIFailAlert()
+                    self.movieDetailPresenterDelegate?.showAlert()
                     print(error)
                 }
                 
@@ -71,7 +77,7 @@ extension MovieDetailPresenter {
                     }
                     catch {
                         
-                        self.movieDetailViewControllerDelegate?.showAPIFailAlert()
+                        self.movieDetailPresenterDelegate?.showAlert()
                         
                         print(error)
                     }                    

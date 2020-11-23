@@ -90,26 +90,21 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
 
 extension FavouriteMoviesViewController: MovieListTableViewCellDelegate {
     
-    func favouriteButtonTapped(cell: MovieListTableViewCell) {
+    func buttonTapped(cell: MovieListTableViewCell, type: ButtonType) {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
-        
-        fetchScreenData()
-        tableView.reloadData()
-    }
-    
-    func watchedButtonTapped(cell: MovieListTableViewCell) {
-        
-        guard let id = cell.movie?.id else { return }
-                
-        CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
+        switch type {
+        case .favourite:
+            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
+            
+        case .watched:
+            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
+        }
         
         fetchScreenData()
         
         tableView.reloadData()
-        
     }
 }
 

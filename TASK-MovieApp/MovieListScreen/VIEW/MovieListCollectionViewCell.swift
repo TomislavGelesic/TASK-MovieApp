@@ -9,10 +9,9 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-
-protocol MovieListCollectionViewCellDelegate {
+protocol CellButtonDelegate: class {
     
-    func buttonTapped(on id: Int64, type: ButtonType)
+    func cellButtonTapped(on cell: MovieListCollectionViewCell, id: Int64, type: ButtonType)
 }
 
 
@@ -20,7 +19,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
+    weak var cellButtonDelegate: CellButtonDelegate?
     
     var movieId: Int64?
     
@@ -87,9 +86,8 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     }
 }
 
-//MARK: Functions
-
 extension MovieListCollectionViewCell {
+    //MARK: Functions
     
     private func setupViews() {
         
@@ -112,14 +110,14 @@ extension MovieListCollectionViewCell {
     
     @objc func favouriteButtonTapped() {
         if let id = movieId {
-            movieListCollectionViewCellDelegate?.buttonTapped(on: id, type: .favourite)
+            cellButtonDelegate?.cellButtonTapped(on: self, id: id, type: .favourite)
         }
     }
     
     @objc func watchedButtonTapped() {
         
         if let id = movieId {
-            movieListCollectionViewCellDelegate?.buttonTapped(on: id, type: .watched)
+            cellButtonDelegate?.cellButtonTapped(on: self, id: id, type: .watched)
         }
     }
     
@@ -130,7 +128,7 @@ extension MovieListCollectionViewCell {
         if let imagePath = movie.posterPath,
            let url = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
             
-            imageViewMovie.kf.setImage(with: url)
+            imageViewMovie.setImage(url: url)
         }
         
         if let date = movie.releaseDate {

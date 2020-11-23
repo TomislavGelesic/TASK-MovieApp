@@ -119,12 +119,9 @@ extension MovieDetailViewController: UITableViewDataSource {
         switch item.type {
         case .image:
             let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
-            guard  let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value)
-            else {
-                cell.imageViewMovie.backgroundColor = .cyan
-                return cell
-            }
-            cell.imageViewMovie.kf.setImage(with: urlToImage)
+            let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value)
+            
+            cell.imageViewMovie.setImage(url: urlToImage)
             cell.movieDetailImageCellDelegate = self
             cell.setButtonImage(on: .favourite, selected: screenData.favourite)
             cell.setButtonImage(on: .watched, selected: screenData.watched)
@@ -157,24 +154,49 @@ extension MovieDetailViewController: UITableViewDataSource {
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
-    func buttonTapped(id: Int64, type: ButtonType) {
+    func buttonTapped(on cell: MovieDetailImageCell, type: ButtonType) {
         
         switch type {
         
         case .favourite:
-            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
+            
+            movieDetailPresenter?.buttonTapped(id: movieID, type: .favourite)
+            
+            if let movie = movieDetailPresenter?.coreDataManager.getMovie(for: movieID) {
+                cell.setButtonImage(on: .favourite, selected: movie.favourite)
+            }
             
         case .watched:
-            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
+            
+            movieDetailPresenter?.buttonTapped(id: movieID, type: .watched)
+            
+            if let movie = movieDetailPresenter?.coreDataManager.getMovie(for: movieID) {
+                cell.setButtonImage(on: .watched, selected: movie.watched)
+            }
         }
-        
-        tableView.reloadData()
     }
     
     func backButtonTapped() {
         
         dismiss(animated: true, completion: nil)
     }
+}
+
+extension MovieDetailViewController: MovieDetailPresenterDelegate {
+    
+    func startSpinner() {
+        showSpinner()
+    }
+    
+    func stopSpinner() {
+        hideSpinner()
+    }
+    
+    func showAlert() {
+        showAPIFailAlert()
+    }
+    
+    
 }
 
 

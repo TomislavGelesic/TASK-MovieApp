@@ -8,6 +8,6 @@
 import Foundation
 
 protocol MovieListTableViewCellDelegate {
-    func favouriteButtonTapped(cell: MovieListTableViewCell)
-    func watchedButtonTapped(cell: MovieListTableViewCell)
+    
+    func buttonTapped(cell: MovieListTableViewCell, type: ButtonType)
 }

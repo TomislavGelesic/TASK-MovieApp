@@ -7,7 +7,7 @@ protocol MovieDetailImageCellDelegate: class {
     
     func backButtonTapped()
     
-    func buttonTapped(id: Int64, type: ButtonType)
+    func buttonTapped(on cell: MovieDetailImageCell, type: ButtonType)
 }
 
 class MovieDetailImageCell: UITableViewCell {
@@ -15,8 +15,6 @@ class MovieDetailImageCell: UITableViewCell {
     //MARK: Properties
     
     var movieDetailImageCellDelegate: MovieDetailImageCellDelegate?
-    
-    var movieID: Int64?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -156,21 +154,15 @@ extension MovieDetailImageCell {
     
     //MARK: Delegate methods
     @objc func backButtonTapped() {
-        
         movieDetailImageCellDelegate?.backButtonTapped()
     }
     
     @objc func favouriteButtonTapped() {
-        
-        if let id = movieID {
-            movieDetailImageCellDelegate?.buttonTapped(id: id, type: .favourite)
-        }
+        movieDetailImageCellDelegate?.buttonTapped(on: self, type: .favourite)
     }
     
     @objc func watchedButtonTapped() {
-        
-        if let id = movieID {
-            movieDetailImageCellDelegate?.buttonTapped(id: id, type: .watched)
-        }
+        movieDetailImageCellDelegate?.buttonTapped(on: self, type: .watched)
     }
+    
 }

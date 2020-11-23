@@ -11,7 +11,7 @@ import Alamofire
 class MovieAPIManager {
     
     func fetch<T: Codable> (url: URL, as: T.Type, completion: @escaping (_ data: T?, _ message: String ) -> Void ) {
-        print("entered")
+        
         Alamofire.request(url)
             .validate()
             .responseData { (response) in
@@ -29,5 +29,6 @@ class MovieAPIManager {
                     completion(nil, error.localizedDescription)
                 }
             }
+        
     }
 }

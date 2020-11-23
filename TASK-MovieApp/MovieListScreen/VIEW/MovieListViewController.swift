@@ -128,7 +128,7 @@ extension MovieListViewController: UICollectionViewDataSource {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
         cell.configure(with: screenData[indexPath.row])
-        cell.movieListCollectionViewCellDelegate = self
+        cell.cellButtonDelegate = self
         
         return cell
     }
@@ -156,24 +156,56 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-
-
-extension MovieListViewController: MovieListCollectionViewCellDelegate {
-    
-    func buttonTapped(on id: Int64, type: ButtonType) {
+extension MovieListViewController: CellButtonDelegate {
+    func cellButtonTapped(on cell: MovieListCollectionViewCell, id: Int64, type: ButtonType) {
+        movieListPresenter?.buttonTapped(on: id, type: type)
         
         switch type {
         case .favourite:
-            movieListPresenter?.buttonTapped(id: id, type: .favourite)
-            
+            if let value = movieListPresenter?.coreDataManager.getMovie(for: id)?.favourite{
+                cell.setButtonImage(on: type, selected: value)
+            }
         case .watched:
-            movieListPresenter?.buttonTapped(id: id, type: .watched)
+            
+            if let value = movieListPresenter?.coreDataManager.getMovie(for: id)?.watched{
+                cell.setButtonImage(on: type, selected: value)
+            }
         }
         
-        if let data = movieListPresenter?.updateScreenDataWithCoreData() {
-        screenData = data
+    }
+    
+    
+}
+
+extension MovieListViewController: MovieListPresenterDelegate {
+    
+    func startSpinner() {
+        showSpinner()
+    }
+    
+    func stopSpinner() {
+        hideSpinner()
+    }
+    
+    func showAlertView() {
+        showAPIFailAlert()
+    }
+    
+    
+    func buttonTapped(on id: Int64, type: ButtonType) {
+
+        switch type {
+        case .favourite:
+            movieListPresenter?.buttonTapped(on: id, type: .favourite)
+
+        case .watched:
+            movieListPresenter?.buttonTapped(on: id, type: .watched)
         }
-        
+
+        if let data = movieListPresenter?.coreDataManager.getMovies(.all) {
+            screenData = data
+        }
+
         movieCollectionView.reloadData()
     }
     
