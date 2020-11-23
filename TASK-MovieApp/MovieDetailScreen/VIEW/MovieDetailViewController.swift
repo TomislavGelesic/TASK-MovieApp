@@ -91,17 +91,6 @@ extension MovieDetailViewController {
             make.edges.equalTo(view)
         }
     }
-    
-    func showAPIFailAlert(){
-        
-        let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
-        
-        DispatchQueue.main.async {
-            self.hideSpinner()
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
 }
 
 
@@ -192,7 +181,7 @@ extension MovieDetailViewController: MovieDetailPresenterDelegate {
     }
     
     func showAlert() {
-        showAPIFailAlert()
+        showAPIFailedAlert()
     }
     
     

@@ -102,19 +102,6 @@ extension MovieListViewController {
         
         self.pullToRefreshControl.endRefreshing()
     }
-    
-    //MARK: Functions
-    
-    func showAPIFailAlert(){
-        
-        let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
-        
-        DispatchQueue.main.async {
-            self.hideSpinner()
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
 }
 
 extension MovieListViewController: UICollectionViewDataSource {
@@ -188,7 +175,7 @@ extension MovieListViewController: MovieListPresenterDelegate {
     }
     
     func showAlertView() {
-        showAPIFailAlert()
+        showAPIFailedAlert()
     }
     
     
