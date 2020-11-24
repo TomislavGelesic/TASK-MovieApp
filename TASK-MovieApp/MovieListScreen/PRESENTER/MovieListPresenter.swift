@@ -70,7 +70,7 @@ extension MovieListPresenter {
             } else {
                 
                 self.movieListViewControllerDelegate?.showAlertView()
-                print("no data")
+                print(message)
             }
         }
         movieListViewControllerDelegate?.stopSpinner()

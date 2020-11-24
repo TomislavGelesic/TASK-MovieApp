@@ -180,7 +180,7 @@ extension MovieDetailViewController: MovieDetailPresenterDelegate {
         hideSpinner()
     }
     
-    func showAlert() {
+    func showAlertView() {
         showAPIFailedAlert()
     }
     

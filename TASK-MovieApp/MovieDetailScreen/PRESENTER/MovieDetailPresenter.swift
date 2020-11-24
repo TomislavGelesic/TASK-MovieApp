@@ -11,12 +11,14 @@ import Alamofire
 protocol MovieDetailPresenterDelegate: class {
     func startSpinner()
     func stopSpinner()
-    func showAlert()
+    func showAlertView()
 }
 
 class MovieDetailPresenter {
     
     weak var movieDetailPresenterDelegate: MovieDetailPresenterDelegate?
+    
+    var movieAPIManager = MovieAPIManager()
     
     var coreDataManager = CoreDataManager.sharedInstance
     
@@ -51,38 +53,28 @@ extension MovieDetailPresenter {
         
         var returnValue = DetailScreenData(rowData: [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>](), watched: false, favourite: false, id: -1)
         
-        let url = Constants.MOVIE_API.BASE +
-            Constants.MOVIE_API.GET_DETAILS_ON +
-            "\(Int(movieID))" +
-            Constants.MOVIE_API.KEY
+        let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
         
         guard let getMovieDetailsURL = URL(string: url) else { return nil}
         
         movieDetailPresenterDelegate?.startSpinner()
         
-        Alamofire.request(getMovieDetailsURL)
-            .validate()
-            .response { (response) in
-                if let error = response.error {
-                    self.movieDetailPresenterDelegate?.showAlert()
-                    print(error)
-                }
+        movieAPIManager.fetch(url: getMovieDetailsURL, as: MovieDetails.self) { (data, message) in
+            
+            if let data = data {
                 
-                if let data = response.data {
-                    do {
-                        
-                        let jsonData = try JSONDecoder().decode(MovieDetails.self, from: data)
-                        
-                        returnValue = self.createScreenData(from: jsonData)
-                    }
-                    catch {
-                        
-                        self.movieDetailPresenterDelegate?.showAlert()
-                        
-                        print(error)
-                    }                    
-                }
+                returnValue = self.createScreenData(from: data)
+                
+            } else {
+                
+                self.movieDetailPresenterDelegate?.showAlertView()
+                print(message)
             }
+            
+        }
+        
+        movieDetailPresenterDelegate?.stopSpinner()
+        
         
         return returnValue
     }
