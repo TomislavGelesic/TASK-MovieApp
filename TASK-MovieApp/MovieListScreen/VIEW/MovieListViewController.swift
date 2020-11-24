@@ -126,7 +126,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let movieDetailScreen = MovieDetailViewController(screenData[indexPath.row])
+        let movieDetailScreen = MovieDetailViewController(for: screenData[indexPath.row], delegate: self)
         movieDetailScreen.modalPresentationStyle = .fullScreen
         
         self.present(movieDetailScreen, animated: true, completion: nil)
@@ -172,6 +172,16 @@ extension MovieListViewController: MovieListPresenterDelegate {
         
         movieCollectionView.reloadData()
     }
+}
+
+extension MovieListViewController: MovieDetailViewControllerDelegate {
+    
+    func reloadData() {
+        
+        movieCollectionView.reloadData()
+    }
+    
+    
 }
 
 

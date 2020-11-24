@@ -95,17 +95,5 @@ extension MovieListPresenter: ButtonTapped {
         }
         
         movieListViewControllerDelegate?.reloadCollectionView()
-//
-//        switch type {
-//        case .favourite:
-//            if let value = coreDataManager.getMovie(for: id)?.favourite {
-//                cell.setButtonImage(on: type, selected: value)
-//            }
-//        case .watched:
-//
-//            if let value = movieListPresenter?.coreDataManager.getMovie(for: id)?.watched{
-//                cell.setButtonImage(on: type, selected: value)
-//            }
-//        }
     }
 }

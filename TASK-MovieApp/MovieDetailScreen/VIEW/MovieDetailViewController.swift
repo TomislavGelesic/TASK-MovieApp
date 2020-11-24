@@ -10,6 +10,10 @@ import SnapKit
 import Kingfisher
 import Alamofire
 
+protocol MovieDetailViewControllerDelegate: class {
+    func reloadData()
+}
+
 class MovieDetailViewController: UIViewController {
     
     var screenData: DetailScreenData = DetailScreenData(rowData: [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>](), watched: false, favourite: false, id: -1)
@@ -17,6 +21,8 @@ class MovieDetailViewController: UIViewController {
     var movieID: Int64
     
     var movieDetailPresenter: MovieDetailPresenter?
+    
+    weak var movieDetailViewControllerDelegate: MovieDetailViewControllerDelegate?
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -27,9 +33,10 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(_ movie: Movie) {
+    init(for movie: Movie, delegate: MovieDetailViewControllerDelegate) {
         
         movieID = movie.id
+        movieDetailViewControllerDelegate = delegate
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -149,6 +156,7 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     func backButtonTapped() {
         
+        movieDetailViewControllerDelegate?.reloadData()
         dismiss(animated: true, completion: nil)
     }
 }
