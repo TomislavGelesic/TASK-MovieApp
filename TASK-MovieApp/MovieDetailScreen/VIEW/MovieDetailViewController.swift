@@ -142,26 +142,9 @@ extension MovieDetailViewController: UITableViewDataSource {
 
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
-    func buttonTapped(on cell: MovieDetailImageCell, type: ButtonType) {
-        
-        switch type {
-        
-        case .favourite:
-            
-            movieDetailPresenter?.buttonTapped(id: movieID, type: .favourite)
-            
-            if let movie = movieDetailPresenter?.coreDataManager.getMovie(for: movieID) {
-                cell.setButtonImage(on: .favourite, selected: movie.favourite)
-            }
-            
-        case .watched:
-            
-            movieDetailPresenter?.buttonTapped(id: movieID, type: .watched)
-            
-            if let movie = movieDetailPresenter?.coreDataManager.getMovie(for: movieID) {
-                cell.setButtonImage(on: .watched, selected: movie.watched)
-            }
-        }
+    func buttonTapped(type: ButtonType) {
+
+        movieDetailPresenter?.buttonTapped(id: movieID, type: type)
     }
     
     func backButtonTapped() {
@@ -184,7 +167,10 @@ extension MovieDetailViewController: MovieDetailPresenterDelegate {
         showAPIFailedAlert()
     }
     
-    
+    func reloadTableView() {
+        
+        tableView.reloadData()
+    }
 }
 
 

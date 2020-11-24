@@ -12,6 +12,7 @@ protocol MovieDetailPresenterDelegate: class {
     func startSpinner()
     func stopSpinner()
     func showAlertView()
+    func reloadTableView()
 }
 
 class MovieDetailPresenter {
@@ -47,6 +48,8 @@ extension MovieDetailPresenter {
             
             coreDataManager.switchValueOnMovie(on: id, for: .watched)
         }
+        
+        movieDetailPresenterDelegate?.reloadTableView()
     }
     
     func getNewScreenData() -> DetailScreenData? {
