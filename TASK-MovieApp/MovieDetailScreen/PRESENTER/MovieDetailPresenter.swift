@@ -118,19 +118,19 @@ extension MovieDetailPresenter {
     private func genresToString (_ genres: [Genre]) -> String {
         
         var names = String()
-        var i = 0
+        var genreIndex = 0
         
-        while i < genres.count {
-            if i + 1 >= genres.count {
-                names.append(genres[i].name.lowercased())
+        while genreIndex < genres.count {
+            if genreIndex + 1 >= genres.count {
+                names.append(genres[genreIndex].name.lowercased())
             } else {
-                if i == 0 {
-                    names.append(genres[i].name.capitalized + ", ")
+                if genreIndex == 0 {
+                    names.append(genres[genreIndex].name.capitalized + ", ")
                 } else {
-                    names.append(genres[i].name.lowercased() + ", ")
+                    names.append(genres[genreIndex].name.lowercased() + ", ")
                 }
             }
-            i += 1
+            genreIndex += 1
         }
         
         return names
