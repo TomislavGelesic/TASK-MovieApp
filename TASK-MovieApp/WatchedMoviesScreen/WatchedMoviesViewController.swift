@@ -14,6 +14,8 @@ class WatchedMoviesViewController: UIViewController {
     
     var screenData = [Movie]()
     
+    var watchedMoviesPresenter: WatchedMoviesPresenter?
+    
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
@@ -27,13 +29,22 @@ class WatchedMoviesViewController: UIViewController {
         super.viewDidLoad()
         
         setupTableView()
-        fetchScreenData()
+        
+        watchedMoviesPresenter = WatchedMoviesPresenter(delegate: self)
+        
+        if let newScreenData = watchedMoviesPresenter?.getNewScreenData() {
+            screenData = newScreenData
+        }
+        
         tableView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         
-        fetchScreenData()
+        if let newScreenData = watchedMoviesPresenter?.getNewScreenData() {
+            screenData = newScreenData
+        }
+        
         tableView.reloadData()
     }
 }
@@ -41,13 +52,6 @@ class WatchedMoviesViewController: UIViewController {
 extension WatchedMoviesViewController {
     
     //MARK: Private Functions
-    
-    private func fetchScreenData() {
-        
-        if let data = CoreDataManager.sharedInstance.getMovies(.watched) {
-            self.screenData = data
-        }
-    }
     
     private func setupTableView() {
         
@@ -67,9 +71,6 @@ extension WatchedMoviesViewController {
             make.edges.equalTo(view)
         }
     }
-    
-    
-    
 }
 
 extension WatchedMoviesViewController: UITableViewDataSource {
@@ -95,18 +96,23 @@ extension WatchedMoviesViewController: MovieListTableViewCellDelegate {
         
         guard let id = cell.movie?.id else { return }
         
-        switch type {
-        case .favourite:
-            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
-            
-        case .watched:
-            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
-        }
+        watchedMoviesPresenter?.buttonTapped(for: id, type: type)
+    }
+}
+
+extension WatchedMoviesViewController: WatchedMoviesPresenterDelegate {
+    
+    func showAlertView() {
         
-        fetchScreenData()
+        showSpinner()
+    }
+    
+    func reloadTableView() {
         
         tableView.reloadData()
     }
+    
+    
 }
 
 

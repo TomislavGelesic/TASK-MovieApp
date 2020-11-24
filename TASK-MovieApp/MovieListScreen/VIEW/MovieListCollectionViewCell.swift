@@ -11,7 +11,7 @@ import Kingfisher
 
 protocol CellButtonDelegate: class {
     
-    func cellButtonTapped(on cell: MovieListCollectionViewCell, id: Int64, type: ButtonType)
+    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType)
 }
 
 
@@ -21,7 +21,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     weak var cellButtonDelegate: CellButtonDelegate?
     
-    var movieId: Int64?
+    var movieID: Int64?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -109,21 +109,16 @@ extension MovieListCollectionViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        if let id = movieId {
-            cellButtonDelegate?.cellButtonTapped(on: self, id: id, type: .favourite)
-        }
+        cellButtonDelegate?.cellButtonTapped(on: self, type: .favourite)
     }
     
     @objc func watchedButtonTapped() {
-        
-        if let id = movieId {
-            cellButtonDelegate?.cellButtonTapped(on: self, id: id, type: .watched)
-        }
+        cellButtonDelegate?.cellButtonTapped(on: self, type: .watched)
     }
     
     func configure(with movie: Movie) {
         
-        movieId = movie.id
+        movieID = movie.id
         
         if let imagePath = movie.posterPath {
             

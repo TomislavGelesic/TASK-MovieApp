@@ -14,6 +14,8 @@ class FavouriteMoviesViewController: UIViewController {
     
     var screenData = [Movie]()
     
+    var favouriteMoviesPresenter: FavouriteMoviesPresenter?
+    
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
@@ -25,6 +27,8 @@ class FavouriteMoviesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        favouriteMoviesPresenter = FavouriteMoviesPresenter(delegate: self)
         
         setupTableView()
         fetchScreenData()
@@ -94,18 +98,23 @@ extension FavouriteMoviesViewController: MovieListTableViewCellDelegate {
         
         guard let id = cell.movie?.id else { return }
         
-        switch type {
-        case .favourite:
-            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .favourite)
-            
-        case .watched:
-            CoreDataManager.sharedInstance.switchValueOnMovie(on: id, for: .watched)
-        }
+        favouriteMoviesPresenter?.buttonTapped(for: id, type: type)
+    }
+}
+
+extension FavouriteMoviesViewController: FavouriteMoviesPresenterDelegate {
+    
+    func showAlertView() {
         
-        fetchScreenData()
+        showSpinner()
+    }
+    
+    func reloadTableView() {
         
         tableView.reloadData()
     }
+    
+    
 }
 
 

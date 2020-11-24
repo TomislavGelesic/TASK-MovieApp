@@ -64,7 +64,7 @@ class MovieListViewController: UIViewController {
 
 extension MovieListViewController {
     
-    //MARK: Private Functions
+    //MARK: Functions
     
     private func setupCollectionView() {
         
@@ -145,25 +145,13 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
 
 extension MovieListViewController: CellButtonDelegate {
     
-    func cellButtonTapped(on cell: MovieListCollectionViewCell, id: Int64, type: ButtonType) {
+    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType) {
         
-        movieListPresenter?.buttonTapped(on: id, type: type)
+        guard let id = cell.movieID else { return }
         
-        switch type {
-        case .favourite:
-            if let value = movieListPresenter?.coreDataManager.getMovie(for: id)?.favourite{
-                cell.setButtonImage(on: type, selected: value)
-            }
-        case .watched:
-            
-            if let value = movieListPresenter?.coreDataManager.getMovie(for: id)?.watched{
-                cell.setButtonImage(on: type, selected: value)
-            }
-        }
+        movieListPresenter?.buttonTapped(for: id, type: type)
         
     }
-    
-    
 }
 
 extension MovieListViewController: MovieListPresenterDelegate {
@@ -180,24 +168,10 @@ extension MovieListViewController: MovieListPresenterDelegate {
         showAPIFailedAlert()
     }
     
-    
-    func buttonTapped(on id: Int64, type: ButtonType) {
-
-        switch type {
-        case .favourite:
-            movieListPresenter?.buttonTapped(on: id, type: .favourite)
-
-        case .watched:
-            movieListPresenter?.buttonTapped(on: id, type: .watched)
-        }
-
-        if let data = movieListPresenter?.coreDataManager.getMovies(.all) {
-            screenData = data
-        }
-
+    func reloadCollectionView() {
+        
         movieCollectionView.reloadData()
     }
-    
 }
 
 

@@ -12,8 +12,8 @@ protocol MovieListPresenterDelegate: class {
     
     func startSpinner()
     func stopSpinner()
-    func buttonTapped(on id: Int64, type: ButtonType)
     func showAlertView()
+    func reloadCollectionView()
 }
 
 class MovieListPresenter {
@@ -24,7 +24,10 @@ class MovieListPresenter {
     
     weak var movieListViewControllerDelegate: MovieListPresenterDelegate?
     
+    //MARK: init
+    
     init(delegate: MovieListPresenterDelegate) {
+        
         movieListViewControllerDelegate = delegate
     }
     
@@ -78,17 +81,31 @@ extension MovieListPresenter {
 
 extension MovieListPresenter: ButtonTapped {
     
-    func buttonTapped(on id: Int64, type: ButtonType) {
+    func buttonTapped(for id: Int64, type: ButtonType) {
         
         switch type {
 
         case .favourite:
 
             coreDataManager.switchValueOnMovie(on: id, for: .favourite)
-
+            
         case .watched:
 
             coreDataManager.switchValueOnMovie(on: id, for: .watched)
         }
+        
+        movieListViewControllerDelegate?.reloadCollectionView()
+//
+//        switch type {
+//        case .favourite:
+//            if let value = coreDataManager.getMovie(for: id)?.favourite {
+//                cell.setButtonImage(on: type, selected: value)
+//            }
+//        case .watched:
+//
+//            if let value = movieListPresenter?.coreDataManager.getMovie(for: id)?.watched{
+//                cell.setButtonImage(on: type, selected: value)
+//            }
+//        }
     }
 }
