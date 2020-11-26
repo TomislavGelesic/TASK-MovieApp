@@ -50,6 +50,8 @@ class MovieDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .darkGray
+        
         setupViewController()
         setupTableView()
         
@@ -112,7 +114,7 @@ extension MovieDetailViewController: UITableViewDataSource {
         
         case 0:
             
-            guard let data = movieDetailPresenter?.getDataValueForKey(.image) as? Dictionary<String, Any> else { return UITableViewCell() }
+            guard let data = movieDetailPresenter?.getDataValueForKey(.imageWithButtons) as? Dictionary<String, Any> else { return UITableViewCell() }
             
             let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(with: data)

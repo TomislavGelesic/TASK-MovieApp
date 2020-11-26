@@ -15,6 +15,7 @@ class SpinnerView: UIView {
         view.style = .large
         view.color = .white
         view.hidesWhenStopped = true
+        view.startAnimating()
         return view
     }()
     
@@ -27,7 +28,7 @@ class SpinnerView: UIView {
         
         spinner.snp.makeConstraints { (make) in
             make.center.equalTo(self)
-            make.width.height.equalTo(100)
+            make.width.height.equalTo(50)
         }
     }
     
@@ -37,14 +38,3 @@ class SpinnerView: UIView {
     
 }
 
-extension SpinnerView {
-    
-    func startSpinner(){
-        spinner.startAnimating()
-    }
-    
-    func stopSpinner(){
-        spinner.stopAnimating()
-    }
-
-}

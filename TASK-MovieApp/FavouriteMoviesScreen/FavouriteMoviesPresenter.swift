@@ -34,7 +34,7 @@ extension FavouriteMoviesPresenter {
     
     func getNewScreenData() {
         
-        if let savedData = coreDataManager.getMovies(.watched) {
+        if let savedData = coreDataManager.getMovies(.favourite) {
             
             screenData = savedData
             

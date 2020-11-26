@@ -25,7 +25,7 @@ class MovieDetailPresenter {
     
     var movieID: Int64
     
-    var screenData = [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]()
+    var screenData = [RowItemDetailMovie<Any>]()
     
     init(delegate: MovieDetailPresenterDelegate, for id: Int64) {
         
@@ -64,9 +64,9 @@ extension MovieDetailPresenter {
         movieDetailPresenterDelegate?.reloadTableView()
     }
     
-    func getNewScreenData() -> [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]? {
+    func getNewScreenData() -> [RowItemDetailMovie<Any>]? {
         
-        var newScreenData = [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]()
+        var newScreenData = [RowItemDetailMovie<Any>]()
         
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
         
@@ -94,9 +94,9 @@ extension MovieDetailPresenter {
         return newScreenData
     }
     
-    private func createScreenData(from movieDetails: MovieDetails) -> [RowItemDetailMovie<RowItemDetailMovieTypes, Any>] {
+    private func createScreenData(from movieDetails: MovieDetails) -> [RowItemDetailMovie<Any>] {
         
-        var newScreenData = [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]()
+        var newScreenData = [RowItemDetailMovie<Any>]()
         newScreenData.append(RowItemDetailMovie(type: .id, value: movieDetails.id))
         newScreenData.append(RowItemDetailMovie(type: .genre, value: genresToString(movieDetails.genres)))
         newScreenData.append(RowItemDetailMovie(type: .title, value: movieDetails.title))
@@ -114,7 +114,7 @@ extension MovieDetailPresenter {
             dictionary["watched"] = false
         }
         
-        newScreenData.append(RowItemDetailMovie<RowItemDetailMovieTypes, Any>(type: .image, value: dictionary))
+        newScreenData.append(RowItemDetailMovie<Any>(type: .imageWithButtons, value: dictionary))
         
         
         return newScreenData

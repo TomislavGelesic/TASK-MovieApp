@@ -8,7 +8,7 @@
 import UIKit
 
 enum RowItemDetailMovieTypes {
-    case image
+    case imageWithButtons
     case title
     case quote
     case description

@@ -47,11 +47,9 @@ class MovieListViewController: UIViewController {
         setupPullToRefreshControl()
         
         movieListPresenter = MovieListPresenter(delegate: self)
-        
-        movieListPresenter?.getNewScreenData()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         movieListPresenter?.getNewScreenData()
     }

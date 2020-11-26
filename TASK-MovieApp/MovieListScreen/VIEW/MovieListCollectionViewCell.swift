@@ -162,10 +162,10 @@ extension MovieListCollectionViewCell {
     //MARK: Constraints
     private func setupConstraints() {
         
-        titleLabelCOnstraints()
-        descriptionLabelCOnstraints()
         imageViewConstraints()
         overlayConstraints()
+        titleLabelCOnstraints()
+        descriptionLabelCOnstraints()
         favouriteButtonConstraints()
         yearLabelConstraints()
         watchedButtonConstraints()

@@ -8,19 +8,11 @@ import Foundation
 
 struct MovieDetails: Codable {
     
-    var id: Int
+    var id: Int = -1
     var poster_path: String?
-    var title: String
-    var overview: String
-    var genres: [Genre]
-    var tagline: String
+    var title: String = ""
+    var overview: String = ""
+    var genres = [Genre]()
+    var tagline: String = ""
     
-    init() {
-        id = -1
-        poster_path = "-1"
-        title = "-1"
-        overview = "-1"
-        genres = [Genre]()
-        tagline = "-1"
-    }
 }

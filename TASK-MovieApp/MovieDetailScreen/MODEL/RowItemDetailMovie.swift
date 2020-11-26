@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RowItemDetailMovie<RowItemDetailMovieTypes, V> {
+struct RowItemDetailMovie<V> {
     var type: RowItemDetailMovieTypes
     var value: V
     

@@ -121,14 +121,11 @@ extension MovieListTableViewCell {
         
         self.movie = movie
         
-        if let imagePath = movie.imagePath,
-           let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+        if let imagePath = movie.imagePath {
             
-            imageViewMovie.kf.setImage(with: urlToImage)
+            imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
         }
-        else {
-            imageViewMovie.backgroundColor = .cyan
-        }
+        
         if let year = movie.year {
             yearLabel.text = year
         }

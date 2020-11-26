@@ -22,13 +22,10 @@ class SpinnerViewManager {
         spinerView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
         }
-        
-        spinerView.startSpinner()
     }
     
     static func removeSpinnerView() {
         
-        spinerView.stopSpinner()
         spinerView.removeFromSuperview()
     }
     
