@@ -144,7 +144,7 @@ extension MovieDetailImageCell {
     }
     
     func setButtonImage(on type: ButtonType, selected: Bool) {
-     
+        
         switch type {
         case .favourite:
             if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {

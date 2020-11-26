@@ -68,16 +68,16 @@ extension MovieListPresenter {
                 
                 self.screenData = newMovies
                 
+                self.movieListViewControllerDelegate?.stopSpinner()
+                
+                self.movieListViewControllerDelegate?.reloadCollectionView()
+                
             } else {
                 
                 self.movieListViewControllerDelegate?.showAlertView()
                 print(message)
             }
         }
-        
-        movieListViewControllerDelegate?.stopSpinner()
-        
-        movieListViewControllerDelegate?.reloadCollectionView()
     }
     
 }

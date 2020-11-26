@@ -18,8 +18,8 @@ class MovieListViewController: UIViewController {
     private let flowLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 5
-        layout.minimumInteritemSpacing = 5
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 10
         layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         return layout
     }()
@@ -49,7 +49,7 @@ class MovieListViewController: UIViewController {
         movieListPresenter = MovieListPresenter(delegate: self)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         
         movieListPresenter?.getNewScreenData()
     }

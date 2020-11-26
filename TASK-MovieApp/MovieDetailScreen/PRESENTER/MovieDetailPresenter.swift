@@ -38,13 +38,17 @@ class MovieDetailPresenter {
 extension MovieDetailPresenter {
     //MARK: Functions
     
-    func getDataValueForKey(_ type: RowItemDetailMovieTypes) -> Any? {
+    func getButtonStatus(_ type: ButtonType, for id: Int64) -> Bool? {
         
-        for item in screenData {
-            if item.type == type {
-                return item.value
+        if let movie = coreDataManager.getMovie(for: id) {
+            switch type {
+            case .favourite:
+                return movie.favourite
+            case .watched:
+                return movie.watched
             }
         }
+        
         return nil
     }
     
@@ -61,16 +65,16 @@ extension MovieDetailPresenter {
             coreDataManager.updateMovieButtonState(on: id, for: .watched)
         }
         
+        updateScreenDataWithCoreData()
+        
         movieDetailPresenterDelegate?.reloadTableView()
     }
     
-    func getNewScreenData() -> [RowItemDetailMovie<Any>]? {
-        
-        var newScreenData = [RowItemDetailMovie<Any>]()
+    func getNewScreenData() {
         
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
         
-        guard let getMovieDetailsURL = URL(string: url) else { return nil}
+        guard let getMovieDetailsURL = URL(string: url) else { return }
         
         movieDetailPresenterDelegate?.startSpinner()
         
@@ -78,33 +82,27 @@ extension MovieDetailPresenter {
             
             if let data = data {
                 
-                newScreenData = self.createScreenData(from: data)
+                self.screenData = self.createScreenData(from: data)
+                
+                self.movieDetailPresenterDelegate?.stopSpinner()
+                self.movieDetailPresenterDelegate?.reloadTableView()
                 
             } else {
                 
                 self.movieDetailPresenterDelegate?.showAlertView()
                 print(message)
             }
-            
         }
-        
-        movieDetailPresenterDelegate?.stopSpinner()
-        
-        
-        return newScreenData
     }
     
     private func createScreenData(from movieDetails: MovieDetails) -> [RowItemDetailMovie<Any>] {
         
         var newScreenData = [RowItemDetailMovie<Any>]()
-        newScreenData.append(RowItemDetailMovie(type: .id, value: movieDetails.id))
-        newScreenData.append(RowItemDetailMovie(type: .genre, value: genresToString(movieDetails.genres)))
-        newScreenData.append(RowItemDetailMovie(type: .title, value: movieDetails.title))
-        newScreenData.append(RowItemDetailMovie(type: .quote, value: movieDetails.tagline))
         
         var dictionary = Dictionary<String, Any>()
         
-        dictionary["imagePath"] = movieDetails.poster_path ?? ""
+        let imagePath = movieDetails.poster_path ?? ""
+        dictionary["imagePath"] = Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath
         
         if let movie = coreDataManager.getMovie(for: movieID) {
             dictionary["favourite"] = movie.favourite
@@ -116,8 +114,25 @@ extension MovieDetailPresenter {
         
         newScreenData.append(RowItemDetailMovie<Any>(type: .imageWithButtons, value: dictionary))
         
+        newScreenData.append(RowItemDetailMovie(type: .title, value: movieDetails.title))
+        newScreenData.append(RowItemDetailMovie(type: .genre, value: genresToString(movieDetails.genres)))
+        newScreenData.append(RowItemDetailMovie(type: .quote, value: movieDetails.tagline))
+        newScreenData.append(RowItemDetailMovie(type: .description, value: movieDetails.overview))
         
         return newScreenData
+    }
+    
+    private func updateScreenDataWithCoreData() {
+        
+        for item in screenData {
+            if item.type == .imageWithButtons,
+               var data = item.value as? Dictionary<String, Any>,
+               let movie = coreDataManager.getMovie(for: movieID) {
+                
+                data["favourite"] = movie.favourite
+                data["watched"] = movie.watched
+            }
+        }
     }
     
     private func genresToString (_ genres: [Genre]) -> String {

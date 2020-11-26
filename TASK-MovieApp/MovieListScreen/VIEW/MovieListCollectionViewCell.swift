@@ -218,15 +218,15 @@ extension MovieListCollectionViewCell {
             make.top.equalTo(imageViewMovie.snp.bottom).offset(10)
             make.leading.equalTo(contentView).offset(10)
             make.trailing.equalTo(contentView).offset(-10)
+            
         }
     }
     
     private func descriptionLabelCOnstraints() {
         
         descriptionLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)            
-            make.leading.equalTo(contentView).offset(10)
-            make.trailing.equalTo(contentView).offset(-10)
+            make.top.equalTo(titleLabel.snp.bottom)
+            make.bottom.leading.trailing.equalTo(contentView).inset(UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
         }
     }
     

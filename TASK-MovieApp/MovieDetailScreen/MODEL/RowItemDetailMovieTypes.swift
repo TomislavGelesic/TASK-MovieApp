@@ -13,5 +13,4 @@ enum RowItemDetailMovieTypes {
     case quote
     case description
     case genre
-    case id
 }
