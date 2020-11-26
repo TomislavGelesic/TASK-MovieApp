@@ -12,8 +12,6 @@ class FavouriteMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    var screenData = [Movie]()
-    
     var favouriteMoviesPresenter: FavouriteMoviesPresenter?
     
     let tableView: UITableView = {
@@ -21,6 +19,14 @@ class FavouriteMoviesViewController: UIViewController {
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
         return tableView
+    }()
+    
+    private let pullToRefreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.tintColor = .white
+        control.backgroundColor = .darkGray
+        control.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        return control
     }()
     
     //MARK: Life-cycle
@@ -31,29 +37,20 @@ class FavouriteMoviesViewController: UIViewController {
         favouriteMoviesPresenter = FavouriteMoviesPresenter(delegate: self)
         
         setupTableView()
-        fetchScreenData()
-        tableView.reloadData()
+        setupPullToRefreshControl()
+        
+        favouriteMoviesPresenter?.getNewScreenData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         
-        fetchScreenData()
-        tableView.reloadData()
+        favouriteMoviesPresenter?.getNewScreenData()
     }
 }
 
 extension FavouriteMoviesViewController {
     
     //MARK: Private Functions
-    
-    private func fetchScreenData() {
-        
-        if let data = CoreDataManager.sharedInstance.getMovies(.favourite) {
-            self.screenData = data
-            return
-        }
-        print("Unable to create screen data")
-    }
     
     private func setupTableView() {
         
@@ -73,23 +70,41 @@ extension FavouriteMoviesViewController {
             make.edges.equalTo(view)
         }
     }
+    
+    private func setupPullToRefreshControl() {
+        
+        tableView.addSubview(pullToRefreshControl)
+        
+        pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
+    }
+    
+    @objc func refreshMovies() {
+        
+        favouriteMoviesPresenter?.getNewScreenData()
+        
+        self.pullToRefreshControl.endRefreshing()
+    }
 }
 
 extension FavouriteMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return screenData.count
+        return favouriteMoviesPresenter?.screenData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: MovieListTableViewCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(with: screenData[indexPath.row])
+        
+        if let movie = favouriteMoviesPresenter?.screenData[indexPath.row] {
+            cell.configure(with: movie)
+        }
+        
         cell.movieListTableViewCellDelegate = self
+        
         return cell
-    }
-    
+    }    
 }
 
 extension FavouriteMoviesViewController: MovieListTableViewCellDelegate {

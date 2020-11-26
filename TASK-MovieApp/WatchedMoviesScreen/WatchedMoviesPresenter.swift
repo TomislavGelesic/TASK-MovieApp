@@ -59,10 +59,7 @@ extension WatchedMoviesPresenter: ButtonTapped {
             coreDataManager.updateMovieButtonState(on: id, for: .watched)
         }
         
-        if let savedData = coreDataManager.getMovies(.watched) {
-            screenData = savedData
-            watchedMoviesPresenterDelegate?.reloadTableView()
-        }
+        getNewScreenData()
     }
 }
 

@@ -33,15 +33,12 @@ class MovieListPresenter {
         movieListViewControllerDelegate = delegate
     }
     
-    
 }
 
 extension MovieListPresenter {
     //MARK: Functions
     
     func getNewScreenData() {
-        
-        var movies = [Movie]()
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
@@ -69,7 +66,7 @@ extension MovieListPresenter {
                     }
                 }
                 
-                movies = newMovies
+                self.screenData = newMovies
                 
             } else {
                 
@@ -80,10 +77,7 @@ extension MovieListPresenter {
         
         movieListViewControllerDelegate?.stopSpinner()
         
-        screenData = movies
-        
         movieListViewControllerDelegate?.reloadCollectionView()
-        
     }
     
 }

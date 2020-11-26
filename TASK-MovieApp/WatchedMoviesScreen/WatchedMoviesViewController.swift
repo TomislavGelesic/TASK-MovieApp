@@ -21,12 +21,21 @@ class WatchedMoviesViewController: UIViewController {
         return tableView
     }()
     
+    private let pullToRefreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.tintColor = .white
+        control.backgroundColor = .darkGray
+        control.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        return control
+    }()
+    
     //MARK: Life-cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupTableView()
+        setupPullToRefreshControl()
         
         watchedMoviesPresenter = WatchedMoviesPresenter(delegate: self)
         
@@ -62,9 +71,24 @@ extension WatchedMoviesViewController {
             make.edges.equalTo(view)
         }
     }
+    
+    private func setupPullToRefreshControl() {
+        
+        tableView.addSubview(pullToRefreshControl)
+        
+        pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
+    }
+    
+    @objc func refreshMovies() {
+        
+        watchedMoviesPresenter?.getNewScreenData()
+        
+        self.pullToRefreshControl.endRefreshing()
+    }
 }
 
 extension WatchedMoviesViewController: UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return watchedMoviesPresenter?.screenData.count ?? 0
@@ -74,9 +98,10 @@ extension WatchedMoviesViewController: UITableViewDataSource {
         
         let cell: MovieListTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        guard let movie = watchedMoviesPresenter?.screenData[indexPath.row] else { return UITableViewCell() }
-                
-        cell.configure(with: movie)
+        if let movie = watchedMoviesPresenter?.screenData[indexPath.row] {
+            cell.configure(with: movie)
+        }
+        
         cell.movieListTableViewCellDelegate = self
         
         return cell

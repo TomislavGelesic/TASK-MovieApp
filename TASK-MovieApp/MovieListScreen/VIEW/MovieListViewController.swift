@@ -89,7 +89,7 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        self.movieCollectionView.reloadData()
+        movieListPresenter?.getNewScreenData()
         
         self.pullToRefreshControl.endRefreshing()
     }
@@ -106,9 +106,9 @@ extension MovieListViewController: UICollectionViewDataSource {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
         
-        guard let movie = movieListPresenter?.screenData[indexPath.row] else { return UICollectionViewCell() }
-        
-        cell.configure(with: movie)
+        if let movie = movieListPresenter?.screenData[indexPath.row] {
+            cell.configure(with: movie)
+        }
         
         cell.cellButtonDelegate = self
         
