@@ -7,10 +7,11 @@
 
 import UIKit
 
-enum MovieDetailScreenRowTypes {
+enum RowItemDetailMovieTypes {
     case image
     case title
     case quote
     case description
     case genre
+    case id
 }

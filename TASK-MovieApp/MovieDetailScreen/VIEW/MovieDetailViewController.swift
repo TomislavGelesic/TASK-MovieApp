@@ -15,8 +15,7 @@ protocol MovieDetailViewControllerDelegate: class {
 }
 
 class MovieDetailViewController: UIViewController {
-    
-    var screenData: DetailScreenData = DetailScreenData(rowData: [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>](), watched: false, favourite: false, id: -1)
+
     
     var movieID: Int64
     
@@ -55,10 +54,7 @@ class MovieDetailViewController: UIViewController {
         setupTableView()
         
         movieDetailPresenter = MovieDetailPresenter(delegate: self, for: movieID)
-        
-        if let data = movieDetailPresenter?.getNewScreenData() {
-            screenData = data
-        }
+    
         
         tableView.reloadData()
         
@@ -105,45 +101,65 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return screenData.rowData.count
+        guard let count = movieDetailPresenter?.screenData.count else { return 0 }
+        return count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
         
-        let item = screenData.rowData[indexPath.row]
+        switch indexPath.row {
         
-        switch item.type {
-        case .image:
+        case 0:
+            
+            guard let data = movieDetailPresenter?.getDataValueForKey(.image) as? Dictionary<String, Any> else { return UITableViewCell() }
+            
             let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
-            
-            cell.imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE +  item.value)
+            cell.configure(with: data)
             cell.movieDetailImageCellDelegate = self
-            cell.setButtonImage(on: .favourite, selected: screenData.favourite)
-            cell.setButtonImage(on: .watched, selected: screenData.watched)
             return cell
+        
+        case 1:
             
-        case .title:
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(with:  item.value)
-            return cell
             
-        case .genre:
+            if let title = movieDetailPresenter?.getDataValueForKey(.title) as? String {
+                
+                cell.configure(with: title)
+            }
+            
+            return cell
+        
+        case 2:
+            
             let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(with:  item.value)
+           
+            if let genres = movieDetailPresenter?.getDataValueForKey(.genre) as? String {
+                cell.configure(with: genres)
+            }
             return cell
             
-        case .quote:
+        case 3:
+            
             let cell: MovieDetailQuoteCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(with:  item.value)
+            
+            if let quote = movieDetailPresenter?.getDataValueForKey(.quote) as? String {
+                cell.configure(with: quote)
+            }
+            
             return cell
             
-        case .description:
+        default:
+            
             let cell: MovieDetailDescriptionCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(with: item.value)
+            
+            if let description = movieDetailPresenter?.getDataValueForKey(.description) as? String {
+                cell.configure(with: description)
+            }
+            
             return cell
         }
-    }
-    
+    }    
 }
 
 

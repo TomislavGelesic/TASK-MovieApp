@@ -19,6 +19,8 @@ class WatchedMoviesPresenter {
     
     weak var watchedMoviesPresenterDelegate: WatchedMoviesPresenterDelegate?
     
+    var screenData = [Movie]()
+    
     //MARK: init
     
     init(delegate: WatchedMoviesPresenterDelegate) {
@@ -32,14 +34,12 @@ class WatchedMoviesPresenter {
 extension WatchedMoviesPresenter {
     //MARK: Functions
     
-    func getNewScreenData() -> [Movie]? {
+    func getNewScreenData() {
         
-        if let screenData = coreDataManager.getMovies(.watched) {
-            return screenData
+        if let savedData = coreDataManager.getMovies(.watched) {
+            screenData = savedData
+            watchedMoviesPresenterDelegate?.reloadTableView()
         }
-        
-        watchedMoviesPresenterDelegate?.showAlertView()
-        return nil
     }
     
 }
@@ -52,14 +52,17 @@ extension WatchedMoviesPresenter: ButtonTapped {
 
         case .favourite:
 
-            coreDataManager.switchValueOnMovie(on: id, for: .favourite)
+            coreDataManager.updateMovieButtonState(on: id, for: .favourite)
             
         case .watched:
 
-            coreDataManager.switchValueOnMovie(on: id, for: .watched)
+            coreDataManager.updateMovieButtonState(on: id, for: .watched)
         }
         
-        watchedMoviesPresenterDelegate?.reloadTableView()
+        if let savedData = coreDataManager.getMovies(.watched) {
+            screenData = savedData
+            watchedMoviesPresenterDelegate?.reloadTableView()
+        }
     }
 }
 

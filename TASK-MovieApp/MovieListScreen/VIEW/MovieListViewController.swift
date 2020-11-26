@@ -13,8 +13,6 @@ class MovieListViewController: UIViewController {
     
     //MARK: Properties
     
-    private var screenData = [Movie]()
-    
     private var movieListPresenter: MovieListPresenter?
     
     private let flowLayout: UICollectionViewFlowLayout = {
@@ -50,15 +48,12 @@ class MovieListViewController: UIViewController {
         
         movieListPresenter = MovieListPresenter(delegate: self)
         
-        if let data = movieListPresenter?.getNewScreenData() {
-            screenData = data
-        }
-        
-        movieCollectionView.reloadData()
+        movieListPresenter?.getNewScreenData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        movieCollectionView.reloadData()
+        
+        movieListPresenter?.getNewScreenData()
     }
 }
 
@@ -94,10 +89,6 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        if let data = movieListPresenter?.getNewScreenData() {
-            screenData = data
-        }
-        
         self.movieCollectionView.reloadData()
         
         self.pullToRefreshControl.endRefreshing()
@@ -108,13 +99,17 @@ extension MovieListViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return screenData.count
+        return movieListPresenter?.screenData.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
-        cell.configure(with: screenData[indexPath.row])
+        
+        guard let movie = movieListPresenter?.screenData[indexPath.row] else { return UICollectionViewCell() }
+        
+        cell.configure(with: movie)
+        
         cell.cellButtonDelegate = self
         
         return cell
@@ -126,7 +121,10 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let movieDetailScreen = MovieDetailViewController(for: screenData[indexPath.row], delegate: self)
+        guard let movie = movieListPresenter?.screenData[indexPath.row] else { return }
+        
+        let movieDetailScreen = MovieDetailViewController(for: movie, delegate: self)
+        
         movieDetailScreen.modalPresentationStyle = .fullScreen
         
         self.present(movieDetailScreen, animated: true, completion: nil)

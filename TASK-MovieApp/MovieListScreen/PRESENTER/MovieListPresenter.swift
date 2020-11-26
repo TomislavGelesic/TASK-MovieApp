@@ -18,6 +18,8 @@ protocol MovieListPresenterDelegate: class {
 
 class MovieListPresenter {
     
+    var screenData = [Movie]()
+    
     var coreDataManager = CoreDataManager.sharedInstance
     
     var movieAPIManager = MovieAPIManager()
@@ -37,17 +39,17 @@ class MovieListPresenter {
 extension MovieListPresenter {
     //MARK: Functions
     
-    func getNewScreenData() -> [Movie]? {
+    func getNewScreenData() {
         
         var movies = [Movie]()
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
-        guard let getNowPlayingURL = URL(string: url) else { return nil}
+        guard let getNowPlayingURL = URL(string: url) else { return }
         
         movieListViewControllerDelegate?.startSpinner()
         
-        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieList.self) { (data, message) in
+        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieListAPIModel.self) { (data, message) in
             
             if let data = data {
                 
@@ -56,11 +58,13 @@ extension MovieListPresenter {
                 for item in data.results {
                     
                     if let movie = self.coreDataManager.getMovie(for: Int64(item.id)) {
+                        
                         newMovies.append(movie)
                     }
                     else {
-                        if let newMovie = self.coreDataManager.createMovie(from: item) {
-                            newMovies.append(newMovie)
+                        if let movie = self.coreDataManager.createMovie(from: item) {
+                            
+                            newMovies.append(movie)
                         }
                     }
                 }
@@ -73,8 +77,13 @@ extension MovieListPresenter {
                 print(message)
             }
         }
+        
         movieListViewControllerDelegate?.stopSpinner()
-        return movies
+        
+        screenData = movies
+        
+        movieListViewControllerDelegate?.reloadCollectionView()
+        
     }
     
 }
@@ -84,14 +93,14 @@ extension MovieListPresenter: ButtonTapped {
     func buttonTapped(for id: Int64, type: ButtonType) {
         
         switch type {
-
+        
         case .favourite:
-
-            coreDataManager.switchValueOnMovie(on: id, for: .favourite)
+            
+            coreDataManager.updateMovieButtonState(on: id, for: .favourite)
             
         case .watched:
-
-            coreDataManager.switchValueOnMovie(on: id, for: .watched)
+            
+            coreDataManager.updateMovieButtonState(on: id, for: .watched)
         }
         
         movieListViewControllerDelegate?.reloadCollectionView()

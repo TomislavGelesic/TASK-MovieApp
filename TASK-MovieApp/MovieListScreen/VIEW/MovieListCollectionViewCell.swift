@@ -120,14 +120,10 @@ extension MovieListCollectionViewCell {
         
         movieID = movie.id
         
-        if let imagePath = movie.posterPath {
-            
+        if let imagePath = movie.imagePath {
             imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
         }
-        
-        if let date = movie.releaseDate {
-            yearLabel.text = getReleaseYear(releaseDate: date)
-        }
+        yearLabel.text = movie.year
         
         titleLabel.text = movie.title
         
@@ -136,18 +132,6 @@ extension MovieListCollectionViewCell {
         setButtonImage(on: .favourite, selected: movie.favourite)
         
         setButtonImage(on: .watched, selected: movie.watched)
-    }
-    
-    private func getReleaseYear(releaseDate: String) -> String {
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
-        
-        dateFormatter.dateFormat = "yyyy"
-        
-        return dateFormatter.string(from: date)
     }
     
     func setButtonImage(on type: ButtonType, selected: Bool) {

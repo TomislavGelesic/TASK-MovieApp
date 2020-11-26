@@ -99,26 +99,7 @@ extension CoreDataManager {
         }
     }
     
-//    func updateMovie(_ movie: Movie) {
-//
-//        if let savedMovie = getMovie(for: movie.id) {
-//
-//            savedMovie.favourite   = movie.favourite
-//            savedMovie.watched     = movie.watched
-//            savedMovie.genreIDs    = movie.genreIDs
-//            savedMovie.posterPath  = movie.posterPath
-//            savedMovie.releaseDate = movie.releaseDate
-//            savedMovie.overview    = movie.overview
-//            savedMovie.title       = movie.title
-//
-//            saveContext()
-//            return
-//        }
-//
-//        saveContext()
-//    }
-    
-    func createMovie(from item: MovieItem) -> Movie? {
+    func createMovie(from item: MovieAPIModel) -> Movie? {
         
         let managedContext = persistentContainer.viewContext
         
@@ -127,22 +108,15 @@ extension CoreDataManager {
         movie.setValue(Int64(item.id), forKey: "id")
         movie.setValue(item.title, forKey: "title")
         movie.setValue(item.overview, forKey: "overview")
-        movie.setValue(item.poster_path, forKey: "posterPath")
-        movie.setValue(item.release_date, forKey: "releaseDate")
+        movie.setValue(item.poster_path, forKey: "imagePath")
+        movie.setValue(getReleaseYear(releaseDate: item.release_date), forKey: "year")
         movie.setValue(false, forKey: "favourite")
         movie.setValue(false, forKey: "watched")
         
-        saveContext()
-        
-        if let movie = getMovie(for: Int64(item.id)) {
-            
-            print("saved new item with id: \(item.id)")
-            return movie
-        }
-        return nil
+        return movie
     }
     
-    func switchValueOnMovie(on id: Int64, for type: ButtonType ) {
+    func updateMovieButtonState(on id: Int64, for type: ButtonType ) {
         
         guard let savedMovie = getMovie(for: id) else { return }
         
@@ -162,6 +136,11 @@ extension CoreDataManager {
         
     }
     
+    func saveMovie(_ movie: Movie) {
+        
+        saveContext()
+    }
+    
     func deleteMovie(_ movie: Movie) {
         
         let managedContext = persistentContainer.viewContext
@@ -179,6 +158,18 @@ extension CoreDataManager {
                 deleteMovie(movie)
             }
         }
+    }
+    
+    private func getReleaseYear(releaseDate: String) -> String {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
+        
+        dateFormatter.dateFormat = "yyyy"
+        
+        return dateFormatter.string(from: date)
     }
     
 }

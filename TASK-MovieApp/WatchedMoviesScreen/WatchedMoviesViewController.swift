@@ -12,8 +12,6 @@ class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    var screenData = [Movie]()
-    
     var watchedMoviesPresenter: WatchedMoviesPresenter?
     
     let tableView: UITableView = {
@@ -32,20 +30,13 @@ class WatchedMoviesViewController: UIViewController {
         
         watchedMoviesPresenter = WatchedMoviesPresenter(delegate: self)
         
-        if let newScreenData = watchedMoviesPresenter?.getNewScreenData() {
-            screenData = newScreenData
-        }
+        watchedMoviesPresenter?.getNewScreenData()
         
-        tableView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        
-        if let newScreenData = watchedMoviesPresenter?.getNewScreenData() {
-            screenData = newScreenData
-        }
-        
-        tableView.reloadData()
+       
+        watchedMoviesPresenter?.getNewScreenData()
     }
 }
 
@@ -76,14 +67,16 @@ extension WatchedMoviesViewController {
 extension WatchedMoviesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return screenData.count
+        return watchedMoviesPresenter?.screenData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: MovieListTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.configure(with: screenData[indexPath.row])
+        guard let movie = watchedMoviesPresenter?.screenData[indexPath.row] else { return UITableViewCell() }
+                
+        cell.configure(with: movie)
         cell.movieListTableViewCellDelegate = self
         
         return cell

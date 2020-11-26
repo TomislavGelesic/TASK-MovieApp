@@ -50,11 +50,11 @@ extension FavouriteMoviesPresenter: ButtonTapped {
 
         case .favourite:
 
-            coreDataManager.switchValueOnMovie(on: id, for: .favourite)
+            coreDataManager.updateMovieButtonState(on: id, for: .favourite)
             
         case .watched:
 
-            coreDataManager.switchValueOnMovie(on: id, for: .watched)
+            coreDataManager.updateMovieButtonState(on: id, for: .watched)
         }
         
         favouriteMoviesPresenterDelegate?.reloadTableView()

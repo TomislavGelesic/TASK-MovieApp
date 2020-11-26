@@ -121,7 +121,7 @@ extension MovieListTableViewCell {
         
         self.movie = movie
         
-        if let imagePath = movie.posterPath,
+        if let imagePath = movie.imagePath,
            let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
             
             imageViewMovie.kf.setImage(with: urlToImage)
@@ -129,8 +129,8 @@ extension MovieListTableViewCell {
         else {
             imageViewMovie.backgroundColor = .cyan
         }
-        if let date = movie.releaseDate {
-            yearLabel.text = getReleaseYear(releaseDate: date)
+        if let year = movie.year {
+            yearLabel.text = year
         }
         
         titleLabel.text = movie.title
@@ -154,18 +154,6 @@ extension MovieListTableViewCell {
             
             watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
-    }
-    
-    private func getReleaseYear(releaseDate: String) -> String {
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
-        
-        dateFormatter.dateFormat = "yyyy"
-        
-        return dateFormatter.string(from: date)
     }
     
     

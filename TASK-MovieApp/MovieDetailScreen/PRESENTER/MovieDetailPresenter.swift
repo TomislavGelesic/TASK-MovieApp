@@ -25,6 +25,8 @@ class MovieDetailPresenter {
     
     var movieID: Int64
     
+    var screenData = [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]()
+    
     init(delegate: MovieDetailPresenterDelegate, for id: Int64) {
         
         movieDetailPresenterDelegate = delegate
@@ -36,25 +38,35 @@ class MovieDetailPresenter {
 extension MovieDetailPresenter {
     //MARK: Functions
     
+    func getDataValueForKey(_ type: RowItemDetailMovieTypes) -> Any? {
+        
+        for item in screenData {
+            if item.type == type {
+                return item.value
+            }
+        }
+        return nil
+    }
+    
     func buttonTapped(id: Int64, type: ButtonType) {
         
         switch type {
         
         case .favourite:
             
-            coreDataManager.switchValueOnMovie(on: id, for: .favourite)
+            coreDataManager.updateMovieButtonState(on: id, for: .favourite)
             
         case .watched:
             
-            coreDataManager.switchValueOnMovie(on: id, for: .watched)
+            coreDataManager.updateMovieButtonState(on: id, for: .watched)
         }
         
         movieDetailPresenterDelegate?.reloadTableView()
     }
     
-    func getNewScreenData() -> DetailScreenData? {
+    func getNewScreenData() -> [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]? {
         
-        var returnValue = DetailScreenData(rowData: [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>](), watched: false, favourite: false, id: -1)
+        var newScreenData = [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]()
         
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
         
@@ -66,7 +78,7 @@ extension MovieDetailPresenter {
             
             if let data = data {
                 
-                returnValue = self.createScreenData(from: data)
+                newScreenData = self.createScreenData(from: data)
                 
             } else {
                 
@@ -79,35 +91,33 @@ extension MovieDetailPresenter {
         movieDetailPresenterDelegate?.stopSpinner()
         
         
-        return returnValue
+        return newScreenData
     }
     
-    private func createScreenData(from movieDetails: MovieDetails) -> DetailScreenData {
+    private func createScreenData(from movieDetails: MovieDetails) -> [RowItemDetailMovie<RowItemDetailMovieTypes, Any>] {
         
-        let rowData = createRowData(from: movieDetails)
+        var newScreenData = [RowItemDetailMovie<RowItemDetailMovieTypes, Any>]()
+        newScreenData.append(RowItemDetailMovie(type: .id, value: movieDetails.id))
+        newScreenData.append(RowItemDetailMovie(type: .genre, value: genresToString(movieDetails.genres)))
+        newScreenData.append(RowItemDetailMovie(type: .title, value: movieDetails.title))
+        newScreenData.append(RowItemDetailMovie(type: .quote, value: movieDetails.tagline))
+        
+        var dictionary = Dictionary<String, Any>()
+        
+        dictionary["imagePath"] = movieDetails.poster_path ?? ""
         
         if let movie = coreDataManager.getMovie(for: movieID) {
-            
-            return DetailScreenData(rowData: rowData, watched: movie.watched, favourite: movie.favourite, id: movieID)
+            dictionary["favourite"] = movie.favourite
+            dictionary["watched"] = movie.watched
+        } else {
+            dictionary["favourite"] = false
+            dictionary["watched"] = false
         }
         
-        return DetailScreenData(rowData: rowData, watched: false, favourite: false, id: movieID)
-    }
-    
-    private func createRowData(from movieDetails: MovieDetails) -> [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>] {
+        newScreenData.append(RowItemDetailMovie<RowItemDetailMovieTypes, Any>(type: .image, value: dictionary))
         
-        var rowData = [MovieDetailScreenRowData<MovieDetailScreenRowTypes, String>]()
         
-        if let imagePath = movieDetails.poster_path {
-            rowData.append(MovieDetailScreenRowData.init(type: .image, value: imagePath))
-        }
-        
-        rowData.append(MovieDetailScreenRowData.init(type: .title, value: movieDetails.title))
-        rowData.append(MovieDetailScreenRowData.init(type: .genre, value: genresToString(movieDetails.genres)))
-        rowData.append(MovieDetailScreenRowData.init(type: .quote, value: movieDetails.tagline))
-        rowData.append(MovieDetailScreenRowData.init(type: .description, value: movieDetails.overview))
-        
-        return rowData
+        return newScreenData
     }
     
     private func genresToString (_ genres: [Genre]) -> String {
