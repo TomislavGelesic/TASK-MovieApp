@@ -116,7 +116,7 @@ extension CoreDataManager {
         return movie
     }
     
-    func updateMovieButtonState(on id: Int64, for type: ButtonType ) {
+    func switchValue(on id: Int64, for type: ButtonType ) {
         
         guard let savedMovie = getMovie(for: id) else { return }
         

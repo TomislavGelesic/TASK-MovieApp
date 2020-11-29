@@ -59,11 +59,11 @@ extension MovieDetailPresenter {
         
         case .favourite:
             
-            coreDataManager.updateMovieButtonState(on: id, for: .favourite)
+            coreDataManager.switchValue(on: id, for: .favourite)
             
         case .watched:
             
-            coreDataManager.updateMovieButtonState(on: id, for: .watched)
+            coreDataManager.switchValue(on: id, for: .watched)
         }
         
         updateScreenDataWithCoreData()
