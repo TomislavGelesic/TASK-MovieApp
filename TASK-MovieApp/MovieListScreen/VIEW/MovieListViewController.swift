@@ -51,7 +51,7 @@ class MovieListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         
-        movieListPresenter?.getNewScreenData()
+        movieListPresenter?.updateUI()
     }
 }
 
@@ -61,12 +61,12 @@ extension MovieListViewController {
     
     private func setupCollectionView() {
         
-        view.addSubview(movieCollectionView)
-        
         movieCollectionView.collectionViewLayout = flowLayout
         movieCollectionView.delegate = self
         movieCollectionView.dataSource = self
         movieCollectionView.register(MovieListCollectionViewCell.self, forCellWithReuseIdentifier: MovieListCollectionViewCell.reuseIdentifier)
+        
+        view.addSubview(movieCollectionView)
         
         movieCollectionViewConstraints()
     }
@@ -80,14 +80,14 @@ extension MovieListViewController {
     
     private func setupPullToRefreshControl() {
         
-        movieCollectionView.addSubview(pullToRefreshControl)
-        
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
+        
+        movieCollectionView.addSubview(pullToRefreshControl)
     }
     
     @objc func refreshMovies() {
         
-        movieListPresenter?.getNewScreenData()
+        movieListPresenter?.updateUI()
         
         self.pullToRefreshControl.endRefreshing()
     }

@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 
 protocol MovieDetailPresenterDelegate: class {
+    
     func startSpinner()
     func stopSpinner()
     func showAlertView()

@@ -74,9 +74,9 @@ extension WatchedMoviesViewController {
     
     private func setupPullToRefreshControl() {
         
-        tableView.addSubview(pullToRefreshControl)
-        
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
+        
+        tableView.addSubview(pullToRefreshControl)
     }
     
     @objc func refreshMovies() {

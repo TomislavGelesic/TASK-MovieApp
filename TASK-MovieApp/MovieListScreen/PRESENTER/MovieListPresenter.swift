@@ -38,7 +38,7 @@ class MovieListPresenter {
 extension MovieListPresenter {
     //MARK: Functions
     
-    func getNewScreenData() {
+    func updateUI() {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         

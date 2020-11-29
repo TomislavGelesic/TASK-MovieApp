@@ -76,8 +76,6 @@ extension MovieDetailViewController {
     
     private func setupTableView() {
         
-        view.addSubview(tableView)
-        
         tableView.dataSource = self
         
         tableView.register(MovieDetailImageCell.self, forCellReuseIdentifier: MovieDetailImageCell.reuseIdentifier)
@@ -88,6 +86,8 @@ extension MovieDetailViewController {
         
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 300
+        
+        view.addSubview(tableView)
         
         tableViewConstraints()
     }
