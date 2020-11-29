@@ -44,7 +44,7 @@ extension FavouriteMoviesViewController {
     
     private func fetchScreenData() {
         
-        if let data = CoreDataManager.sharedManager.getFavouriteMovies(){
+        if let data = CoreDataManager.sharedInstance.getFavouriteMovies(){
             self.screenData = data
             return
         }
@@ -56,7 +56,7 @@ extension FavouriteMoviesViewController {
         view.addSubview(tableView)
         
         tableView.dataSource = self
-        tableView.register(MovieCard.self, forCellReuseIdentifier: MovieCard.reuseIdentifier)
+        tableView.register(MovieListTableViewCell.self, forCellReuseIdentifier: MovieListTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         
@@ -66,8 +66,7 @@ extension FavouriteMoviesViewController {
     private func setTableViewConstraints() {
         
         tableView.snp.makeConstraints { (make) in
-            make.top.equalTo(view).offset(50)
-            make.bottom.leading.trailing.equalTo(view)
+            make.edges.equalTo(view)
         }
     }
 }
@@ -81,31 +80,31 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell: MovieCard = tableView.dequeueReusableCell(for: indexPath)
+        let cell: MovieListTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(with: screenData[indexPath.row])
-        cell.movieCardDelegate = self
+        cell.movieListTableViewCellDelegate = self
         return cell
     }
     
 }
 
-extension FavouriteMoviesViewController: MovieCardDelegate {
+extension FavouriteMoviesViewController: MovieListTableViewCellDelegate {
     
-    func favouriteButtonTapped(cell: MovieCard) {
+    func favouriteButtonTapped(cell: MovieListTableViewCell) {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: Int64(id))
         
         fetchScreenData()
         tableView.reloadData()
     }
     
-    func watchedButtonTapped(cell: MovieCard) {
+    func watchedButtonTapped(cell: MovieListTableViewCell) {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedManager.switchForId(type: .favourite, for: Int64(id))
+        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: Int64(id))
         
         fetchScreenData()
         

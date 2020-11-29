@@ -69,7 +69,6 @@ extension MovieDetailViewController {
         view.addSubview(tableView)
         
         tableView.dataSource = self
-        tableView.delegate = self
         
         tableView.register(MovieDetailImageCell.self, forCellReuseIdentifier: MovieDetailImageCell.reuseIdentifier)
         tableView.register(MovieDetailTitleCell.self, forCellReuseIdentifier: MovieDetailTitleCell.reuseIdentifier)
@@ -177,7 +176,7 @@ extension MovieDetailViewController {
 
 
 //MARK: TableView Delegates
-extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate {
+extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
@@ -204,22 +203,22 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
             
         case .title:
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with:  item.value)
+            cell.configure(with:  item.value)
             return cell
             
         case .genre:
             let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with:  item.value)
+            cell.configure(with:  item.value)
             return cell
             
         case .quote:
             let cell: MovieDetailQuoteCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with:  item.value)
+            cell.configure(with:  item.value)
             return cell
             
         case .description:
             let cell: MovieDetailDescriptionCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.fill(with: item.value)
+            cell.configure(with: item.value)
             return cell
         }
     }
@@ -231,9 +230,9 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     func favouriteButtonTapped(cell: MovieDetailImageCell) {
         
-        CoreDataManager.sharedManager.switchForId(type: .favourite, for: movieID)
+        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: movieID)
         
-        guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: movieID, and: .favourite) else { return }
+        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: movieID, and: .favourite) else { return }
         
         if status {
             cell.favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
@@ -247,9 +246,9 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     func watchedButtonTapped(cell: MovieDetailImageCell) {
         
-        CoreDataManager.sharedManager.switchForId(type: .watched, for: movieID)
+        CoreDataManager.sharedInstance.switchForId(type: .watched, for: movieID)
         
-        guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: movieID, and: .watched) else { return }
+        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: movieID, and: .watched) else { return }
         
         if status {
             cell.watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)

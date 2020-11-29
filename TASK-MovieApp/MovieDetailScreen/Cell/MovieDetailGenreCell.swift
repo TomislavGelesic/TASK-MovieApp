@@ -39,7 +39,7 @@ extension MovieDetailGenreCell {
     }
     
     
-    func fill(with genres: String) {
+    func configure(with genres: String) {
         genreLabel.text = genres
     }
     
@@ -47,8 +47,7 @@ extension MovieDetailGenreCell {
     
     private func titleLabelConstraints() {
         genreLabel.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(contentView).offset(10)
-            make.bottom.trailing.equalTo(contentView).offset(-10)
+            make.edges.equalTo(contentView).inset(10)
         }
     }
     

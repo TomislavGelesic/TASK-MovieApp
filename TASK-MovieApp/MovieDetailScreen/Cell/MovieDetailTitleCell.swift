@@ -41,12 +41,10 @@ extension MovieDetailTitleCell {
     //MARK: Constraints
     private func titleLabelConstraints() {
         titleLabel.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(contentView).offset(10)
-            make.bottom.trailing.equalTo(contentView).offset(-10)
-        }
+            make.edges.equalTo(contentView).inset(10)        }
     }
     
-    func fill(with title: String) {
+    func configure(with title: String) {
         titleLabel.text = title
     }
 }

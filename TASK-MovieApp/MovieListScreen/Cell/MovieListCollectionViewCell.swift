@@ -9,11 +9,11 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-class MoviesListCell: UICollectionViewCell {
+class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    var movieListCellDelegate: MovieListCellDelegate?
+    var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
     
     var movie: Movie?
     
@@ -24,8 +24,8 @@ class MoviesListCell: UICollectionViewCell {
         return imageView
     }()
     
-    let gradientOverlay: ShadeGradientTopToBottomView = {
-        let overlay = ShadeGradientTopToBottomView()
+    let gradientOverlay: ShadeGradientOverlayView = {
+        let overlay = ShadeGradientOverlayView(direction: .topToBottom)
         return overlay
     }()
     
@@ -82,7 +82,7 @@ class MoviesListCell: UICollectionViewCell {
 
 //MARK: Functions
 
-extension MoviesListCell {
+extension MovieListCollectionViewCell {
     
     private func setupViews() {
         
@@ -105,15 +105,15 @@ extension MoviesListCell {
     
     @objc func favouriteButtonTapped() {
         
-        movieListCellDelegate?.favouriteButtonTapped(cell: self)
+        movieListCollectionViewCellDelegate?.favouriteButtonTapped(cell: self)
     }
     
     @objc func watchedButtonTapped() {
         
-        movieListCellDelegate?.watchedButtonTapped(cell: self)
+        movieListCollectionViewCellDelegate?.watchedButtonTapped(cell: self)
     }
     
-    func fill(with movie: Movie) {
+    func configure(with movie: Movie) {
         
         self.movie = movie
         
@@ -131,14 +131,14 @@ extension MoviesListCell {
         titleLabel.text = movie.title
         descriptionLabel.text = movie.overview
         
-        if movie.favourite == true {
+        if movie.favourite {
             favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
             favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         
-        if movie.watched == true {
+        if movie.watched {
             watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         }
         else {
@@ -162,6 +162,7 @@ extension MoviesListCell {
     
     //MARK: Constraints
     private func setupConstraints() {
+        
         titleLabelCOnstraints()
         descriptionLabelCOnstraints()
         imageViewConstraints()

@@ -7,9 +7,9 @@
 
 import UIKit
 
-struct MoviesList: Codable {
+struct MovieList: Codable {
 
-    var results: [MoviesItem]
+    var results: [MovieItem]
     var dates: Dates
     var total_pages: Int
     var total_results: Int

@@ -12,7 +12,7 @@ import CoreData
 
 class CoreDataManager {
     //MARK: Properties
-    static let sharedManager = CoreDataManager()
+    static let sharedInstance = CoreDataManager()
     
     private init() {}
     
@@ -32,7 +32,7 @@ extension CoreDataManager {
     //MARK: Functions
     
     func saveContext () {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         if managedContext.hasChanges {
             do {
                 try managedContext.save()
@@ -47,7 +47,7 @@ extension CoreDataManager {
         
         var movies: [Movie]?
         
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
         do {
             movies = try managedContext.fetch(Movie.fetchRequest())
@@ -59,9 +59,9 @@ extension CoreDataManager {
         return nil
     }
     
-    func saveJSONModel(_ json: MoviesItem) {
+    func saveJSONModel(_ json: MovieItem) {
         
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
         let newMovie = Movie(context: managedContext)
         
@@ -80,16 +80,16 @@ extension CoreDataManager {
         }
         newMovie.genreIDs = genreIDs
         
-        CoreDataManager.sharedManager.saveContext()
+        CoreDataManager.sharedInstance.saveContext()
     }
     
     func updateMovie() {
-        CoreDataManager.sharedManager.saveContext()
+        CoreDataManager.sharedInstance.saveContext()
     }
     
     func switchForId(type: ButtonType, for id: Int64) {
         
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         request.predicate = NSPredicate(format: "id == \(id)")
@@ -111,7 +111,7 @@ extension CoreDataManager {
                 else {
                     movies[0].favourite = true
                 }
-                CoreDataManager.sharedManager.saveContext()
+                CoreDataManager.sharedInstance.saveContext()
                 
                 
             case .watched:
@@ -121,7 +121,7 @@ extension CoreDataManager {
                 else {
                     movies[0].watched = true
                 }
-                CoreDataManager.sharedManager.saveContext()
+                CoreDataManager.sharedInstance.saveContext()
             }
         } else {
             print("unseccesfull switchForId()")
@@ -131,7 +131,7 @@ extension CoreDataManager {
     }
     
     func getFavouriteMovies() -> [Movie]? {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         request.predicate = NSPredicate(format: "favourite == YES")
         var movies: [Movie]?
@@ -148,7 +148,7 @@ extension CoreDataManager {
     }
     
     func getWatchedMovies() -> [Movie]? {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         request.predicate = NSPredicate(format: "watched == YES")
         var movies: [Movie]?
@@ -165,7 +165,7 @@ extension CoreDataManager {
     }
     
     func checkButtonStatus(for id: Int64, and type: ButtonType) -> Bool? {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         request.predicate = NSPredicate(format: "id == \(id)")
@@ -201,7 +201,7 @@ extension CoreDataManager {
     
     
     func getMovie(for id: Int64, and type: ButtonType) -> Movie? {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         request.predicate = NSPredicate(format: "id == \(id)")

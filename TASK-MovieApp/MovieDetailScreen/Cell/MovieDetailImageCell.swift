@@ -21,8 +21,8 @@ class MovieDetailImageCell: UITableViewCell {
         return imageView
     }()
     
-    let gradientOverlay: ShadeGradientBottomToTopView = {
-        let overlay = ShadeGradientBottomToTopView()
+    let gradientOverlay: ShadeGradientOverlayView = {
+        let overlay = ShadeGradientOverlayView(direction: .bottomToTop)
         return overlay
     }()
     
@@ -96,7 +96,7 @@ extension MovieDetailImageCell {
     
     func updateButtonImage(for id: Int64, and type: ButtonType) {
     
-        guard let status = CoreDataManager.sharedManager.checkButtonStatus(for: id, and: type) else { return }
+        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: id, and: type) else { return }
      
         switch type {
         case .favourite:
@@ -148,8 +148,7 @@ extension MovieDetailImageCell {
     private func favouriteButtonConstraints() {
         
         favouriteButton.snp.makeConstraints { (make) in
-            make.top.equalTo(gradientOverlay).offset(10)
-            make.trailing.equalTo(gradientOverlay).offset(-10)
+            make.top.trailing.equalTo(gradientOverlay).inset(UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 10))
             make.width.height.equalTo(40)
         }
     }
