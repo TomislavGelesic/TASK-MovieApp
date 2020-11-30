@@ -116,22 +116,27 @@ extension MovieListCollectionViewCell {
         cellButtonDelegate?.cellButtonTapped(on: self, type: .watched)
     }
     
-    func configure(with movie: Movie) {
+    func configure(with rowItem: RowItem<MovieRowType, Movie>) {
         
-        movieID = movie.id
-        
-        if let imagePath = movie.imagePath {
-            imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
+        switch rowItem.type {
+        case .movie:
+            
+            movieID = rowItem.value.id
+            
+            if let imagePath = rowItem.value.imagePath {
+                imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
+            }
+            yearLabel.text = rowItem.value.year
+            
+            titleLabel.text = rowItem.value.title
+            
+            descriptionLabel.text = rowItem.value.overview
+            
+            setButtonImage(on: .favourite, selected: rowItem.value.favourite)
+            
+            setButtonImage(on: .watched, selected: rowItem.value.watched)
         }
-        yearLabel.text = movie.year
         
-        titleLabel.text = movie.title
-        
-        descriptionLabel.text = movie.overview
-        
-        setButtonImage(on: .favourite, selected: movie.favourite)
-        
-        setButtonImage(on: .watched, selected: movie.watched)
     }
     
     func setButtonImage(on type: ButtonType, selected: Bool) {

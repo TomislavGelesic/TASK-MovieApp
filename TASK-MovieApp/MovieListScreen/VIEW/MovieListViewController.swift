@@ -104,8 +104,8 @@ extension MovieListViewController: UICollectionViewDataSource {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
         
-        if let movie = movieListPresenter?.screenData[indexPath.row] {
-            cell.configure(with: movie)
+        if let rowItem = movieListPresenter?.screenData[indexPath.row] {
+            cell.configure(with: rowItem)
         }
         
         cell.cellButtonDelegate = self
@@ -119,9 +119,9 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard let movie = movieListPresenter?.screenData[indexPath.row] else { return }
+        guard let rowItem = movieListPresenter?.screenData[indexPath.row] else { return }
         
-        let movieDetailScreen = MovieDetailViewController(for: movie, delegate: self)
+        let movieDetailScreen = MovieDetailViewController(for: rowItem, delegate: self)
         
         movieDetailScreen.modalPresentationStyle = .fullScreen
         

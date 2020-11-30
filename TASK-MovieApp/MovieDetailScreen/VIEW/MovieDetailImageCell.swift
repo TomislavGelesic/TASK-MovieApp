@@ -128,19 +128,13 @@ extension MovieDetailImageCell {
 extension MovieDetailImageCell {
     //MARK: Functions
     
-    func configure(with data: Dictionary<String, Any>) {
+    func configure(with info: MovieDetailInfo) {
         
-        if let state = data["favourite"] as? Bool {
-            setButtonImage(on: .favourite, selected: state)
-        }
+        setButtonImage(on: .favourite, selected: info.favourite)
         
-        if let state = data["watched"] as? Bool {
-            setButtonImage(on: .watched, selected: state)
-        }
+        setButtonImage(on: .watched, selected: info.watched)        
         
-        if let image = data["imagePath"] as? String {
-            imageViewMovie.setImage(with: image)
-        }
+        imageViewMovie.setImage(with: info.imagePath)
     }
     
     func setButtonImage(on type: ButtonType, selected: Bool) {

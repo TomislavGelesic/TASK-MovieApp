@@ -37,6 +37,11 @@ class WatchedMoviesViewController: UIViewController {
         setupTableView()
         setupPullToRefreshControl()
         
+        view.addSubview(tableView)
+        tableView.addSubview(pullToRefreshControl)
+        
+        moviesTableViewConstraints()
+        
         watchedMoviesPresenter = WatchedMoviesPresenter(delegate: self)
         
         watchedMoviesPresenter?.getNewScreenData()
@@ -55,14 +60,10 @@ extension WatchedMoviesViewController {
     
     private func setupTableView() {
         
-        view.addSubview(tableView)
-        
         tableView.dataSource = self
-        tableView.register(MovieListTableViewCell.self, forCellReuseIdentifier: MovieListTableViewCell.reuseIdentifier)
+        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
-        
-        moviesTableViewConstraints()
     }
     
     private func moviesTableViewConstraints () {
@@ -76,7 +77,6 @@ extension WatchedMoviesViewController {
         
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
         
-        tableView.addSubview(pullToRefreshControl)
     }
     
     @objc func refreshMovies() {
@@ -96,10 +96,10 @@ extension WatchedMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell: MovieListTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        if let movie = watchedMoviesPresenter?.screenData[indexPath.row] {
-            cell.configure(with: movie)
+        if let item = watchedMoviesPresenter?.screenData[indexPath.row] {
+            cell.configure(with: item)
         }
         
         cell.movieListTableViewCellDelegate = self
@@ -108,9 +108,9 @@ extension WatchedMoviesViewController: UITableViewDataSource {
     }
 }
 
-extension WatchedMoviesViewController: MovieListTableViewCellDelegate {
+extension WatchedMoviesViewController: MovieTableViewCellDelegate {
     
-    func buttonTapped(cell: MovieListTableViewCell, type: ButtonType) {
+    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType) {
         
         guard let id = cell.movie?.id else { return }
         

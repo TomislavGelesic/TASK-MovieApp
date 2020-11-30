@@ -18,7 +18,7 @@ protocol MovieListPresenterDelegate: class {
 
 class MovieListPresenter {
     
-    var screenData = [Movie]()
+    var screenData = [RowItem<MovieRowType, Movie>]()
     
     var coreDataManager = CoreDataManager.sharedInstance
     
@@ -66,7 +66,7 @@ extension MovieListPresenter {
                     }
                 }
                 
-                self.screenData = newMovies
+                self.screenData = self.createScreenData(from: newMovies)
                 
                 self.movieListViewControllerDelegate?.stopSpinner()
                 
@@ -78,6 +78,17 @@ extension MovieListPresenter {
                 print(message)
             }
         }
+    }
+    
+    func createScreenData(from newMovies: [Movie]) -> [RowItem<MovieRowType, Movie>] {
+        
+        var newScreenData = [RowItem<MovieRowType, Movie>]()
+        
+        for movie in newMovies {
+            newScreenData.append(RowItem<MovieRowType, Movie>(type: .movie, value: movie))
+        }
+        
+        return newScreenData
     }
     
 }

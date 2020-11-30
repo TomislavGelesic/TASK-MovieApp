@@ -19,7 +19,7 @@ class FavouriteMoviesPresenter {
     
     weak var favouriteMoviesPresenterDelegate: FavouriteMoviesPresenterDelegate?
     
-    var screenData = [Movie]()
+    var screenData = [RowItem<MovieRowType, Movie>]()
     
     //MARK: init
     
@@ -36,11 +36,23 @@ extension FavouriteMoviesPresenter {
         
         if let savedData = coreDataManager.getMovies(.favourite) {
             
-            screenData = savedData
+            createScreenData(from: savedData)
             
             favouriteMoviesPresenterDelegate?.reloadTableView()
         }
-    }    
+    }
+    
+    private func createScreenData(from coreData: [Movie]) {
+        
+        var newScreenData = [RowItem<MovieRowType, Movie>]()
+        
+        for movie in coreData {
+            newScreenData.append(RowItem<MovieRowType, Movie>(type: .movie, value: movie))
+        }
+        
+        self.screenData = newScreenData
+        
+    }
 }
 
 extension FavouriteMoviesPresenter: ButtonTapped {

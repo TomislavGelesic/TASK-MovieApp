@@ -15,11 +15,10 @@ protocol MovieDetailViewControllerDelegate: class {
 }
 
 class MovieDetailViewController: UIViewController {
-
-    
-    var movieID: Int64
     
     var movieDetailPresenter: MovieDetailPresenter?
+    
+    var data: RowItem<MovieRowType, Movie>?
     
     weak var movieDetailViewControllerDelegate: MovieDetailViewControllerDelegate?
     
@@ -32,10 +31,11 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for movie: Movie, delegate: MovieDetailViewControllerDelegate) {
+    init(for rowItem: RowItem<MovieRowType, Movie>, delegate: MovieDetailViewControllerDelegate) {
         
-        movieID = movie.id
         movieDetailViewControllerDelegate = delegate
+        
+        data = rowItem
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -50,12 +50,13 @@ class MovieDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if let id = data?.value.id {
+            movieDetailPresenter = MovieDetailPresenter(delegate: self, for: id)
+        }
         view.backgroundColor = .darkGray
         
         setupViewController()
         setupTableView()
-        
-        movieDetailPresenter = MovieDetailPresenter(delegate: self, for: movieID)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -105,8 +106,7 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        guard let count = movieDetailPresenter?.screenData.count else { return 0 }
-        return count
+        return movieDetailPresenter?.screenData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -117,12 +117,12 @@ extension MovieDetailViewController: UITableViewDataSource {
         
         switch item.type {
         
-        case .imageWithButtons:
+        case .imagePathWithButtonState:
             
             let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
             
-            if let value = item.value as? Dictionary<String, Any> {
-                cell.configure(with: value)
+            if let info = item.value as? MovieDetailInfo {
+                cell.configure(with: info)
                 cell.movieDetailImageCellDelegate = self
             }
             
@@ -175,10 +175,13 @@ extension MovieDetailViewController: UITableViewDataSource {
 extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     func buttonTapped(type: ButtonType) {
-
-        movieDetailPresenter?.buttonTapped(id: movieID, type: type)
         
-        movieDetailPresenter?.getNewScreenData()
+        if let id = movieDetailPresenter?.movieID {
+            
+            movieDetailPresenter?.buttonTapped(id: id, type: type)
+            
+            movieDetailPresenter?.getNewScreenData()
+        }
     }
     
     func backButtonTapped() {

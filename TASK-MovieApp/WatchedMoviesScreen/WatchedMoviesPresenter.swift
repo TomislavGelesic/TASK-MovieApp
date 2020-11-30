@@ -19,7 +19,7 @@ class WatchedMoviesPresenter {
     
     weak var watchedMoviesPresenterDelegate: WatchedMoviesPresenterDelegate?
     
-    var screenData = [Movie]()
+    var screenData = [RowItem<MovieRowType, Movie>]()
     
     //MARK: init
     
@@ -37,11 +37,24 @@ extension WatchedMoviesPresenter {
     func getNewScreenData() {
         
         if let savedData = coreDataManager.getMovies(.watched) {
-            screenData = savedData
+            
+            createScreenData(from: savedData)
+            
             watchedMoviesPresenterDelegate?.reloadTableView()
         }
     }
     
+    private func createScreenData(from coreData: [Movie]) {
+        
+        var newScreenData = [RowItem<MovieRowType, Movie>]()
+        
+        for movie in coreData {
+            newScreenData.append(RowItem<MovieRowType, Movie>(type: .movie, value: movie))
+        }
+        
+        self.screenData = newScreenData
+        
+    }
 }
 
 extension WatchedMoviesPresenter: ButtonTapped {

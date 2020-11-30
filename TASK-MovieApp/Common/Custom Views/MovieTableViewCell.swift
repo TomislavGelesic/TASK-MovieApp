@@ -9,11 +9,16 @@
 import UIKit
 import SnapKit
 
-class MovieListTableViewCell: UITableViewCell {
+protocol MovieTableViewCellDelegate {
+    
+    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType)
+}
+
+class MovieTableViewCell: UITableViewCell {
     
     //MARK: Properties
     
-    var movieListTableViewCellDelegate: MovieListTableViewCellDelegate?
+    var movieListTableViewCellDelegate: MovieTableViewCellDelegate?
     
     var movie: Movie?
     
@@ -85,16 +90,20 @@ class MovieListTableViewCell: UITableViewCell {
     }
 }
 
-extension MovieListTableViewCell {
+extension MovieTableViewCell {
     
     //MARK: Functions
     private func setupViews() {
+    
         contentView.backgroundColor = .darkGray
+    
+        setupButtons()
+        
         contentView.addSubview(container)
         container.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
-        setupButtons()
+        
         setupConstraints()
     }
     
@@ -107,49 +116,57 @@ extension MovieListTableViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        movieListTableViewCellDelegate?.buttonTapped(cell: self, type: .favourite)
+        movieListTableViewCellDelegate?.cellButtonTapped(cell: self, type: .favourite)
         
     }
     
     @objc func watchedButtonTapped() {
         
-        movieListTableViewCellDelegate?.buttonTapped(cell: self, type: .watched)
+        movieListTableViewCellDelegate?.cellButtonTapped(cell: self, type: .watched)
         
     }
     
-    func configure(with movie: Movie) {
+    func configure(with item: RowItem<MovieRowType, Movie>) {
         
-        self.movie = movie
+        self.movie = item.value
         
-        if let imagePath = movie.imagePath {
+        if let imagePath = item.value.imagePath {
             
             imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
         }
         
-        if let year = movie.year {
-            yearLabel.text = year
-        }
+        yearLabel.text = item.value.year
+    
+        titleLabel.text = item.value.title
         
-        titleLabel.text = movie.title
+        descriptionLabel.text = item.value.overview
         
-        descriptionLabel.text = movie.overview
+        setButtonImage(on: .favourite, selected: item.value.favourite)
         
-        if movie.favourite == true {
-            
-            favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            
-            favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        
-        if movie.watched == true {
-            
-            watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            
-            watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        setButtonImage(on: .watched, selected: item.value.watched)
+    }
+    
+    func setButtonImage(on type: ButtonType, selected: Bool) {
+     
+        switch type {
+        case .favourite:
+            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+        case .watched:
+            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
         }
     }
     
