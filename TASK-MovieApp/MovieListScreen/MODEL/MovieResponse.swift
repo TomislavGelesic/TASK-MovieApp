@@ -7,9 +7,9 @@
 
 import UIKit
 
-struct MovieListAPIModel: Codable {
+struct MovieResponse: Codable {
 
-    var results: [MovieAPIModel]
+    var results: [MovieResponseItem]
     var dates: Dates
     var total_pages: Int
     var total_results: Int
