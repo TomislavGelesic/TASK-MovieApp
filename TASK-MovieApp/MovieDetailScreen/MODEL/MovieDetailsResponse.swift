@@ -6,7 +6,7 @@
 //
 import Foundation
 
-struct MovieDetailsJSON: Codable {
+struct MovieDetailsResponse: Codable {
     
     var id: Int = -1
     var poster_path: String?

@@ -79,7 +79,7 @@ extension MovieDetailPresenter {
         
         movieDetailPresenterDelegate?.startSpinner()
         
-        movieAPIManager.fetch(url: getMovieDetailsURL, as: MovieDetailsJSON.self) { (data, message) in
+        movieAPIManager.fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self) { (data, message) in
             
             if let data = data {
                 
@@ -96,7 +96,7 @@ extension MovieDetailPresenter {
         }
     }
     
-    private func createScreenData(from movieDetails: MovieDetailsJSON) -> [RowItem<MovieDetailsRowType, Any>] {
+    private func createScreenData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {
         
         var newScreenData = [RowItem<MovieDetailsRowType, Any>]()
         

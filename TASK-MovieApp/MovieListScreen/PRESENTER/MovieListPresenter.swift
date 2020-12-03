@@ -46,7 +46,7 @@ extension MovieListPresenter {
         
         movieListViewControllerDelegate?.startSpinner()
         
-        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieListAPIModel.self) { (data, message) in
+        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieResponse.self) { (data, message) in
             
             if let data = data {
                 

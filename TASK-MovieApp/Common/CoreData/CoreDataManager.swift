@@ -99,7 +99,7 @@ extension CoreDataManager {
         }
     }
     
-    func createMovie(from item: MovieAPIModel) -> Movie? {
+    func createMovie(from item: MovieResponseItem) -> Movie? {
         
         let managedContext = persistentContainer.viewContext
         
