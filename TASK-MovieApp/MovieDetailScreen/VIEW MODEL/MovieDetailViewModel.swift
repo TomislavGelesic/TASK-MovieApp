@@ -7,8 +7,9 @@
 
 import Foundation
 import Alamofire
+import Combine
 
-protocol MovieDetailPresenterDelegate: class {
+protocol MovieDetailViewModelDelegate: class {
     
     func startSpinner()
     func stopSpinner()
@@ -16,9 +17,11 @@ protocol MovieDetailPresenterDelegate: class {
     func reloadTableView()
 }
 
-class MovieDetailPresenter {
+class MovieDetailViewModel {
     
-    weak var movieDetailPresenterDelegate: MovieDetailPresenterDelegate?
+    weak var movieDetailViewModelDelegate: MovieDetailViewModelDelegate?
+    
+    var disposeBag = Set<AnyCancellable>()
     
     var movieAPIManager = MovieAPIManager()
     
@@ -28,15 +31,15 @@ class MovieDetailPresenter {
     
     var screenData = [RowItem<MovieDetailsRowType, Any>]()
     
-    init(delegate: MovieDetailPresenterDelegate, for id: Int64) {
+    init(delegate: MovieDetailViewModelDelegate, for id: Int64) {
         
-        movieDetailPresenterDelegate = delegate
+        movieDetailViewModelDelegate = delegate
         
         movieID = id
     }
 }
 
-extension MovieDetailPresenter {
+extension MovieDetailViewModel {
     //MARK: Functions
     
     func getButtonStatus(_ type: ButtonType, for id: Int64) -> Bool? {
@@ -68,32 +71,38 @@ extension MovieDetailPresenter {
         
         getNewScreenData()
         
-        movieDetailPresenterDelegate?.reloadTableView()
+        movieDetailViewModelDelegate?.reloadTableView()
     }
     
     func getNewScreenData() {
-        
+        print("im here: MovieDetailPresenter -> getNewScreenData()")
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
-        
+
         guard let getMovieDetailsURL = URL(string: url) else { return }
-        
-        movieDetailPresenterDelegate?.startSpinner()
-        
-        movieAPIManager.fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self) { (data, message) in
-            
-            if let data = data {
+
+        movieDetailViewModelDelegate?.startSpinner()
+
+        movieAPIManager
+        .fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self)
+            .sink(receiveCompletion: { completion in
                 
-                self.screenData = self.createScreenData(from: data)
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    self.movieDetailViewModelDelegate?.showAlertView()
+                    print(error)
+                    break
+                    
+                }
+            }, receiveValue: { (MovieDetailsResponse) in
                 
-                self.movieDetailPresenterDelegate?.stopSpinner()
-                self.movieDetailPresenterDelegate?.reloadTableView()
-                
-            } else {
-                
-                self.movieDetailPresenterDelegate?.showAlertView()
-                print(message)
-            }
-        }
+                self.screenData = self.createScreenData(from: MovieDetailsResponse)
+
+                self.movieDetailViewModelDelegate?.stopSpinner()
+                self.movieDetailViewModelDelegate?.reloadTableView()
+            })
+            .store(in: &disposeBag)
     }
     
     private func createScreenData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {

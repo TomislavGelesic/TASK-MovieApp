@@ -6,29 +6,22 @@
 //
 
 import Foundation
-import Alamofire
+import Combine
+
+enum NetworkErrors {
+    case URLResponse(String)
+}
 
 class MovieAPIManager {
     
-    func fetch<T: Codable> (url: URL, as: T.Type, completion: @escaping (_ data: T?, _ message: String ) -> Void ) {
+    func fetch<T: Codable> (url: URL, as: T.Type) -> AnyPublisher<T, Error> {
         
-        Alamofire.request(url)
-            .validate()
-            .responseData { (response) in
-                guard let data = response.data else {
-                    completion( nil, "")
-                    return
-                }
-                
-                do {
-                    let jsonDecoded = try JSONDecoder().decode(T.self, from: data)
-                    
-                    completion(jsonDecoded, "")
-                    
-                } catch {
-                    completion(nil, error.localizedDescription)
-                }
-            }
-        
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map({ (data, response) -> Data in
+                return data
+            })
+            .decode(type: T.self, decoder: JSONDecoder())
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 }

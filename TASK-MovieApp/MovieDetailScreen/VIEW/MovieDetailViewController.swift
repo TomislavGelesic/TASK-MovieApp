@@ -16,7 +16,7 @@ protocol MovieDetailViewControllerDelegate: class {
 
 class MovieDetailViewController: UIViewController {
     
-    var movieDetailPresenter: MovieDetailPresenter?
+    var movieDetailPresenter: MovieDetailViewModel?
     
     var data: RowItem<MovieRowType, Movie>?
     
@@ -51,7 +51,7 @@ class MovieDetailViewController: UIViewController {
         super.viewDidLoad()
         
         if let id = data?.value.id {
-            movieDetailPresenter = MovieDetailPresenter(delegate: self, for: id)
+            movieDetailPresenter = MovieDetailViewModel(delegate: self, for: id)
         }
         view.backgroundColor = .darkGray
         
@@ -191,7 +191,7 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     }
 }
 
-extension MovieDetailViewController: MovieDetailPresenterDelegate {
+extension MovieDetailViewController: MovieDetailViewModelDelegate {
     
     func startSpinner() {
         showSpinner()

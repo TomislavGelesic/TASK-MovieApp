@@ -13,7 +13,7 @@ class MovieListViewController: UIViewController {
     
     //MARK: Properties
     
-    private var movieListPresenter: MovieListPresenter?
+    private var movieListViewModel: MovieListViewModel?
     
     private let flowLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
@@ -46,12 +46,12 @@ class MovieListViewController: UIViewController {
         setupCollectionView()
         setupPullToRefreshControl()
         
-        movieListPresenter = MovieListPresenter(delegate: self)
+        movieListViewModel = MovieListViewModel(delegate: self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         
-        movieListPresenter?.updateUI()
+        movieListViewModel?.refreshMovieList()
     }
 }
 
@@ -87,7 +87,7 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        movieListPresenter?.updateUI()
+        movieListViewModel?.refreshMovieList()
         
         self.pullToRefreshControl.endRefreshing()
     }
@@ -97,14 +97,14 @@ extension MovieListViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return movieListPresenter?.screenData.count ?? 0
+        return movieListViewModel?.screenData.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
         
-        if let rowItem = movieListPresenter?.screenData[indexPath.row] {
+        if let rowItem = movieListViewModel?.screenData[indexPath.row] {
             cell.configure(with: rowItem)
         }
         
@@ -119,7 +119,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard let rowItem = movieListPresenter?.screenData[indexPath.row] else { return }
+        guard let rowItem = movieListViewModel?.screenData[indexPath.row] else { return }
         
         let movieDetailScreen = MovieDetailViewController(for: rowItem, delegate: self)
         
@@ -145,12 +145,12 @@ extension MovieListViewController: CellButtonDelegate {
         
         guard let id = cell.movieID else { return }
         
-        movieListPresenter?.buttonTapped(for: id, type: type)
+        movieListViewModel?.buttonTapped(for: id, type: type)
         
     }
 }
 
-extension MovieListViewController: MovieListPresenterDelegate {
+extension MovieListViewController: MovieListViewModelDelegate {
     
     func startSpinner() {
         showSpinner()

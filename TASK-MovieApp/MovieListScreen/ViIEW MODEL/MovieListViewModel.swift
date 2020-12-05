@@ -7,8 +7,9 @@
 
 import Foundation
 import Alamofire
+import Combine
 
-protocol MovieListPresenterDelegate: class {
+protocol MovieListViewModelDelegate: class {
     
     func startSpinner()
     func stopSpinner()
@@ -16,7 +17,9 @@ protocol MovieListPresenterDelegate: class {
     func reloadCollectionView()
 }
 
-class MovieListPresenter {
+class MovieListViewModel {
+    
+    var disposeBag = Set<AnyCancellable>()
     
     var screenData = [RowItem<MovieRowType, Movie>]()
     
@@ -24,35 +27,51 @@ class MovieListPresenter {
     
     var movieAPIManager = MovieAPIManager()
     
-    weak var movieListViewControllerDelegate: MovieListPresenterDelegate?
+    weak var movieListViewModelDelegate: MovieListViewModelDelegate?
     
     //MARK: init
     
-    init(delegate: MovieListPresenterDelegate) {
+    init(delegate: MovieListViewModelDelegate) {
         
-        movieListViewControllerDelegate = delegate
+        movieListViewModelDelegate = delegate
     }
     
+    deinit {
+        for item in disposeBag {
+            item.cancel()
+        }
+    }
 }
 
-extension MovieListPresenter {
+extension MovieListViewModel {
     //MARK: Functions
     
-    func updateUI() {
+    func refreshMovieList() {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
         guard let getNowPlayingURL = URL(string: url) else { return }
         
-        movieListViewControllerDelegate?.startSpinner()
+        movieListViewModelDelegate?.startSpinner()
         
-        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieResponse.self) { (data, message) in
-            
-            if let data = data {
+       movieAPIManager
+        .fetch(url: getNowPlayingURL, as: MovieResponse.self)
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    self.movieListViewModelDelegate?.showAlertView()
+                    print(error)
+                    break
+                    
+                }
+            }, receiveValue: { (MovieResponse) in
                 
                 var newMovies = [Movie]()
                 
-                for item in data.results {
+                for item in MovieResponse.results {
                     
                     if let movie = self.coreDataManager.getMovie(for: Int64(item.id)) {
                         
@@ -68,16 +87,12 @@ extension MovieListPresenter {
                 
                 self.screenData = self.createScreenData(from: newMovies)
                 
-                self.movieListViewControllerDelegate?.stopSpinner()
+                self.movieListViewModelDelegate?.stopSpinner()
                 
-                self.movieListViewControllerDelegate?.reloadCollectionView()
+                self.movieListViewModelDelegate?.reloadCollectionView()
                 
-            } else {
-                
-                self.movieListViewControllerDelegate?.showAlertView()
-                print(message)
-            }
-        }
+            })
+        .store(in: &disposeBag)
     }
     
     func createScreenData(from newMovies: [Movie]) -> [RowItem<MovieRowType, Movie>] {
@@ -93,7 +108,7 @@ extension MovieListPresenter {
     
 }
 
-extension MovieListPresenter: ButtonTapped {
+extension MovieListViewModel: ButtonTapped {
     
     func buttonTapped(for id: Int64, type: ButtonType) {
         
@@ -108,6 +123,6 @@ extension MovieListPresenter: ButtonTapped {
             coreDataManager.switchValue(on: id, for: .watched)
         }
         
-        movieListViewControllerDelegate?.reloadCollectionView()
+        movieListViewModelDelegate?.reloadCollectionView()
     }
 }
