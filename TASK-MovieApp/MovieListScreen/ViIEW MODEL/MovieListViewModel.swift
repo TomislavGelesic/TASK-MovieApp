@@ -50,28 +50,17 @@ extension MovieListViewModel {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
-        guard let getNowPlayingURL = URL(string: url) else { return }
+        guard let getNowPlayingURL = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
         
         movieListViewModelDelegate?.startSpinner()
         
-       movieAPIManager
-        .fetch(url: getNowPlayingURL, as: MovieResponse.self)
-            .sink(receiveCompletion: { completion in
-                
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let error):
-                    self.movieListViewModelDelegate?.showAlertView()
-                    print(error)
-                    break
-                    
-                }
-            }, receiveValue: { (MovieResponse) in
+        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieResponse.self) { (data, message) in
+            
+            if let data = data {
                 
                 var newMovies = [Movie]()
                 
-                for item in MovieResponse.results {
+                for item in data.results {
                     
                     if let movie = self.coreDataManager.getMovie(for: Int64(item.id)) {
                         
@@ -91,8 +80,11 @@ extension MovieListViewModel {
                 
                 self.movieListViewModelDelegate?.reloadCollectionView()
                 
-            })
-        .store(in: &disposeBag)
+            } else {
+                
+                self.movieListViewModelDelegate?.showAlertView()
+            }
+        }
     }
     
     func createScreenData(from newMovies: [Movie]) -> [RowItem<MovieRowType, Movie>] {

@@ -80,29 +80,30 @@ extension MovieDetailViewModel {
 
         guard let getMovieDetailsURL = URL(string: url) else { return }
 
-        movieDetailViewModelDelegate?.startSpinner()
-
-        movieAPIManager
-        .fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self)
-            .sink(receiveCompletion: { completion in
-                
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let error):
-                    self.movieDetailViewModelDelegate?.showAlertView()
-                    print(error)
-                    break
-                    
-                }
-            }, receiveValue: { (MovieDetailsResponse) in
-                
-                self.screenData = self.createScreenData(from: MovieDetailsResponse)
-
-                self.movieDetailViewModelDelegate?.stopSpinner()
-                self.movieDetailViewModelDelegate?.reloadTableView()
-            })
-            .store(in: &disposeBag)
+//        movieDetailViewModelDelegate?.startSpinner()
+//
+//        movieAPIManager
+//        .fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self)
+//            .sink(receiveCompletion: { completion in
+//                
+//                switch completion {
+//                case .finished:
+//                    break
+//                case .failure(let error):
+//                    self.movieDetailViewModelDelegate?.showAlertView()
+//                    print(error)
+//                    break
+//                    
+//                }
+//            }, receiveValue: { [unowned self] (MovieDetailsResponse) in
+//                
+//                self.screenData = self.createScreenData(from: MovieDetailsResponse)
+//
+//                self.movieDetailViewModelDelegate?.reloadTableView()
+//                
+//                self.movieDetailViewModelDelegate?.stopSpinner()
+//            })
+//            .store(in: &disposeBag)
     }
     
     private func createScreenData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {

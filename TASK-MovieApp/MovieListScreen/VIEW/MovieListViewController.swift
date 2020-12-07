@@ -8,12 +8,15 @@
 import UIKit
 import SnapKit
 import Alamofire
+import Combine
 
 class MovieListViewController: UIViewController {
     
     //MARK: Properties
     
     private var movieListViewModel: MovieListViewModel?
+    
+    private var disposeBag = Set<AnyCancellable>()
     
     private let flowLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
@@ -44,6 +47,7 @@ class MovieListViewController: UIViewController {
         super.viewDidLoad()
         
         setupCollectionView()
+        
         setupPullToRefreshControl()
         
         movieListViewModel = MovieListViewModel(delegate: self)
@@ -53,6 +57,7 @@ class MovieListViewController: UIViewController {
         
         movieListViewModel?.refreshMovieList()
     }
+    
 }
 
 extension MovieListViewController {
@@ -107,8 +112,16 @@ extension MovieListViewController: UICollectionViewDataSource {
         if let rowItem = movieListViewModel?.screenData[indexPath.row] {
             cell.configure(with: rowItem)
         }
+        cell.buttonTapPublisher.sink { [unowned self] (action) in
+            switch action {
+            case .favouriteTapped(let id):
+                movieListViewModel?.buttonTapped(for: id, type: .favourite)
+            case .watchedTapped(let id):
+                movieListViewModel?.buttonTapped(for: id, type: .favourite)
+            }
+        }.store(in: &disposeBag)
         
-        cell.cellButtonDelegate = self
+//        cell.cellButtonDelegate = self
         
         return cell
     }
@@ -139,16 +152,16 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension MovieListViewController: CellButtonDelegate {
-    
-    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType) {
-        
-        guard let id = cell.movieID else { return }
-        
-        movieListViewModel?.buttonTapped(for: id, type: type)
-        
-    }
-}
+//extension MovieListViewController: CellButtonDelegate {
+//
+//    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType) {
+//
+//        guard let id = cell.movieID else { return }
+//
+//        movieListViewModel?.buttonTapped(for: id, type: type)
+//
+//    }
+//}
 
 extension MovieListViewController: MovieListViewModelDelegate {
     

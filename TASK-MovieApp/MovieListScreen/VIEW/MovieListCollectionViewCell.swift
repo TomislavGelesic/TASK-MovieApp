@@ -8,18 +8,21 @@
 import UIKit
 import SnapKit
 import Kingfisher
+import Combine
 
-protocol CellButtonDelegate: class {
-    
-    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType)
-}
+//protocol CellButtonDelegate: class {
+//
+//    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType)
+//}
 
 
 class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    weak var cellButtonDelegate: CellButtonDelegate?
+//    weak var cellButtonDelegate: CellButtonDelegate?
+    
+    var buttonTapPublisher = PassthroughSubject<ButtonAction, Never>()
     
     var movieID: Int64?
     
@@ -109,11 +112,17 @@ extension MovieListCollectionViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        cellButtonDelegate?.cellButtonTapped(on: self, type: .favourite)
+        if let id = movieID {
+            buttonTapPublisher.send(.favouriteTapped(movieID: id))
+        }
+//        cellButtonDelegate?.cellButtonTapped(on: self, type: .favourite)
     }
     
     @objc func watchedButtonTapped() {
-        cellButtonDelegate?.cellButtonTapped(on: self, type: .watched)
+        if let id = movieID {
+            buttonTapPublisher.send(.watchedTapped(movieID: id))
+        }
+//        cellButtonDelegate?.cellButtonTapped(on: self, type: .watched)
     }
     
     func configure(with rowItem: RowItem<MovieRowType, Movie>) {
@@ -236,3 +245,4 @@ extension MovieListCollectionViewCell {
     }
     
 }
+

@@ -7,21 +7,72 @@
 
 import Foundation
 import Combine
+import Alamofire
 
-enum NetworkErrors {
-    case URLResponse(String)
-}
+
 
 class MovieAPIManager {
     
-    func fetch<T: Codable> (url: URL, as: T.Type) -> AnyPublisher<T, Error> {
+    func fetch<T: Codable>(url: URL, as: T.Type, completion: @escaping (_ data: T?, _ error: String) -> () ) {
         
-        return URLSession.shared.dataTaskPublisher(for: url)
-            .map({ (data, response) -> Data in
-                return data
-            })
-            .decode(type: T.self, decoder: JSONDecoder())
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
+        Alamofire
+            .request(url)
+            .validate()
+            .responseData { (response) in
+                guard let data = response.data else {
+                    completion(nil, "")
+                    return
+                }
+                do {
+                    let decodedObject: T = try JSONDecoder().decode(T.self, from: data)
+                    completion(decodedObject, "")
+                } catch {
+                    completion(nil, error.localizedDescription)
+                }
+            }
     }
+    
+//    func fetch<T: Codable>(url: URL, as: T.Type) -> AnyPublisher<T, MovieAPIError> {
+//
+//        return URLSession.shared.dataTaskPublisher(for: url)
+//            .tryMap { response in
+//                guard let httpURLResponse = response.response as? HTTPURLResponse,
+//                      httpURLResponse.statusCode == 200
+//                else { throw MovieAPIError.noDataError }
+//                return response.data
+//            }
+//            .decode(type: T.self, decoder: JSONDecoder())
+//            .mapError { MovieAPIError.other($0) }
+//            .eraseToAnyPublisher()
+//
+//    }
+
+    func fetch<T: Codable>(url: URL, as: T.Type) -> AnyPublisher<T, MovieAPIError> {
+
+        var publisher: AnyPublisher<T, MovieAPIError>?
+        
+        Alamofire
+            .request(url)
+            .validate()
+            .responseData { (response) in
+                if let data = response.data {
+                    do {
+                        let decodedObject: T = try JSONDecoder().decode(T.self, from: data)
+                        publisher = CurrentValueSubject<T, MovieAPIError>(decodedObject).eraseToAnyPublisher()
+                    } catch {
+                        publisher = Fail<T, MovieAPIError>(error: MovieAPIError.decodingError).eraseToAnyPublisher()
+                    }
+                }
+                publisher = Fail<T, MovieAPIError>(error: MovieAPIError.noDataError).eraseToAnyPublisher()
+                
+            }
+        
+        if let publisher = publisher {
+            return publisher
+        }
+        return Fail<T, MovieAPIError>(error: MovieAPIError.functionalError).eraseToAnyPublisher()
+        
+    }
+    
+    
 }
