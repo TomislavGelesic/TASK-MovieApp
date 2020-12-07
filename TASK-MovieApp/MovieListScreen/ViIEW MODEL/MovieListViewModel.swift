@@ -19,9 +19,15 @@ protocol MovieListViewModelDelegate: class {
 
 class MovieListViewModel {
     
-    var disposeBag = Set<AnyCancellable>()
-    
     var screenData = [RowItem<MovieRowType, Movie>]()
+    
+    var spinnerPublisher = PassthroughSubject<Bool, Never>()
+    
+    var alertPublisher = PassthroughSubject<Bool, Never>()
+    
+    var screenDataPublisher = PassthroughSubject<Bool, Never>()
+    
+    private var disposeBag = Set<AnyCancellable>()
     
     var coreDataManager = CoreDataManager.sharedInstance
     
@@ -35,59 +41,61 @@ class MovieListViewModel {
         
         movieListViewModelDelegate = delegate
     }
-    
-    deinit {
-        for item in disposeBag {
-            item.cancel()
-        }
-    }
 }
 
 extension MovieListViewModel {
     //MARK: Functions
     
-    func refreshMovieList() {
+    func initializeMovieList() {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
         guard let getNowPlayingURL = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
+        // spinnerPublisher.send(true)
         
-        movieListViewModelDelegate?.startSpinner()
-        
-        movieAPIManager.fetch(url: getNowPlayingURL, as: MovieResponse.self) { (data, message) in
-            
-            if let data = data {
+        movieAPIManager
+            .fetch(url: getNowPlayingURL, as: MovieResponse.self)
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { [unowned self] (completion) in
+                switch (completion) {
+                case .finished:
+                    self.spinnerPublisher.send(false)
+                    break
+                case .failure(_):
+                    self.spinnerPublisher.send(false)
+                    self.alertPublisher.send(true)
+                    break
+                }
+                
+            }, receiveValue: { [unowned self] (data) in
                 
                 var newMovies = [Movie]()
                 
                 for item in data.results {
-                    
                     if let movie = self.coreDataManager.getMovie(for: Int64(item.id)) {
-                        
                         newMovies.append(movie)
                     }
                     else {
                         if let movie = self.coreDataManager.createMovie(from: item) {
-                            
                             newMovies.append(movie)
                         }
                     }
                 }
                 
                 self.screenData = self.createScreenData(from: newMovies)
-                
-                self.movieListViewModelDelegate?.stopSpinner()
-                
-                self.movieListViewModelDelegate?.reloadCollectionView()
-                
-            } else {
-                
-                self.movieListViewModelDelegate?.showAlertView()
-            }
+                self.screenDataPublisher.send(true)
+            }).store(in: &disposeBag)
+    }
+    
+    func updateScreenData() {
+        
+        if let savedData = self.coreDataManager.getMovies(.all) {
+            self.screenData = self.createScreenData(from: savedData)
+            self.screenDataPublisher.send(true)
         }
     }
     
-    func createScreenData(from newMovies: [Movie]) -> [RowItem<MovieRowType, Movie>] {
+    private func createScreenData(from newMovies: [Movie]) -> [RowItem<MovieRowType, Movie>] {
         
         var newScreenData = [RowItem<MovieRowType, Movie>]()
         

@@ -57,8 +57,8 @@ class MovieAPIManager {
             .responseData { (response) in
                 if let data = response.data {
                     do {
-                        let decodedObject: T = try JSONDecoder().decode(T.self, from: data)
-                        publisher = CurrentValueSubject<T, MovieAPIError>(decodedObject).eraseToAnyPublisher()
+                        let data: T = try JSONDecoder().decode(T.self, from: data)
+                        publisher = CurrentValueSubject<T, MovieAPIError>(data).eraseToAnyPublisher()
                     } catch {
                         publisher = Fail<T, MovieAPIError>(error: MovieAPIError.decodingError).eraseToAnyPublisher()
                     }
