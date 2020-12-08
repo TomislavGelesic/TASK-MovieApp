@@ -21,11 +21,11 @@ class MovieListViewModel {
     
     var screenData = [RowItem<MovieRowType, Movie>]()
     
+    var screenDataPublisher = PassthroughSubject<Bool, Never>()
+    
     var spinnerPublisher = PassthroughSubject<Bool, Never>()
     
     var alertPublisher = PassthroughSubject<Bool, Never>()
-    
-    var screenDataPublisher = PassthroughSubject<Bool, Never>()
     
     private var disposeBag = Set<AnyCancellable>()
     
@@ -35,26 +35,23 @@ class MovieListViewModel {
     
     weak var movieListViewModelDelegate: MovieListViewModelDelegate?
     
-    //MARK: init
-    
-    init(delegate: MovieListViewModelDelegate) {
-        
-        movieListViewModelDelegate = delegate
-    }
 }
 
 extension MovieListViewModel {
     //MARK: Functions
     
-    func initializeMovieList() {
+    func refreshMovieList() -> AnyCancellable{
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
         guard let getNowPlayingURL = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
-        // spinnerPublisher.send(true)
         
-        movieAPIManager
+        spinnerPublisher.send(true)
+        
+        //returns subscription from publisher
+        return movieAPIManager
             .fetch(url: getNowPlayingURL, as: MovieResponse.self)
+            .map(\.results)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] (completion) in
                 switch (completion) {
@@ -67,11 +64,11 @@ extension MovieListViewModel {
                     break
                 }
                 
-            }, receiveValue: { [unowned self] (data) in
+            }, receiveValue: { [unowned self] (results) in
                 
                 var newMovies = [Movie]()
                 
-                for item in data.results {
+                for item in results {
                     if let movie = self.coreDataManager.getMovie(for: Int64(item.id)) {
                         newMovies.append(movie)
                     }
@@ -83,16 +80,8 @@ extension MovieListViewModel {
                 }
                 
                 self.screenData = self.createScreenData(from: newMovies)
-                self.screenDataPublisher.send(true)
-            }).store(in: &disposeBag)
-    }
-    
-    func updateScreenData() {
-        
-        if let savedData = self.coreDataManager.getMovies(.all) {
-            self.screenData = self.createScreenData(from: savedData)
-            self.screenDataPublisher.send(true)
-        }
+                self.screenDataPublisher.send(true) //actually does same for both bool values (T/F) but publisher must emit smomething to notify subscriber
+            })
     }
     
     private func createScreenData(from newMovies: [Movie]) -> [RowItem<MovieRowType, Movie>] {
