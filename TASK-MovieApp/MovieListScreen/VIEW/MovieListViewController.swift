@@ -54,29 +54,14 @@ class MovieListViewController: UIViewController {
         setupCollectionView()
         
         setupPullToRefreshControl()
+        
+        setupViewModelSubscribers()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
+
         
-        //subscriber to spinnerPublisher saved in disposeBag
-        movieListViewModel.spinnerPublisher.sink(receiveValue: { (value) in
-            switch (value) {
-            case true:
-                self.showSpinner()
-            case false:
-                self.hideSpinner()
-            }
-        }).store(in: &disposeBag)
-        
-        movieListViewModel.refreshMovieList().store(in: &disposeBag)
-        
-        movieListViewModel.screenDataPublisher.sink { (value) in
-            self.reloadData()
-        }.store(in: &disposeBag)
-        
-        movieListViewModel.alertPublisher.sink { (value) in
-            self.showAPIFailedAlert()
-        }.store(in: &disposeBag)
     }
     
 }
@@ -113,9 +98,40 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        movieListViewModel.refreshMovieList().store(in: &disposeBag)
+        movieListViewModel.refreshMovieList()
+            .store(in: &disposeBag)
         
         self.pullToRefreshControl.endRefreshing()
+    }
+    
+    private func setupViewModelSubscribers() {
+        
+        movieListViewModel.spinnerSubject
+            .sink(receiveValue: { (value) in
+                switch (value) {
+                case true:
+                    self.showSpinner()
+                case false:
+                    self.hideSpinner()
+                }
+            })
+            .store(in: &disposeBag)
+        
+        movieListViewModel.refreshMovieList()
+            .store(in: &disposeBag)
+        
+        movieListViewModel.screenDataSubject
+            .receive(on: RunLoop.main)
+            .sink { (value) in
+                self.movieCollectionView.reloadData()
+            }
+            .store(in: &disposeBag)
+        
+        movieListViewModel.alertSubject
+            .sink { (value) in
+                self.showAPIFailedAlert()
+            }
+            .store(in: &disposeBag)
     }
 }
 
@@ -132,14 +148,7 @@ extension MovieListViewController: UICollectionViewDataSource {
     
         cell.configure(with: movieListViewModel.screenData[indexPath.row])
         
-        cell.buttonTapPublisher.sink { [unowned self] (action) in
-            switch action {
-            case .favouriteTapped(let id):
-                movieListViewModel.buttonTapped(for: id, type: .favourite)
-            case .watchedTapped(let id):
-                movieListViewModel.buttonTapped(for: id, type: .favourite)
-            }
-        }.store(in: &disposeBag)
+        cell.movieListCollectionViewCellDelegate = self
         
         return cell
     }
@@ -171,9 +180,17 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
 extension MovieListViewController: MovieDetailViewControllerDelegate {
     
     func reloadData() {
-        
         movieCollectionView.reloadData()
     }
+}
+
+extension MovieListViewController: MovieListCollectionViewCellDelegate {
+    func buttonTapped(on id: Int64, buttonType: ButtonType) {
+        movieListViewModel.buttonTapped(for: id, type: buttonType)
+    }
+    
+    
+    
 }
 
 

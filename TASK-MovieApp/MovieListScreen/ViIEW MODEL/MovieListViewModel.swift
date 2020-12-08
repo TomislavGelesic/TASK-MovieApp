@@ -9,23 +9,15 @@ import Foundation
 import Alamofire
 import Combine
 
-protocol MovieListViewModelDelegate: class {
-    
-    func startSpinner()
-    func stopSpinner()
-    func showAlertView()
-    func reloadCollectionView()
-}
-
 class MovieListViewModel {
     
     var screenData = [RowItem<MovieRowType, Movie>]()
     
-    var screenDataPublisher = PassthroughSubject<Bool, Never>()
+    var screenDataSubject = PassthroughSubject<Bool, Never>() // signals to reload collection view
     
-    var spinnerPublisher = PassthroughSubject<Bool, Never>()
+    var spinnerSubject = PassthroughSubject<Bool, Never>()
     
-    var alertPublisher = PassthroughSubject<Bool, Never>()
+    var alertSubject = PassthroughSubject<Bool, Never>()
     
     private var disposeBag = Set<AnyCancellable>()
     
@@ -33,7 +25,8 @@ class MovieListViewModel {
     
     var movieAPIManager = MovieAPIManager()
     
-    weak var movieListViewModelDelegate: MovieListViewModelDelegate?
+    var buttonImageSubject = PassthroughSubject<ButtonType, Never>()
+    
     
 }
 
@@ -46,9 +39,8 @@ extension MovieListViewModel {
         
         guard let getNowPlayingURL = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
         
-        spinnerPublisher.send(true)
+        spinnerSubject.send(true)
         
-        //returns subscription from publisher
         return movieAPIManager
             .fetch(url: getNowPlayingURL, as: MovieResponse.self)
             .map(\.results)
@@ -56,40 +48,40 @@ extension MovieListViewModel {
             .sink(receiveCompletion: { [unowned self] (completion) in
                 switch (completion) {
                 case .finished:
-                    self.spinnerPublisher.send(false)
+                    self.spinnerSubject.send(false)
                     break
                 case .failure(_):
-                    self.spinnerPublisher.send(false)
-                    self.alertPublisher.send(true)
+                    self.spinnerSubject.send(false)
+                    self.alertSubject.send(true)
                     break
                 }
                 
             }, receiveValue: { [unowned self] (results) in
                 
-                var newMovies = [Movie]()
-                
-                for item in results {
-                    if let movie = self.coreDataManager.getMovie(for: Int64(item.id)) {
-                        newMovies.append(movie)
-                    }
-                    else {
-                        if let movie = self.coreDataManager.createMovie(from: item) {
-                            newMovies.append(movie)
-                        }
-                    }
-                }
-                
-                self.screenData = self.createScreenData(from: newMovies)
-                self.screenDataPublisher.send(true) //actually does same for both bool values (T/F) but publisher must emit smomething to notify subscriber
+                self.screenData = self.createScreenData(from: results)
+                self.updateScreenDataWithCoreData()
+                self.screenDataSubject.send(true) //actually does same for both bool values (T/F) but publisher must emit smomething to notify subscriber
             })
     }
     
-    private func createScreenData(from newMovies: [Movie]) -> [RowItem<MovieRowType, Movie>] {
+    private func updateScreenDataWithCoreData() {
+        for item in screenData {
+            if let savedMovie = coreDataManager.getMovie(for: item.value.id) {
+                item.value.favourite = savedMovie.favourite
+                item.value.watched = savedMovie.watched
+            }
+        }
+    }
+    
+    private func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [RowItem<MovieRowType, Movie>] {
         
         var newScreenData = [RowItem<MovieRowType, Movie>]()
         
-        for movie in newMovies {
-            newScreenData.append(RowItem<MovieRowType, Movie>(type: .movie, value: movie))
+        for item in newMovieResponseItems {
+            
+            if let newMovie = coreDataManager.createMovie(from: item) {
+                newScreenData.append(RowItem<MovieRowType, Movie>(type: .movie, value: newMovie))
+            }
         }
         
         return newScreenData
@@ -101,17 +93,10 @@ extension MovieListViewModel: ButtonTapped {
     
     func buttonTapped(for id: Int64, type: ButtonType) {
         
-        switch type {
+        coreDataManager.switchValue(on: id, for: type)
+            
+        updateScreenDataWithCoreData()
         
-        case .favourite:
-            
-            coreDataManager.switchValue(on: id, for: .favourite)
-            
-        case .watched:
-            
-            coreDataManager.switchValue(on: id, for: .watched)
-        }
-        
-        movieListViewModelDelegate?.reloadCollectionView()
+        screenDataSubject.send(true)
     }
 }

@@ -120,14 +120,19 @@ extension CoreDataManager {
         
         guard let savedMovie = getMovie(for: id) else { return }
         
+        print("changing button on movie (id: \(savedMovie.id)")
         switch type {
         case .favourite:
             savedMovie.favourite = !savedMovie.favourite
         case .watched:
             savedMovie.watched = !savedMovie.watched
         }
+        print("F: \(savedMovie.favourite)")
+        
+        print("W: \(savedMovie.watched)")
         
         if !savedMovie.favourite, !savedMovie.watched {
+            print("deleting movie from Core Data(id: \(savedMovie.id))")
             deleteMovie(savedMovie)
             return
         }
