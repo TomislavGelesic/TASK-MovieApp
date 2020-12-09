@@ -7,18 +7,18 @@
 
 import UIKit
 import SnapKit
-import Kingfisher
-import Alamofire
+import Combine
 
 protocol MovieDetailViewControllerDelegate: class {
+    
     func reloadData()
 }
 
 class MovieDetailViewController: UIViewController {
     
-    var movieDetailPresenter: MovieDetailViewModel?
+    var movieDetailViewModel: MovieDetailViewModel?
     
-    var data: RowItem<MovieRowType, Movie>?
+    var disposeBag = Set<AnyCancellable>()
     
     weak var movieDetailViewControllerDelegate: MovieDetailViewControllerDelegate?
     
@@ -31,13 +31,18 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for rowItem: RowItem<MovieRowType, Movie>, delegate: MovieDetailViewControllerDelegate) {
+    init(for id: Int64, delegate: MovieDetailViewControllerDelegate) {
         
+        movieDetailViewModel = MovieDetailViewModel(movieID: id)
         movieDetailViewControllerDelegate = delegate
         
-        data = rowItem
-        
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    deinit {
+        for item in disposeBag {
+            item.cancel()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -50,19 +55,19 @@ class MovieDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let id = data?.value.id {
-            movieDetailPresenter = MovieDetailViewModel(delegate: self, for: id)
-        }
-        view.backgroundColor = .darkGray
-        
         setupViewController()
+        
         setupTableView()
+        
+        setupDetailViewModelSubscribers()
+        
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        movieDetailPresenter?.getNewScreenData()
+        movieDetailViewModel?.screenDataSubject.send(true)
     }
 }
 
@@ -99,6 +104,38 @@ extension MovieDetailViewController {
             make.edges.equalTo(view)
         }
     }
+    
+    func setupDetailViewModelSubscribers() {
+        
+        movieDetailViewModel?.spinnerSubject
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] (action) in
+                
+                switch (action) {
+                case true:
+                    self.showSpinner()
+                    break
+                case false:
+                    self.hideSpinner()
+                    break
+                }
+            })
+            .store(in: &disposeBag)
+        
+        movieDetailViewModel?.alertSubject
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { _ in
+                self.showAPIFailedAlert()
+            })
+            .store(in: &disposeBag)
+        
+        movieDetailViewModel?.screenDataSubject
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] (value) in
+                self.tableView.reloadData()
+            })
+            .store(in: &disposeBag)
+    }
 }
 
 
@@ -106,14 +143,12 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return movieDetailPresenter?.screenData.count ?? 0
+        return movieDetailViewModel?.screenData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        //how to return exactly that?!?!
         
-        guard let item = movieDetailPresenter?.screenData[indexPath.row] else { return UITableViewCell() }
+        guard let item = movieDetailViewModel?.screenData[indexPath.row] else { return UITableViewCell() }
         
         switch item.type {
         
@@ -176,11 +211,11 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     func buttonTapped(type: ButtonType) {
         
-        if let id = movieDetailPresenter?.movieID {
+        if let id = movieDetailViewModel?.movieID {
             
-            movieDetailPresenter?.buttonTapped(id: id, type: type)
+            movieDetailViewModel?.buttonTapped(for: id, type: type)
             
-            movieDetailPresenter?.getNewScreenData()
+            movieDetailViewModel?.getNewScreenData()
         }
     }
     
@@ -188,26 +223,6 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
         
         movieDetailViewControllerDelegate?.reloadData()
         dismiss(animated: true, completion: nil)
-    }
-}
-
-extension MovieDetailViewController: MovieDetailViewModelDelegate {
-    
-    func startSpinner() {
-        showSpinner()
-    }
-    
-    func stopSpinner() {
-        hideSpinner()
-    }
-    
-    func showAlertView() {
-        showAPIFailedAlert()
-    }
-    
-    func reloadTableView() {
-        
-        tableView.reloadData()
     }
 }
 

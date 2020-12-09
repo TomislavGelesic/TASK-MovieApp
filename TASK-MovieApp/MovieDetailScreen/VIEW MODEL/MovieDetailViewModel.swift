@@ -9,19 +9,7 @@ import Foundation
 import Alamofire
 import Combine
 
-protocol MovieDetailViewModelDelegate: class {
-    
-    func startSpinner()
-    func stopSpinner()
-    func showAlertView()
-    func reloadTableView()
-}
-
 class MovieDetailViewModel {
-    
-    weak var movieDetailViewModelDelegate: MovieDetailViewModelDelegate?
-    
-    var disposeBag = Set<AnyCancellable>()
     
     var movieAPIManager = MovieAPIManager()
     
@@ -31,79 +19,51 @@ class MovieDetailViewModel {
     
     var screenData = [RowItem<MovieDetailsRowType, Any>]()
     
-    init(delegate: MovieDetailViewModelDelegate, for id: Int64) {
-        
-        movieDetailViewModelDelegate = delegate
-        
-        movieID = id
+    var screenDataSubject = PassthroughSubject<Bool, Never>() // signals to reload table view data
+    
+    private var disposeBag = Set<AnyCancellable>()
+    
+    var spinnerSubject = PassthroughSubject<Bool, Never>()
+    
+    var alertSubject = PassthroughSubject<Bool, Never>()
+    
+    var buttonImageSubject = PassthroughSubject<ButtonType, Never>()
+    
+    init(movieID id: Int64) {
+        self.movieID = id
     }
 }
 
 extension MovieDetailViewModel {
     //MARK: Functions
     
-    func getButtonStatus(_ type: ButtonType, for id: Int64) -> Bool? {
+    func getNewScreenData() -> AnyCancellable {
         
-        if let movie = coreDataManager.getMovie(for: id) {
-            switch type {
-            case .favourite:
-                return movie.favourite
-            case .watched:
-                return movie.watched
-            }
-        }
-        
-        return nil
-    }
-    
-    func buttonTapped(id: Int64, type: ButtonType) {
-        
-        switch type {
-        
-        case .favourite:
-            
-            coreDataManager.switchValue(on: id, for: .favourite)
-            
-        case .watched:
-            
-            coreDataManager.switchValue(on: id, for: .watched)
-        }
-        
-        getNewScreenData()
-        
-        movieDetailViewModelDelegate?.reloadTableView()
-    }
-    
-    func getNewScreenData() {
-        print("im here: MovieDetailPresenter -> getNewScreenData()")
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
-
-        guard let getMovieDetailsURL = URL(string: url) else { return }
-
-//        movieDetailViewModelDelegate?.startSpinner()
-//
-//        movieAPIManager
-//        .fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self)
-//            .sink(receiveCompletion: { completion in
-//                
-//                switch completion {
-//                case .finished:
-//                    break
-//                case .failure(let error):
-//                    self.movieDetailViewModelDelegate?.showAlertView()
-//                    print(error)
-//                    break
-//                    
-//                }
-//            }, receiveValue: { [unowned self] (MovieDetailsResponse) in
-//                
-//                self.screenData = self.createScreenData(from: MovieDetailsResponse)
-//
-//                self.movieDetailViewModelDelegate?.reloadTableView()
-//                
-//                self.movieDetailViewModelDelegate?.stopSpinner()
-//            })
-//            .store(in: &disposeBag)
+        
+        guard let getMovieDetailsURL = URL(string: url) else { fatalError("getNewScreenData: DETAILS SCREEN") }
+        
+        return movieAPIManager
+            .fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self)
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (completion) in
+                
+                self.spinnerSubject.send(false)
+                
+                switch (completion) {
+                case .finished:
+                    break
+                case .failure(_):
+                    self.alertSubject.send(true)
+                    break
+                }
+            } receiveValue: { [unowned self] (newMovieDetails) in
+                self.screenData = createScreenData(from: newMovieDetails)
+                self.updateScreenDataWithCoreData()
+                self.screenDataSubject.send(true)
+            }
+        
+        
     }
     
     private func createScreenData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {
@@ -113,14 +73,7 @@ extension MovieDetailViewModel {
         if let posterPath = movieDetails.poster_path {
             let imagePath = Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + posterPath
             
-            if let movie = coreDataManager.getMovie(for: movieID) {
-                let object = MovieDetailInfo(imagePath: imagePath, favourite: movie.favourite, watched: movie.watched)
-                newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePathWithButtonState, value: object))
-            } else {
-                let object = MovieDetailInfo(imagePath: imagePath, favourite: false, watched: false)
-                newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePathWithButtonState, value: object))
-            }
-            
+            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePathWithButtonState, value: MovieDetailInfo(imagePath: imagePath, favourite: false, watched: false)))
         }
         
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .title, value: movieDetails.title))
@@ -152,6 +105,27 @@ extension MovieDetailViewModel {
         return names
     }
     
-    
+    private func updateScreenDataWithCoreData() {
+        
+        if let savedMovie = coreDataManager.getMovie(for: movieID) {
+            for item in screenData {
+                if var info = item.value as? MovieDetailInfo {
+                    info.favourite = savedMovie.favourite
+                    info.watched = savedMovie.watched
+                }
+            }
+        }
+    }
 }
 
+extension MovieDetailViewModel: ButtonTapped {
+    
+    func buttonTapped(for id: Int64, type: ButtonType) {
+        
+        coreDataManager.switchValue(on: id, for: type)
+        
+        updateScreenDataWithCoreData()
+        
+        screenDataSubject.send(true)
+    }
+}

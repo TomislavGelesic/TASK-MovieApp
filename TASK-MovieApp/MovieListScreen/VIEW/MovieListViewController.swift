@@ -7,7 +7,6 @@
 
 import UIKit
 import SnapKit
-import Alamofire
 import Combine
 
 class MovieListViewController: UIViewController {
@@ -61,7 +60,7 @@ class MovieListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
 
-        
+        movieListViewModel.screenDataSubject.send(true)
     }
     
 }
@@ -107,7 +106,8 @@ extension MovieListViewController {
     private func setupViewModelSubscribers() {
         
         movieListViewModel.spinnerSubject
-            .sink(receiveValue: { (value) in
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] (value) in
                 switch (value) {
                 case true:
                     self.showSpinner()
@@ -122,13 +122,14 @@ extension MovieListViewController {
         
         movieListViewModel.screenDataSubject
             .receive(on: RunLoop.main)
-            .sink { (value) in
+            .sink { [unowned self] (value) in
                 self.movieCollectionView.reloadData()
             }
             .store(in: &disposeBag)
         
         movieListViewModel.alertSubject
-            .sink { (value) in
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] _ in
                 self.showAPIFailedAlert()
             }
             .store(in: &disposeBag)
@@ -159,7 +160,9 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row], delegate: self)
+        let id = movieListViewModel.screenData[indexPath.row].value.id
+        
+        let movieDetailScreen = MovieDetailViewController(for: id, delegate: self)
         
         movieDetailScreen.modalPresentationStyle = .fullScreen
         

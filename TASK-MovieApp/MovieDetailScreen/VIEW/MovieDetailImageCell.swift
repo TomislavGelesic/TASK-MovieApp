@@ -14,7 +14,7 @@ class MovieDetailImageCell: UITableViewCell {
     
     //MARK: Properties
     
-    var movieDetailImageCellDelegate: MovieDetailImageCellDelegate?
+    weak var movieDetailImageCellDelegate: MovieDetailImageCellDelegate?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -137,7 +137,7 @@ extension MovieDetailImageCell {
         imageViewMovie.setImage(with: info.imagePath)
     }
     
-    func setButtonImage(on type: ButtonType, selected: Bool) {
+    private func setButtonImage(on type: ButtonType, selected: Bool) {
         
         switch type {
         case .favourite:

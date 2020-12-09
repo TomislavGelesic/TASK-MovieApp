@@ -10,7 +10,7 @@ import SnapKit
 import Kingfisher
 import Combine
 
-protocol MovieListCollectionViewCellDelegate {
+protocol MovieListCollectionViewCellDelegate: class {
     func buttonTapped(on id: Int64, buttonType: ButtonType)
 }
 
@@ -18,7 +18,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
+    weak var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
     
     var movieID: Int64?
     

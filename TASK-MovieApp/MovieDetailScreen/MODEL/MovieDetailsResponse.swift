@@ -4,6 +4,7 @@
 //
 //  Created by Tomislav Gelesic on 05/11/2020.
 //
+
 import Foundation
 
 struct MovieDetailsResponse: Codable {

@@ -33,7 +33,7 @@ class MovieListViewModel {
 extension MovieListViewModel {
     //MARK: Functions
     
-    func refreshMovieList() -> AnyCancellable{
+    func refreshMovieList() -> AnyCancellable {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
@@ -46,12 +46,13 @@ extension MovieListViewModel {
             .map(\.results)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { [unowned self] (completion) in
+                
+                self.spinnerSubject.send(false)
+                
                 switch (completion) {
                 case .finished:
-                    self.spinnerSubject.send(false)
                     break
                 case .failure(_):
-                    self.spinnerSubject.send(false)
                     self.alertSubject.send(true)
                     break
                 }
@@ -62,15 +63,6 @@ extension MovieListViewModel {
                 self.updateScreenDataWithCoreData()
                 self.screenDataSubject.send(true) //actually does same for both bool values (T/F) but publisher must emit smomething to notify subscriber
             })
-    }
-    
-    private func updateScreenDataWithCoreData() {
-        for item in screenData {
-            if let savedMovie = coreDataManager.getMovie(for: item.value.id) {
-                item.value.favourite = savedMovie.favourite
-                item.value.watched = savedMovie.watched
-            }
-        }
     }
     
     private func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [RowItem<MovieRowType, Movie>] {
@@ -87,6 +79,14 @@ extension MovieListViewModel {
         return newScreenData
     }
     
+    private func updateScreenDataWithCoreData() {
+        for item in screenData {
+            if let savedMovie = coreDataManager.getMovie(for: item.value.id) {
+                item.value.favourite = savedMovie.favourite
+                item.value.watched = savedMovie.watched
+            }
+        }
+    }
 }
 
 extension MovieListViewModel: ButtonTapped {
