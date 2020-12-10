@@ -7,31 +7,31 @@
 
 import Foundation
 
-protocol WatchedMoviesPresenterDelegate: class {
+protocol WatchedMoviesViewModelDelegate: class {
     
     func showAlertView()
     func reloadTableView()
 }
 
-class WatchedMoviesPresenter {
+class WatchedMoviesViewModel {
     
     var coreDataManager = CoreDataManager.sharedInstance
     
-    weak var watchedMoviesPresenterDelegate: WatchedMoviesPresenterDelegate?
+    weak var watchedMoviesViewModelDelegate: WatchedMoviesViewModelDelegate?
     
     var screenData = [RowItem<MovieRowType, Movie>]()
     
     //MARK: init
     
-    init(delegate: WatchedMoviesPresenterDelegate) {
+    init(delegate: WatchedMoviesViewModelDelegate) {
         
-        watchedMoviesPresenterDelegate = delegate
+        watchedMoviesViewModelDelegate = delegate
     }
     
     
 }
 
-extension WatchedMoviesPresenter {
+extension WatchedMoviesViewModel {
     //MARK: Functions
     
     func getNewScreenData() {
@@ -40,7 +40,7 @@ extension WatchedMoviesPresenter {
             
             createScreenData(from: savedData)
             
-            watchedMoviesPresenterDelegate?.reloadTableView()
+            watchedMoviesViewModelDelegate?.reloadTableView()
         }
     }
     
@@ -57,19 +57,14 @@ extension WatchedMoviesPresenter {
     }
 }
 
-extension WatchedMoviesPresenter: ButtonTapped {
+extension WatchedMoviesViewModel: ButtonTapped {
     
     func buttonTapped(for id: Int64, type: ButtonType) {
         
-        switch type {
-
-        case .favourite:
-
-            coreDataManager.switchValue(on: id, for: .favourite)
-            
-        case .watched:
-
-            coreDataManager.switchValue(on: id, for: .watched)
+        for movie in screenData {
+            if movie.value.id == id {
+                coreDataManager.saveOrUpdateMovie(movie.value)
+            }
         }
         
         getNewScreenData()

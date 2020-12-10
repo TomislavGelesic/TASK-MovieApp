@@ -31,9 +31,9 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for id: Int64, delegate: MovieDetailViewControllerDelegate) {
+    init(for movie: Movie, delegate: MovieDetailViewControllerDelegate) {
         
-        movieDetailViewModel = MovieDetailViewModel(movieID: id)
+        movieDetailViewModel = MovieDetailViewModel(movie: movie)
         movieDetailViewControllerDelegate = delegate
         
         super.init(nibName: nil, bundle: nil)
@@ -162,7 +162,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             }
             
             return cell
-        
+            
         case .title:
             
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
@@ -173,11 +173,11 @@ extension MovieDetailViewController: UITableViewDataSource {
             }
             
             return cell
-        
+            
         case .genre:
             
             let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
-           
+            
             if let genres = item.value as? String {
                 cell.configure(with: genres)
             }
@@ -211,12 +211,9 @@ extension MovieDetailViewController: MovieDetailImageCellDelegate {
     
     func buttonTapped(type: ButtonType) {
         
-        if let id = movieDetailViewModel?.movieID {
-            
-            movieDetailViewModel?.buttonTapped(for: id, type: type)
-            
-            movieDetailViewModel?.getNewScreenData()
-        }
+        movieDetailViewModel?.buttonTapped(type: type)
+        
+        movieDetailViewModel?.updateScreenDataWithCoreData()
     }
     
     func backButtonTapped() {

@@ -108,41 +108,18 @@ extension CoreDataManager {
         movie.setValue(Int64(item.id), forKey: "id")
         movie.setValue(item.title, forKey: "title")
         movie.setValue(item.overview, forKey: "overview")
-        movie.setValue(item.poster_path, forKey: "imagePath")
-        movie.setValue(getReleaseYear(releaseDate: item.release_date), forKey: "year")
+        movie.setValue(item.posterPath, forKey: "imagePath")
+        movie.setValue(getReleaseYear(releaseDate: item.releaseDate), forKey: "year")
         movie.setValue(false, forKey: "favourite")
         movie.setValue(false, forKey: "watched")
         
         return movie
     }
     
-    func switchValue(on id: Int64, for type: ButtonType ) {
-        
-        guard let savedMovie = getMovie(for: id) else { return }
-        
-        print("changing button on movie (id: \(savedMovie.id)")
-        switch type {
-        case .favourite:
-            savedMovie.favourite = !savedMovie.favourite
-        case .watched:
-            savedMovie.watched = !savedMovie.watched
+    func saveOrUpdateMovie(_ movie: Movie) {
+        if var savedMovie = getMovie(for: movie.id) {
+            savedMovie = movie
         }
-        print("F: \(savedMovie.favourite)")
-        
-        print("W: \(savedMovie.watched)")
-        
-        if !savedMovie.favourite, !savedMovie.watched {
-            print("deleting movie from Core Data(id: \(savedMovie.id))")
-            deleteMovie(savedMovie)
-            return
-        }
-        
-        saveContext()
-        
-    }
-    
-    func saveMovie(_ movie: Movie) {
-        
         saveContext()
     }
     

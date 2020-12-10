@@ -147,9 +147,9 @@ extension MovieListViewController: UICollectionViewDataSource {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
     
-        cell.configure(with: movieListViewModel.screenData[indexPath.row])
+        // ha, sta kaes?! ',*,' mind-blow ',*,'
+        cell.buttonTapped = self.movieListViewModel.buttonTapped
         
-        cell.movieListCollectionViewCellDelegate = self
         
         return cell
     }
@@ -160,9 +160,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let id = movieListViewModel.screenData[indexPath.row].value.id
-        
-        let movieDetailScreen = MovieDetailViewController(for: id, delegate: self)
+        let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row].value, delegate: self)
         
         movieDetailScreen.modalPresentationStyle = .fullScreen
         
@@ -187,13 +185,5 @@ extension MovieListViewController: MovieDetailViewControllerDelegate {
     }
 }
 
-extension MovieListViewController: MovieListCollectionViewCellDelegate {
-    func buttonTapped(on id: Int64, buttonType: ButtonType) {
-        movieListViewModel.buttonTapped(for: id, type: buttonType)
-    }
-    
-    
-    
-}
 
 

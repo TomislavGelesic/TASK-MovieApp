@@ -32,6 +32,7 @@ class MovieAPIManager {
 //            }
 //    }
     
+    
     func fetch<T: Codable>(url: URL, as: T.Type) -> AnyPublisher<T, MovieAPIError> {
         
         return Future<T, MovieAPIError> { promise in
@@ -41,7 +42,10 @@ class MovieAPIManager {
                 .responseData { (response) in
                     if let data = response.data {
                         do {
-                            let decodedData: T = try JSONDecoder().decode(T.self, from: data)
+                            let decoderJSON = JSONDecoder()
+                            decoderJSON.keyDecodingStrategy = .convertFromSnakeCase
+                            
+                            let decodedData: T = try decoderJSON.decode(T.self, from: data)
                             promise(.success(decodedData))
                         } catch {
                             promise(.failure(MovieAPIError.decodingError))

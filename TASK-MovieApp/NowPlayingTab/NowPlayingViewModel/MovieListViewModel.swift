@@ -80,6 +80,7 @@ extension MovieListViewModel {
     }
     
     private func updateScreenDataWithCoreData() {
+        
         for item in screenData {
             if let savedMovie = coreDataManager.getMovie(for: item.value.id) {
                 item.value.favourite = savedMovie.favourite
@@ -93,7 +94,18 @@ extension MovieListViewModel: ButtonTapped {
     
     func buttonTapped(for id: Int64, type: ButtonType) {
         
-        coreDataManager.switchValue(on: id, for: type)
+        for item in screenData {
+            if item.value.id == id {
+                switch type {
+                case .favourite:
+                    item.value.favourite = !item.value.favourite
+                case .watched:
+                    item.value.watched = !item.value.watched
+                }
+                coreDataManager.saveOrUpdateMovie(item.value)
+                break
+            }
+        }
             
         updateScreenDataWithCoreData()
         

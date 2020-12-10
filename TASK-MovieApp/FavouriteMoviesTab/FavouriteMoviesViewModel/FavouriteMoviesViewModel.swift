@@ -7,29 +7,29 @@
 
 import Foundation
 
-protocol FavouriteMoviesPresenterDelegate: class {
+protocol FavouriteMoviesViewModelDelegate: class {
     
     func showAlertView()
     func reloadTableView()
 }
 
-class FavouriteMoviesPresenter {
+class FavouriteMoviesViewModel {
     
     var coreDataManager = CoreDataManager.sharedInstance
     
-    weak var favouriteMoviesPresenterDelegate: FavouriteMoviesPresenterDelegate?
+    weak var favouriteMoviesViewModelDelegate: FavouriteMoviesViewModelDelegate?
     
     var screenData = [RowItem<MovieRowType, Movie>]()
     
     //MARK: init
     
-    init(delegate: FavouriteMoviesPresenterDelegate) {
+    init(delegate: FavouriteMoviesViewModelDelegate) {
         
-        favouriteMoviesPresenterDelegate = delegate
+        favouriteMoviesViewModelDelegate = delegate
     }
 }
 
-extension FavouriteMoviesPresenter {
+extension FavouriteMoviesViewModel {
     //MARK: Functions
     
     func getNewScreenData() {
@@ -38,7 +38,7 @@ extension FavouriteMoviesPresenter {
             
             createScreenData(from: savedData)
             
-            favouriteMoviesPresenterDelegate?.reloadTableView()
+            favouriteMoviesViewModelDelegate?.reloadTableView()
         }
     }
     
@@ -55,19 +55,14 @@ extension FavouriteMoviesPresenter {
     }
 }
 
-extension FavouriteMoviesPresenter: ButtonTapped {
+extension FavouriteMoviesViewModel: ButtonTapped {
     
     func buttonTapped(for id: Int64, type: ButtonType) {
         
-        switch type {
-
-        case .favourite:
-
-            coreDataManager.switchValue(on: id, for: .favourite)
-            
-        case .watched:
-
-            coreDataManager.switchValue(on: id, for: .watched)
+        for movie in screenData {
+            if movie.value.id == id {
+                coreDataManager.saveOrUpdateMovie(movie.value)
+            }
         }
         
         getNewScreenData()

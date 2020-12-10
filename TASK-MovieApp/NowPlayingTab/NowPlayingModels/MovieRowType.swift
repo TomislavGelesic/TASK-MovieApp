@@ -9,4 +9,5 @@ import Foundation
 
 enum MovieRowType {
     case movie
+    case empty
 }

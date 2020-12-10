@@ -15,7 +15,7 @@ class MovieDetailViewModel {
     
     var coreDataManager = CoreDataManager.sharedInstance
     
-    var movieID: Int64
+    var movie: Movie
     
     var screenData = [RowItem<MovieDetailsRowType, Any>]()
     
@@ -29,8 +29,8 @@ class MovieDetailViewModel {
     
     var buttonImageSubject = PassthroughSubject<ButtonType, Never>()
     
-    init(movieID id: Int64) {
-        self.movieID = id
+    init(movie: Movie) {
+        self.movie = movie
     }
 }
 
@@ -39,7 +39,7 @@ extension MovieDetailViewModel {
     
     func getNewScreenData() -> AnyCancellable {
         
-        let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
+        let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movie.id))\(Constants.MOVIE_API.KEY)"
         
         guard let getMovieDetailsURL = URL(string: url) else { fatalError("getNewScreenData: DETAILS SCREEN") }
         
@@ -62,8 +62,6 @@ extension MovieDetailViewModel {
                 self.updateScreenDataWithCoreData()
                 self.screenDataSubject.send(true)
             }
-        
-        
     }
     
     private func createScreenData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {
@@ -105,9 +103,9 @@ extension MovieDetailViewModel {
         return names
     }
     
-    private func updateScreenDataWithCoreData() {
+    func updateScreenDataWithCoreData() {
         
-        if let savedMovie = coreDataManager.getMovie(for: movieID) {
+        if let savedMovie = coreDataManager.getMovie(for: movie.id) {
             for item in screenData {
                 if var info = item.value as? MovieDetailInfo {
                     info.favourite = savedMovie.favourite
@@ -118,12 +116,19 @@ extension MovieDetailViewModel {
     }
 }
 
-extension MovieDetailViewModel: ButtonTapped {
+extension MovieDetailViewModel {
     
-    func buttonTapped(for id: Int64, type: ButtonType) {
+    func buttonTapped(type: ButtonType) {
         
-        coreDataManager.switchValue(on: id, for: type)
+        switch type {
+        case .favourite:
+            movie.favourite = !movie.favourite
+        case .watched:
+            movie.watched = !movie.watched
+        }
         
+        coreDataManager.saveOrUpdateMovie(movie)
+       
         updateScreenDataWithCoreData()
         
         screenDataSubject.send(true)

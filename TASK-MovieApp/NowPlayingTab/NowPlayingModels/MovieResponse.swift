@@ -11,6 +11,6 @@ struct MovieResponse: Codable {
 
     var results: [MovieResponseItem]
     var dates: Dates
-    var total_pages: Int
-    var total_results: Int
+    var totalPages: Int
+    var totalResults: Int
 }

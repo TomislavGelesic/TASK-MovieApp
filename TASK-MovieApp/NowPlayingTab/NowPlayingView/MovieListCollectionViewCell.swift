@@ -10,17 +10,13 @@ import SnapKit
 import Kingfisher
 import Combine
 
-protocol MovieListCollectionViewCellDelegate: class {
-    func buttonTapped(on id: Int64, buttonType: ButtonType)
-}
-
 class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    weak var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
-    
     var movieID: Int64?
+    
+    var buttonTapped: ( (Int64, ButtonType) -> () )?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -108,18 +104,20 @@ extension MovieListCollectionViewCell {
     }
     
     @objc func favouriteButtonTapped() {
+        
         if let id = movieID {
-            movieListCollectionViewCellDelegate?.buttonTapped(on: id, buttonType: .favourite)
+            buttonTapped?(id, .favourite)
         }
     }
     
     @objc func watchedButtonTapped() {
+        
         if let id = movieID {
-            movieListCollectionViewCellDelegate?.buttonTapped(on: id, buttonType: .watched) 
+            buttonTapped?(id, .watched)
         }
     }
     
-    func configure(with rowItem: RowItem<MovieRowType, Movie>) {
+    func configure(with rowItem: RowItem<MovieRowType, Movie>, buttonTapped: () -> ()) {
         
         switch rowItem.type {
         case .movie:
@@ -135,10 +133,11 @@ extension MovieListCollectionViewCell {
             
             descriptionLabel.text = rowItem.value.overview
             
-            setButtonImage(on: .favourite, selected: rowItem.value.favourite)
-            
-            setButtonImage(on: .watched, selected: rowItem.value.watched)
+            buttonTapped()
+            case .empty:
+                break
         }
+        
         
     }
     
