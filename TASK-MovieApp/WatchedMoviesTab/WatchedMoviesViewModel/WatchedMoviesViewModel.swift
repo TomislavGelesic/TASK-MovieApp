@@ -6,68 +6,25 @@
 //
 
 import Foundation
-
-protocol WatchedMoviesViewModelDelegate: class {
-    
-    func showAlertView()
-    func reloadTableView()
-}
+import Combine
 
 class WatchedMoviesViewModel {
     
-    var coreDataManager = CoreDataManager.sharedInstance
-    
-    weak var watchedMoviesViewModelDelegate: WatchedMoviesViewModelDelegate?
+    private var coreDataManager = CoreDataManager.sharedInstance
     
     var screenData = [Movie]()
-    
-    //MARK: init
-    
-    init(delegate: WatchedMoviesViewModelDelegate) {
-        
-        watchedMoviesViewModelDelegate = delegate
-    }
-    
     
 }
 
 extension WatchedMoviesViewModel {
-    //MARK: Functions
     
-    func getNewScreenData() {
+    func getNewScreenData() -> AnyPublisher<[Movie], Never> {
         
         if let savedData = coreDataManager.getMovies(.watched) {
             
-            createScreenData(from: savedData)
-            
-            watchedMoviesViewModelDelegate?.reloadTableView()
+            return Just(savedData).eraseToAnyPublisher()
         }
-    }
-    
-    private func createScreenData(from coreData: [Movie]) {
-        
-        var newScreenData = [Movie]()
-        
-        for movie in coreData {
-            newScreenData.append(movie)
-        }
-        
-        self.screenData = newScreenData
-        
-    }
-}
-
-extension WatchedMoviesViewModel: ButtonTapped {
-    
-    func buttonTapped(for id: Int64, type: ButtonType) {
-        
-        for movie in screenData {
-            if movie.id == id {
-                coreDataManager.saveOrUpdateMovie(movie)
-            }
-        }
-        
-        getNewScreenData()
+        return Just([]).eraseToAnyPublisher()
     }
 }
 

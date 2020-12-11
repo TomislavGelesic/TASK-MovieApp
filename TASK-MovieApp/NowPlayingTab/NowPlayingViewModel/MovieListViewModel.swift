@@ -17,8 +17,6 @@ class MovieListViewModel {
     
     var screenData = [Movie]()
     
-    var screenDataSubject = PassthroughSubject<Void, Never>()
-    
     var spinnerSubject = PassthroughSubject<Bool, Never>()
     
     var alertSubject = PassthroughSubject<Void, Never>()
@@ -31,7 +29,7 @@ class MovieListViewModel {
 extension MovieListViewModel {
     //MARK: Functions
     
-    func refreshMovieList() -> AnyPublisher<[Movie], Never> {
+    func fetchScreenData() -> AnyPublisher<[Movie], Never> {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
@@ -47,11 +45,18 @@ extension MovieListViewModel {
             }
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: DispatchQueue.main)
-            .flatMap({ (screenData) -> AnyPublisher<[Movie], Never> in
+            .flatMap({ [unowned self] (screenData) -> AnyPublisher<[Movie], Never> in
+                
+                self.spinnerSubject.send(false)
+                
                 return Just(screenData).eraseToAnyPublisher()
             })
             .catch({ [unowned self] (error) -> AnyPublisher<[Movie], Never> in
+                
+                self.spinnerSubject.send(false)
+                
                 self.alertSubject.send()
+                
                 return Just([]).eraseToAnyPublisher()
             })
             .eraseToAnyPublisher()
@@ -72,26 +77,5 @@ extension MovieListViewModel {
         }
         
         return newScreenData
-    }
-}
-
-extension MovieListViewModel: ButtonTapped {
-    
-    func buttonTapped(for id: Int64, type: ButtonType) {
-        
-        for movie in screenData {
-            if movie.id == id {
-                switch type {
-                case .favourite:
-                    movie.favourite = !movie.favourite
-                case .watched:
-                    movie.watched = !movie.watched
-                }
-                coreDataManager.saveOrUpdateMovie(movie)
-                break
-            }
-        }
-        
-        buttonTappedSubject.send(true)
     }
 }

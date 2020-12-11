@@ -61,6 +61,7 @@ class MovieTableViewCell: UITableViewCell {
         let favouriteButton = UIButton()
         favouriteButton.layer.cornerRadius = 20
         favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
         return favouriteButton
     }()
     
@@ -68,6 +69,7 @@ class MovieTableViewCell: UITableViewCell {
         let watchedButton = UIButton()
         watchedButton.layer.cornerRadius = 20
         watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
         return watchedButton
     }()
     

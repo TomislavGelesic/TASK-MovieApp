@@ -7,12 +7,15 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    var watchedMoviesViewModel: WatchedMoviesViewModel?
+    private var watchedMoviesViewModel = WatchedMoviesViewModel()
+    
+    private var disposeBag = Set<AnyCancellable>()
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -30,6 +33,11 @@ class WatchedMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
+    deinit {
+        for cancellable in disposeBag {
+            cancellable.cancel()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,15 +50,7 @@ class WatchedMoviesViewController: UIViewController {
         
         moviesTableViewConstraints()
         
-        watchedMoviesViewModel = WatchedMoviesViewModel(delegate: self)
-        
-        watchedMoviesViewModel?.getNewScreenData()
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-       
-        watchedMoviesViewModel?.getNewScreenData()
+        setupViewModelSubscribers()
     }
 }
 
@@ -73,6 +73,15 @@ extension WatchedMoviesViewController {
         }
     }
     
+    private func setupViewModelSubscribers() {
+        watchedMoviesViewModel.getNewScreenData()
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (newScreenData) in
+                self.watchedMoviesViewModel.screenData = newScreenData
+                self.tableView.reloadData()
+            }.store(in: &disposeBag)
+    }
+    
     private func setupPullToRefreshControl() {
         
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
@@ -81,7 +90,7 @@ extension WatchedMoviesViewController {
     
     @objc func refreshMovies() {
         
-        watchedMoviesViewModel?.getNewScreenData()
+        #warning("UpdateScreenData")
         
         self.pullToRefreshControl.endRefreshing()
     }
@@ -91,46 +100,17 @@ extension WatchedMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return watchedMoviesViewModel?.screenData.count ?? 0
+        return watchedMoviesViewModel.screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        if let item = watchedMoviesViewModel?.screenData[indexPath.row] {
-            cell.configure(with: item)
-        }
-        
-        cell.movieListTableViewCellDelegate = self
+        cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row])
         
         return cell
     }
-}
-
-extension WatchedMoviesViewController: MovieTableViewCellDelegate {
-    
-    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType) {
-        
-        guard let id = cell.movie?.id else { return }
-        
-        watchedMoviesViewModel?.buttonTapped(for: id, type: type)
-    }
-}
-
-extension WatchedMoviesViewController: WatchedMoviesViewModelDelegate {
-    
-    func showAlertView() {
-        
-        showSpinner()
-    }
-    
-    func reloadTableView() {
-        
-        tableView.reloadData()
-    }
-    
-    
 }
 
 

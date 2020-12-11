@@ -14,9 +14,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    var movieID: Int64?
-    
-    var buttonTapped: ( (Int64, ButtonType) -> () )?
+    private var movieID: Int64?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -107,32 +105,40 @@ extension MovieListCollectionViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        if let id = movieID {
-            buttonTapped?(id, .favourite)
+        switch watchedButton.isSelected {
+        case true:
+            watchedButton.isSelected = false
+        case false:
+            watchedButton.isSelected = true
         }
+        
+        #warning("update coreData")
     }
     
     @objc func watchedButtonTapped() {
         
-        if let id = movieID {
-            buttonTapped?(id, .watched)
+        switch watchedButton.isSelected {
+        case true:
+            watchedButton.isSelected = false
+        case false:
+            watchedButton.isSelected = true
         }
+        
+        #warning("update coreData")
     }
     
-    func configure(with data: Movie, buttonTapped: () -> ()) {
+    func configure(with data: Movie) {
         
-            movieID = data.id
-            
-            if let imagePath = data.imagePath {
-                imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
-            }
-            yearLabel.text = data.year
-            
-            titleLabel.text = data.title
-            
-            descriptionLabel.text = data.overview
-            
-            buttonTapped()
+        movieID = data.id
+        
+        if let imagePath = data.imagePath {
+            imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
+        }
+        yearLabel.text = data.year
+        
+        titleLabel.text = data.title
+        
+        descriptionLabel.text = data.overview
         
     }
     

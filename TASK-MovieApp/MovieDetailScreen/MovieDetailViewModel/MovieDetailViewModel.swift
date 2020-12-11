@@ -11,23 +11,15 @@ import Combine
 
 class MovieDetailViewModel {
     
-    var movieAPIManager = MovieAPIManager()
+    private var movieAPIManager = MovieAPIManager()
     
-    var coreDataManager = CoreDataManager.sharedInstance
-    
-    var movie: Movie
+    private var movie: Movie
     
     var screenData = [RowItem<MovieDetailsRowType, Any>]()
     
-    var screenDataSubject = PassthroughSubject<Bool, Never>() // signals to reload table view data
-    
-    private var disposeBag = Set<AnyCancellable>()
-    
     var spinnerSubject = PassthroughSubject<Bool, Never>()
     
-    var alertSubject = PassthroughSubject<Bool, Never>()
-    
-    var buttonImageSubject = PassthroughSubject<ButtonType, Never>()
+    var alertSubject = PassthroughSubject<Void, Never>()
     
     init(movie: Movie) {
         self.movie = movie
@@ -37,46 +29,57 @@ class MovieDetailViewModel {
 extension MovieDetailViewModel {
     //MARK: Functions
     
-    func getNewScreenData() -> AnyCancellable {
+    func fetchScreenData() -> AnyPublisher<[RowItem<MovieDetailsRowType, Any>], Never> {
         
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movie.id))\(Constants.MOVIE_API.KEY)"
+
+        guard let movieDetailURLPath = URL(string: url) else { fatalError("getNewScreenData: DETAILS SCREEN") }
+
         
-        guard let getMovieDetailsURL = URL(string: url) else { fatalError("getNewScreenData: DETAILS SCREEN") }
+        spinnerSubject.send(true)
         
         return movieAPIManager
-            .fetch(url: getMovieDetailsURL, as: MovieDetailsResponse.self)
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] (completion) in
+            .fetch(url: movieDetailURLPath, as: MovieDetailsResponse.self)
+            .map { [unowned self] (movieDetails) -> [RowItem<MovieDetailsRowType, Any>] in
+                return self.createScreenData(from: movieDetails)
+            }
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: DispatchQueue.main)
+            .flatMap({ [unowned self] (screenData) -> AnyPublisher<[RowItem<MovieDetailsRowType, Any>], Never> in
                 
                 self.spinnerSubject.send(false)
                 
-                switch (completion) {
-                case .finished:
-                    break
-                case .failure(_):
-                    self.alertSubject.send(true)
-                    break
-                }
-            } receiveValue: { [unowned self] (newMovieDetails) in
-                self.screenData = createScreenData(from: newMovieDetails)
-                self.updateScreenDataWithCoreData()
-                self.screenDataSubject.send(true)
-            }
+                return Just(screenData).eraseToAnyPublisher()
+            })
+            .catch({ [unowned self] (error) -> AnyPublisher<[RowItem<MovieDetailsRowType, Any>], Never> in
+                
+                self.spinnerSubject.send(false)
+                
+                self.alertSubject.send()
+                
+                return Just([]).eraseToAnyPublisher()
+            })
+            .eraseToAnyPublisher()
+        
     }
     
     private func createScreenData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {
         
         var newScreenData = [RowItem<MovieDetailsRowType, Any>]()
         
-        if let posterPath = movieDetails.poster_path {
+        if let posterPath = movieDetails.posterPath {
+            
             let imagePath = Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + posterPath
             
-            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePathWithButtonState, value: MovieDetailInfo(imagePath: imagePath, favourite: false, watched: false)))
+            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePathWithButtonState, value: MovieDetailInfo(imagePath: imagePath, favourite: movie.favourite, watched: movie.watched)))
         }
         
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .title, value: movieDetails.title))
+        
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .genre, value: genresToString(movieDetails.genres)))
+        
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .quote, value: movieDetails.tagline))
+        
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .description, value: movieDetails.overview))
         
         return newScreenData
@@ -101,36 +104,5 @@ extension MovieDetailViewModel {
         }
         
         return names
-    }
-    
-    func updateScreenDataWithCoreData() {
-        
-        if let savedMovie = coreDataManager.getMovie(for: movie.id) {
-            for item in screenData {
-                if var info = item.value as? MovieDetailInfo {
-                    info.favourite = savedMovie.favourite
-                    info.watched = savedMovie.watched
-                }
-            }
-        }
-    }
-}
-
-extension MovieDetailViewModel {
-    
-    func buttonTapped(type: ButtonType) {
-        
-        switch type {
-        case .favourite:
-            movie.favourite = !movie.favourite
-        case .watched:
-            movie.watched = !movie.watched
-        }
-        
-        coreDataManager.saveOrUpdateMovie(movie)
-       
-        updateScreenDataWithCoreData()
-        
-        screenDataSubject.send(true)
     }
 }

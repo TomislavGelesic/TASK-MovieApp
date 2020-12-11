@@ -34,14 +34,15 @@ class MovieDetailViewController: UIViewController {
     init(for movie: Movie, delegate: MovieDetailViewControllerDelegate) {
         
         movieDetailViewModel = MovieDetailViewModel(movie: movie)
+        
         movieDetailViewControllerDelegate = delegate
         
         super.init(nibName: nil, bundle: nil)
     }
     
     deinit {
-        for item in disposeBag {
-            item.cancel()
+        for cancellable in disposeBag {
+            cancellable.cancel()
         }
     }
     
@@ -61,14 +62,8 @@ class MovieDetailViewController: UIViewController {
         
         setupDetailViewModelSubscribers()
         
-        
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        movieDetailViewModel?.screenDataSubject.send(true)
-    }
 }
 
 extension MovieDetailViewController {
@@ -105,7 +100,7 @@ extension MovieDetailViewController {
         }
     }
     
-    func setupDetailViewModelSubscribers() {
+    private func setupDetailViewModelSubscribers() {
         
         movieDetailViewModel?.spinnerSubject
             .receive(on: RunLoop.main)
@@ -129,12 +124,18 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel?.screenDataSubject
+        movieDetailViewModel?.fetchScreenData()
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (value) in
+            .sink(receiveValue: { [unowned self] (newScreenData) in
+                self.movieDetailViewModel?.screenData = newScreenData
                 self.tableView.reloadData()
             })
             .store(in: &disposeBag)
+    }
+    
+    private func returnToNowPlayingTab (_ value: Bool) {
+        
+        dismiss(animated: true, completion: nil)
     }
 }
 
@@ -158,7 +159,6 @@ extension MovieDetailViewController: UITableViewDataSource {
             
             if let info = item.value as? MovieDetailInfo {
                 cell.configure(with: info)
-                cell.movieDetailImageCellDelegate = self
             }
             
             return cell
@@ -168,7 +168,6 @@ extension MovieDetailViewController: UITableViewDataSource {
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
             
             if let title = item.value as? String {
-                
                 cell.configure(with: title)
             }
             
@@ -181,6 +180,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             if let genres = item.value as? String {
                 cell.configure(with: genres)
             }
+                
             return cell
             
         case .quote:
@@ -190,7 +190,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             if let quote = item.value as? String {
                 cell.configure(with: quote)
             }
-            
+                
             return cell
             
         case .description:
@@ -200,28 +200,12 @@ extension MovieDetailViewController: UITableViewDataSource {
             if let description = item.value as? String {
                 cell.configure(with: description)
             }
-            
+                
             return cell
         }
     }    
 }
 
-
-extension MovieDetailViewController: MovieDetailImageCellDelegate {
-    
-    func buttonTapped(type: ButtonType) {
-        
-        movieDetailViewModel?.buttonTapped(type: type)
-        
-        movieDetailViewModel?.updateScreenDataWithCoreData()
-    }
-    
-    func backButtonTapped() {
-        
-        movieDetailViewControllerDelegate?.reloadData()
-        dismiss(animated: true, completion: nil)
-    }
-}
 
 
 

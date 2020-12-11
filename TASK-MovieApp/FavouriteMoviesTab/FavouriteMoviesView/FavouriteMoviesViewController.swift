@@ -7,12 +7,15 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 class FavouriteMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    var favouriteMoviesViewModel: FavouriteMoviesViewModel?
+    private var favouriteMoviesViewModel = FavouriteMoviesViewModel()
+    
+    private var disposeBag = Set<AnyCancellable>()
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -30,21 +33,20 @@ class FavouriteMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
+    deinit {
+        for cancellable in disposeBag {
+            cancellable.cancel()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        favouriteMoviesViewModel = FavouriteMoviesViewModel(delegate: self)
-        
         setupTableView()
+        
         setupPullToRefreshControl()
         
-        favouriteMoviesViewModel?.getNewScreenData()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        
-        favouriteMoviesViewModel?.getNewScreenData()
+        setupViewModelSubscribers()
     }
 }
 
@@ -71,6 +73,16 @@ extension FavouriteMoviesViewController {
         }
     }
     
+    private func setupViewModelSubscribers() {
+        
+        favouriteMoviesViewModel.getNewScreenData()
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (newScreenData) in
+                self.favouriteMoviesViewModel.screenData = newScreenData
+                self.tableView.reloadData()
+            }.store(in: &disposeBag)
+    }
+    
     private func setupPullToRefreshControl() {
         
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
@@ -80,7 +92,7 @@ extension FavouriteMoviesViewController {
     
     @objc func refreshMovies() {
         
-        favouriteMoviesViewModel?.getNewScreenData()
+        #warning("UpdateScreenData")
         
         self.pullToRefreshControl.endRefreshing()
     }
@@ -90,46 +102,17 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return favouriteMoviesViewModel?.screenData.count ?? 0
+        return favouriteMoviesViewModel.screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        if let movie = favouriteMoviesViewModel?.screenData[indexPath.row] {
-            cell.configure(with: movie)
-        }
-        
-        cell.movieListTableViewCellDelegate = self
+        cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row])
         
         return cell
     }    
-}
-
-extension FavouriteMoviesViewController: MovieTableViewCellDelegate {
-    
-    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType) {
-        
-        guard let id = cell.movie?.id else { return }
-        
-        favouriteMoviesViewModel?.buttonTapped(for: id, type: type)
-    }
-}
-
-extension FavouriteMoviesViewController: FavouriteMoviesViewModelDelegate {
-    
-    func showAlertView() {
-        
-        showSpinner()
-    }
-    
-    func reloadTableView() {
-        
-        tableView.reloadData()
-    }
-    
-    
 }
 
 

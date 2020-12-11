@@ -15,8 +15,6 @@ class MovieListViewController: UIViewController {
     
     private var movieListViewModel = MovieListViewModel()
     
-    private var data = [Movie]()
-    
     private var disposeBag = Set<AnyCancellable>()
     
     private let flowLayout: UICollectionViewFlowLayout = {
@@ -60,11 +58,6 @@ class MovieListViewController: UIViewController {
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        
-        movieListViewModel.screenDataSubject.send()
-    }
-    
 }
 
 extension MovieListViewController {
@@ -74,8 +67,11 @@ extension MovieListViewController {
     private func setupCollectionView() {
         
         movieCollectionView.collectionViewLayout = flowLayout
+        
         movieCollectionView.delegate = self
+        
         movieCollectionView.dataSource = self
+        
         movieCollectionView.register(MovieListCollectionViewCell.self, forCellWithReuseIdentifier: MovieListCollectionViewCell.reuseIdentifier)
         
         view.addSubview(movieCollectionView)
@@ -106,6 +102,7 @@ extension MovieListViewController {
     private func setupViewModelSubscribers() {
         
         movieListViewModel.spinnerSubject
+            .subscribe(on: RunLoop.main)
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (value) in
                 switch (value) {
@@ -117,13 +114,12 @@ extension MovieListViewController {
             })
             .store(in: &disposeBag)
         
-        movieListViewModel.buttonTappedSubject
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] (value) in
-                //when buttons tapped reload images - to do: update just cell which was tapped...
-                self.movieCollectionView.reloadData()
-            }
-            .store(in: &disposeBag)
+//        movieListViewModel.buttonTappedSubject
+//            .receive(on: RunLoop.main)
+//            .sink { [unowned self] (value) in
+//
+//            }
+//            .store(in: &disposeBag)
         
         movieListViewModel.alertSubject
             .receive(on: RunLoop.main)
@@ -132,19 +128,13 @@ extension MovieListViewController {
             }
             .store(in: &disposeBag)
         
-        movieListViewModel.refreshMovieList()
+        movieListViewModel.fetchScreenData()
             .sink { [unowned self] (newScreenData) in
                 self.movieListViewModel.screenData = newScreenData
-                self.movieListViewModel.screenDataSubject.send()
-            }
-            .store(in: &disposeBag)
-        
-        movieListViewModel.screenDataSubject
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] (_) in
                 self.movieCollectionView.reloadData()
             }
             .store(in: &disposeBag)
+        
     }
 }
 
@@ -158,10 +148,8 @@ extension MovieListViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
-    
-        // ha, sta kaes?! ',*,' mind-blow ',*,'
-        cell.buttonTapped = self.movieListViewModel.buttonTapped
-        
+       
+        cell.configure(with: movieListViewModel.screenData[indexPath.row])
         
         return cell
     }
