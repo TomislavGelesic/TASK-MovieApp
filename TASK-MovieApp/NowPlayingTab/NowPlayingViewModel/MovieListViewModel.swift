@@ -13,19 +13,15 @@ class MovieListViewModel {
     
     var screenData = [RowItem<MovieRowType, Movie>]()
     
-    var screenDataSubject = PassthroughSubject<Bool, Never>() // signals to reload collection view
-    
     var spinnerSubject = PassthroughSubject<Bool, Never>()
     
     var alertSubject = PassthroughSubject<Bool, Never>()
-    
-    private var disposeBag = Set<AnyCancellable>()
     
     var coreDataManager = CoreDataManager.sharedInstance
     
     var movieAPIManager = MovieAPIManager()
     
-    var buttonImageSubject = PassthroughSubject<ButtonType, Never>()
+    var buttonTappedSubject = PassthroughSubject<Bool, Never>()
     
     
 }
@@ -33,7 +29,7 @@ class MovieListViewModel {
 extension MovieListViewModel {
     //MARK: Functions
     
-    func refreshMovieList() -> AnyCancellable {
+    func refreshMovieList() -> AnyPublisher<[RowItem<MovieRowType, Movie>], Never> {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
@@ -41,28 +37,29 @@ extension MovieListViewModel {
         
         spinnerSubject.send(true)
         
-        return movieAPIManager
-            .fetch(url: getNowPlayingURL, as: MovieResponse.self)
-            .map(\.results)
-            .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { [unowned self] (completion) in
+        
+        return Just(getNowPlayingURL)
+            .flatMap { [unowned self] (getNowPlayingURL) -> AnyPublisher<[RowItem<MovieRowType, Movie>], Never> in
                 
                 self.spinnerSubject.send(false)
                 
-                switch (completion) {
-                case .finished:
-                    break
-                case .failure(_):
-                    self.alertSubject.send(true)
-                    break
-                }
+                return self.movieAPIManager
+                    .fetch(url: getNowPlayingURL, as: MovieResponse.self)
+                    .receive(on: RunLoop.main)
+                    .flatMap({ [unowned self] (MovieResponse) -> AnyPublisher<[RowItem<MovieRowType, Movie>], Never> in
+                        
+                        let data = self.createScreenData(from: MovieResponse.results)
+                        
+                        return Just(data).eraseToAnyPublisher()
+                    })
+                    .catch({ (_) in
+//                        self.alertSubject.send(true)
+                        return Just([]).eraseToAnyPublisher()
+                    }).eraseToAnyPublisher()
                 
-            }, receiveValue: { [unowned self] (results) in
-                
-                self.screenData = self.createScreenData(from: results)
-                self.updateScreenDataWithCoreData()
-                self.screenDataSubject.send(true) //actually does same for both bool values (T/F) but publisher must emit smomething to notify subscriber
-            })
+            }.eraseToAnyPublisher()
+        
+        
     }
     
     private func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [RowItem<MovieRowType, Movie>] {
@@ -108,7 +105,8 @@ extension MovieListViewModel: ButtonTapped {
         }
             
         updateScreenDataWithCoreData()
+                
         
-        screenDataSubject.send(true)
+        buttonTappedSubject.send(true)
     }
 }

@@ -59,8 +59,7 @@ class MovieListViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-
-        movieListViewModel.screenDataSubject.send(true)
+        
     }
     
 }
@@ -97,8 +96,6 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        movieListViewModel.refreshMovieList()
-            .store(in: &disposeBag)
         
         self.pullToRefreshControl.endRefreshing()
     }
@@ -117,12 +114,10 @@ extension MovieListViewController {
             })
             .store(in: &disposeBag)
         
-        movieListViewModel.refreshMovieList()
-            .store(in: &disposeBag)
-        
-        movieListViewModel.screenDataSubject
+        movieListViewModel.buttonTappedSubject
             .receive(on: RunLoop.main)
             .sink { [unowned self] (value) in
+                //when buttons tapped reload images - to do: update just cell which was tapped...
                 self.movieCollectionView.reloadData()
             }
             .store(in: &disposeBag)
@@ -133,6 +128,14 @@ extension MovieListViewController {
                 self.showAPIFailedAlert()
             }
             .store(in: &disposeBag)
+        
+        movieListViewModel.refreshMovieList()
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (screenData) in
+                self.movieListViewModel.screenData = screenData
+                self.reloadData()
+            }.store(in: &disposeBag)
     }
 }
 
