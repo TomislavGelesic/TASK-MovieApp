@@ -19,7 +19,7 @@ class FavouriteMoviesViewModel {
     
     weak var favouriteMoviesViewModelDelegate: FavouriteMoviesViewModelDelegate?
     
-    var screenData = [RowItem<MovieRowType, Movie>]()
+    var screenData = [Movie]()
     
     //MARK: init
     
@@ -44,10 +44,10 @@ extension FavouriteMoviesViewModel {
     
     private func createScreenData(from coreData: [Movie]) {
         
-        var newScreenData = [RowItem<MovieRowType, Movie>]()
+        var newScreenData = [Movie]()
         
         for movie in coreData {
-            newScreenData.append(RowItem<MovieRowType, Movie>(type: .movie, value: movie))
+            newScreenData.append(movie)
         }
         
         self.screenData = newScreenData
@@ -60,8 +60,8 @@ extension FavouriteMoviesViewModel: ButtonTapped {
     func buttonTapped(for id: Int64, type: ButtonType) {
         
         for movie in screenData {
-            if movie.value.id == id {
-                coreDataManager.saveOrUpdateMovie(movie.value)
+            if movie.id == id {
+                coreDataManager.saveOrUpdateMovie(movie)
             }
         }
         

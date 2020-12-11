@@ -57,6 +57,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
         let favouriteButton = UIButton()
         favouriteButton.layer.cornerRadius = 20
         favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
         return favouriteButton
     }()
     
@@ -64,6 +65,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
         let watchedButton = UIButton()
         watchedButton.layer.cornerRadius = 20
         watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
         return watchedButton
     }()
     
@@ -117,27 +119,20 @@ extension MovieListCollectionViewCell {
         }
     }
     
-    func configure(with rowItem: RowItem<MovieRowType, Movie>, buttonTapped: () -> ()) {
+    func configure(with data: Movie, buttonTapped: () -> ()) {
         
-        switch rowItem.type {
-        case .movie:
+            movieID = data.id
             
-            movieID = rowItem.value.id
-            
-            if let imagePath = rowItem.value.imagePath {
+            if let imagePath = data.imagePath {
                 imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
             }
-            yearLabel.text = rowItem.value.year
+            yearLabel.text = data.year
             
-            titleLabel.text = rowItem.value.title
+            titleLabel.text = data.title
             
-            descriptionLabel.text = rowItem.value.overview
+            descriptionLabel.text = data.overview
             
             buttonTapped()
-            case .empty:
-                break
-        }
-        
         
     }
     
@@ -145,23 +140,9 @@ extension MovieListCollectionViewCell {
      
         switch type {
         case .favourite:
-            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
+            favouriteButton.isSelected = selected
         case .watched:
-            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
+            watchedButton.isSelected = selected
         }
     }
     

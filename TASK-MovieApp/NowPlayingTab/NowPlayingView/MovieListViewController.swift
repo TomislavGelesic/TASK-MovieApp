@@ -15,6 +15,8 @@ class MovieListViewController: UIViewController {
     
     private var movieListViewModel = MovieListViewModel()
     
+    private var data = [Movie]()
+    
     private var disposeBag = Set<AnyCancellable>()
     
     private let flowLayout: UICollectionViewFlowLayout = {
@@ -60,6 +62,7 @@ class MovieListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         
+        movieListViewModel.screenDataSubject.send()
     }
     
 }
@@ -130,12 +133,18 @@ extension MovieListViewController {
             .store(in: &disposeBag)
         
         movieListViewModel.refreshMovieList()
-            .subscribe(on: DispatchQueue.global(qos: .background))
+            .sink { [unowned self] (newScreenData) in
+                self.movieListViewModel.screenData = newScreenData
+                self.movieListViewModel.screenDataSubject.send()
+            }
+            .store(in: &disposeBag)
+        
+        movieListViewModel.screenDataSubject
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (screenData) in
-                self.movieListViewModel.screenData = screenData
-                self.reloadData()
-            }.store(in: &disposeBag)
+            .sink { [unowned self] (_) in
+                self.movieCollectionView.reloadData()
+            }
+            .store(in: &disposeBag)
     }
 }
 
@@ -163,7 +172,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row].value, delegate: self)
+        let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row], delegate: self)
         
         movieDetailScreen.modalPresentationStyle = .fullScreen
         

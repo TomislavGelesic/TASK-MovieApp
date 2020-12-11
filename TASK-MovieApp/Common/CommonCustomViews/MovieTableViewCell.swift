@@ -126,24 +126,24 @@ extension MovieTableViewCell {
         
     }
     
-    func configure(with item: RowItem<MovieRowType, Movie>) {
+    func configure(with item: Movie) {
         
-        self.movie = item.value
+        self.movie = item
         
-        if let imagePath = item.value.imagePath {
+        if let imagePath = item.imagePath {
             
             imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
         }
         
-        yearLabel.text = item.value.year
+        yearLabel.text = item.year
     
-        titleLabel.text = item.value.title
+        titleLabel.text = item.title
         
-        descriptionLabel.text = item.value.overview
+        descriptionLabel.text = item.overview
         
-        setButtonImage(on: .favourite, selected: item.value.favourite)
+        setButtonImage(on: .favourite, selected: item.favourite)
         
-        setButtonImage(on: .watched, selected: item.value.watched)
+        setButtonImage(on: .watched, selected: item.watched)
     }
     
     func setButtonImage(on type: ButtonType, selected: Bool) {
