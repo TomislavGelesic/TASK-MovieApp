@@ -12,11 +12,7 @@ import Combine
 
 class MovieListCollectionViewCell: UICollectionViewCell {
     
-    //MARK: Properties
-    
-    private var movieID: Int64?
-    
-    var userActionPublisher = PassthroughSubject<ButtonPreferance, Never>()
+    var buttonTappedPublisher = PassthroughSubject<ButtonType, Never>()
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -70,8 +66,6 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     }()
     
     
-    //MARK: Initialization
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -84,7 +78,6 @@ class MovieListCollectionViewCell: UICollectionViewCell {
 }
 
 extension MovieListCollectionViewCell {
-    //MARK: Functions
     
     private func setupViews() {
         
@@ -107,49 +100,31 @@ extension MovieListCollectionViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        guard let id = movieID else { return }
-        
-        switch favouriteButton.isSelected {
-        case true:
-            favouriteButton.isSelected = false
-        case false:
-            favouriteButton.isSelected = true
-        }
-        
-        userActionPublisher.send(ButtonPreferance.init(type: .favourite, value: favouriteButton.isSelected))
+        buttonTappedPublisher.send(.favourite)
     }
     
     @objc func watchedButtonTapped() {
-        
-        
-        guard let id = movieID else { return }
-        
-        switch watchedButton.isSelected {
-        case true:
-            watchedButton.isSelected = false
-        case false:
-            watchedButton.isSelected = true
-        }
 
-        userActionPublisher.send(ButtonPreferance.init(type: .watched, value: watchedButton.isSelected))
+        buttonTappedPublisher.send(.watched)
     }
     
-    func configure(with data: Movie) {
+    func configure(with item: MovieRowItem) {
         
-        movieID = data.id
+        imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
         
-        if let imagePath = data.imagePath {
-            imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
-        }
-        yearLabel.text = data.year
+        yearLabel.text = item.year
         
-        titleLabel.text = data.title
+        titleLabel.text = item.title
         
-        descriptionLabel.text = data.overview
+        descriptionLabel.text = item.overview
+        
+        setButtonImage(on: .favourite, selected: item.favourite)
+        
+        setButtonImage(on: .watched, selected: item.watched)
         
     }
     
-    func setButtonImage(on type: ButtonType, selected: Bool) {
+    private func setButtonImage(on type: ButtonType, selected: Bool) {
      
         switch type {
         case .favourite:

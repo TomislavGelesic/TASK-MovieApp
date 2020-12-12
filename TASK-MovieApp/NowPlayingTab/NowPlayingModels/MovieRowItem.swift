@@ -10,7 +10,6 @@ import UIKit
 class MovieRowItem {
     
     var id: Int64 = 0
-    var genreIDs: String = ""
     var favourite: Bool = false
     var watched: Bool = false
     var imagePath: String = ""
@@ -18,10 +17,9 @@ class MovieRowItem {
     var year: String = ""
     var overview: String = ""
     
-    init(id: Int64 = -1, genreIDs: String = "", favourite: Bool = false, watched: Bool = false, imagePath: String = "", title: String = "", year: String = "", overview: String = "") {
+    init(id: Int64 = -1, favourite: Bool = false, watched: Bool = false, imagePath: String = "", title: String = "", year: String = "", overview: String = "") {
         
         self.id = id
-        self.genreIDs = genreIDs
         self.favourite = favourite
         self.watched = watched
         self.imagePath = imagePath
@@ -34,9 +32,6 @@ class MovieRowItem {
         
         self.id = Int64(movie.id)
         
-        if let genreIDs = movie.genreIDs {
-            self.genreIDs = genreIDs
-        }
         self.favourite = movie.favourite
         self.watched = movie.watched
         if let path = movie.imagePath {
@@ -51,7 +46,28 @@ class MovieRowItem {
         if let overview = movie.overview{
             self.overview = overview
         }
+    }
+    
+    init(_ movie: MovieResponseItem) {
         
+        self.id = Int64(movie.id)
+        self.imagePath = movie.posterPath
+        self.title = movie.title
+        self.year = getReleaseYear(releaseDate: movie.releaseDate)
+        self.overview = movie.overview
+    
+    }
+    
+    private func getReleaseYear(releaseDate: String) -> String {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
+        
+        dateFormatter.dateFormat = "yyyy"
+        
+        return dateFormatter.string(from: date)
     }
 }
 

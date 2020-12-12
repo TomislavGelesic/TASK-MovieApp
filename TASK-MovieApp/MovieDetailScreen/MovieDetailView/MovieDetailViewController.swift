@@ -31,7 +31,7 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for movie: Movie, delegate: MovieDetailViewControllerDelegate) {
+    init(for movie: MovieRowItem, delegate: MovieDetailViewControllerDelegate) {
         
         movieDetailViewModel = MovieDetailViewModel(movie: movie)
         

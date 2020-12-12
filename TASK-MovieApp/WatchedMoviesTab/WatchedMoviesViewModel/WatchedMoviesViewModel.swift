@@ -12,13 +12,13 @@ class WatchedMoviesViewModel {
     
     private var coreDataManager = CoreDataManager.sharedInstance
     
-    var screenData = [Movie]()
+    var screenData = [MovieRowItem]()
     
 }
 
 extension WatchedMoviesViewModel {
     
-    func getNewScreenData() -> AnyPublisher<[Movie], Never> {
+    func getNewScreenData() -> AnyPublisher<[MovieRowItem], Never> {
         
         if let savedData = coreDataManager.getMovies(.watched) {
             

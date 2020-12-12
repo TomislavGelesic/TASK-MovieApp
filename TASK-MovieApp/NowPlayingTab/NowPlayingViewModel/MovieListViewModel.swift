@@ -43,13 +43,13 @@ extension MovieListViewModel {
             }
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: DispatchQueue.main)
-            .flatMap({ [unowned self] (screenData) -> AnyPublisher<[Movie], Never> in
+            .flatMap({ [unowned self] (screenData) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 self.spinnerSubject.send(false)
                 
                 return Just(screenData).eraseToAnyPublisher()
             })
-            .catch({ [unowned self] (error) -> AnyPublisher<[Movie], Never> in
+            .catch({ [unowned self] (error) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 self.spinnerSubject.send(false)
                 
@@ -67,14 +67,14 @@ extension MovieListViewModel {
     
     private func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
         
-        var newScreenData = [Movie]()
+        var newScreenData = [MovieRowItem]()
         
         for item in newMovieResponseItems {
             if let savedMovie = coreDataManager.getMovie(for: Int64(item.id)) {
-                newScreenData.append(savedMovie)
+                newScreenData.append(MovieRowItem(savedMovie))
             }
-            else if let newMovie = coreDataManager.createMovie(from: item) {
-                newScreenData.append(newMovie)
+            else {
+                newScreenData.append(MovieRowItem(item))
             }
         }
         
@@ -82,15 +82,17 @@ extension MovieListViewModel {
     }
 
     
-    func updateScreenData(with buttonPreference: ButtonPreferance, at indexPath: IndexPath) {
+    func switchValue(at indexPath: IndexPath, on type: ButtonType) {
         
         let movie = screenData[indexPath.row]
        
-        switch buttonPreference.type {
+        switch type {
         case .favourite:
-            movie.favourite = buttonPreference.value
+            movie.favourite = !movie.favourite
+            print("F: \(movie.favourite)")
         case .watched:
-            movie.watched = buttonPreference.value
+            movie.watched = !movie.watched
+            print("W: \(movie.watched)")
         }
         
         coreDataManager.updateMovie(movie)
@@ -99,8 +101,6 @@ extension MovieListViewModel {
            !movie.watched {
             coreDataManager.deleteMovie(movie)
         }
-        
-        updateScreenDataSubject.send(.cellAt(indexPath))
         
     }
 

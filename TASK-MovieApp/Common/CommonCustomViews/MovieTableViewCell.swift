@@ -20,7 +20,7 @@ class MovieTableViewCell: UITableViewCell {
     
     var movieListTableViewCellDelegate: MovieTableViewCellDelegate?
     
-    var movie: Movie?
+    var movie: MovieRowItem?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -128,14 +128,11 @@ extension MovieTableViewCell {
         
     }
     
-    func configure(with item: Movie) {
+    func configure(with item: MovieRowItem) {
         
         self.movie = item
         
-        if let imagePath = item.imagePath {
-            
-            imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
-        }
+        imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
         
         yearLabel.text = item.year
     

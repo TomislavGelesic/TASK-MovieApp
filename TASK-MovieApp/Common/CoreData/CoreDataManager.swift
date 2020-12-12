@@ -42,36 +42,40 @@ extension CoreDataManager {
         }
     }
     
-    func getMovies(_ option: SavedMoviesOptions) -> [Movie]? {
-        
-        var movies: [Movie]?
+    func getMovies(_ option: SavedMoviesOptions) -> [MovieRowItem]? {
         
         let managedContext = persistentContainer.viewContext
         
         let request = Movie.fetchRequest() as NSFetchRequest<Movie>
         
-        switch option {
+        switch (option) {
+        
         case .all:
-            print("Getting all movies from core data...")
-            
+            break
         case .favourite:
             request.predicate = NSPredicate(format: "favourite == YES")
-            
+            break
         case .watched:
             request.predicate = NSPredicate(format: "watched == YES")
+            break
         }
         
         do {
-            movies = try managedContext.fetch(request)
+            let savedMovies = try managedContext.fetch(request)
+            
+            var movies = [MovieRowItem]()
+            
+            for movie in savedMovies {
+                movies.append(MovieRowItem(movie))
+            }
+            
+            return movies
+
         } catch  {
             print(error)
         }
         
-        if let movies = movies {
-            return movies
-        }
         return nil
-        
     }
     
     func getMovie(for id: Int64) -> Movie? {
@@ -98,34 +102,26 @@ extension CoreDataManager {
         }
     }
     
-    func createMovie(from item: MovieResponseItem) -> Movie? {
+    func updateMovie(_ movie: MovieRowItem) {
         
-        let managedContext = persistentContainer.viewContext
-        
-        let movie = Movie(context: managedContext)
-        
-        movie.setValue(Int64(item.id), forKey: "id")
-        movie.setValue(item.title, forKey: "title")
-        movie.setValue(item.overview, forKey: "overview")
-        movie.setValue(item.posterPath, forKey: "imagePath")
-        movie.setValue(getReleaseYear(releaseDate: item.releaseDate), forKey: "year")
-        movie.setValue(false, forKey: "favourite")
-        movie.setValue(false, forKey: "watched")
-        
-        return movie
+        if let savedMovie = getMovie(for: movie.id) {
+            savedMovie.favourite = movie.favourite
+            savedMovie.watched = movie.watched
+            saveContext()
+        }
     }
     
-    func updateMovie(_ movie: Movie) {
-        saveContext()
-    }
-    
-    func deleteMovie(_ movie: Movie) {
+    func deleteMovie(_ movie: MovieRowItem) {
         
-        let managedContext = persistentContainer.viewContext
+        if let savedMovie = getMovie(for: movie.id) {
+            
+            let managedContext = persistentContainer.viewContext
+            
+            managedContext.delete(savedMovie)
+            
+            saveContext()
+        }
         
-        managedContext.delete(movie)
-        
-        saveContext()
     }
     
     func deleteAll() {
@@ -138,17 +134,7 @@ extension CoreDataManager {
         }
     }
     
-    private func getReleaseYear(releaseDate: String) -> String {
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
-        
-        dateFormatter.dateFormat = "yyyy"
-        
-        return dateFormatter.string(from: date)
-    }
+    
     
 }
 

@@ -13,7 +13,7 @@ class MovieDetailViewModel {
     
     private var movieAPIManager = MovieAPIManager()
     
-    private var movie: Movie
+    private var movie: MovieRowItem
     
     var screenData = [RowItem<MovieDetailsRowType, Any>]()
     
@@ -21,7 +21,7 @@ class MovieDetailViewModel {
     
     var alertSubject = PassthroughSubject<Void, Never>()
     
-    init(movie: Movie) {
+    init(movie: MovieRowItem) {
         self.movie = movie
     }
 }

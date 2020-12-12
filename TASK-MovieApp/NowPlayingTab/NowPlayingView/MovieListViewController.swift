@@ -95,6 +95,7 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
+        movieListViewModel.initializeScreenData().store(in: &disposeBag)
         
         self.pullToRefreshControl.endRefreshing()
     }
@@ -122,15 +123,15 @@ extension MovieListViewController {
             .store(in: &disposeBag)
         
         movieListViewModel.updateScreenDataSubject
-            .subscribe(on: DispatchQueue.global(qos: .background))
+            .subscribe(on: RunLoop.main)
             .receive(on: RunLoop.main)
             .sink { [unowned self] (rowUpdateState) in
                 
                 switch (rowUpdateState) {
                 case .all:
                     self.movieCollectionView.reloadData()
-                case .cellAt(let pathToUpdate):
-                    self.movieCollectionView.reloadItems(at: [pathToUpdate])
+                case .cellAt(let position):
+                    self.movieCollectionView.reloadItems(at: [position])
                 }
             }
             .store(in: &disposeBag)
@@ -152,11 +153,15 @@ extension MovieListViewController: UICollectionViewDataSource {
        
         cell.configure(with: movieListViewModel.screenData[indexPath.row])
         
-        cell.userActionPublisher
+        //should i pass this subscription to modelView - updateScreenDataSubject somehow??
+        cell.buttonTappedPublisher
             .subscribe(on: RunLoop.main)
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (buttonPreferance) in
-                self.movieListViewModel.updateScreenData(with: buttonPreferance, at: indexPath)
+            .sink(receiveValue: { [unowned self] (buttonType) in
+                
+                self.movieListViewModel.switchValue(at: indexPath, on: buttonType)
+                
+                self.movieListViewModel.updateScreenDataSubject.send(.cellAt(indexPath))
             })
             .store(in: &disposeBag)
         
