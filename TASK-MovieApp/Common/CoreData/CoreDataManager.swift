@@ -9,7 +9,7 @@ import UIKit
 import CoreData
 
 class CoreDataManager {
-    //MARK: Properties
+    
     static let sharedInstance = CoreDataManager()
     
     private init() {}
@@ -27,7 +27,6 @@ class CoreDataManager {
 }
 
 extension CoreDataManager {
-    //MARK: Functions
     
     func saveContext () {
         
@@ -116,11 +115,32 @@ extension CoreDataManager {
         return movie
     }
     
-    func saveOrUpdateMovie(_ movie: Movie) {
-        if var savedMovie = getMovie(for: movie.id) {
-            savedMovie = movie
+    func updateMovie(with preference: ButtonPreferance) {
+        
+        if let savedMovie = getMovie(for: preference.id) {
+            
+            #warning("delete when done development")
+            print("Changing preference \(preference.type), on movie by id: \(preference.id)")
+            
+            switch preference.type {
+            case .favourite:
+                savedMovie.favourite = preference.value
+            case .watched:
+                savedMovie.watched = preference.value
+            }
+            
+            if !savedMovie.favourite, !savedMovie.watched {
+                deleteMovie(savedMovie)
+                return
+            }
+            saveContext()
         }
-        saveContext()
+        
+        #warning("delete when done development")
+        if let savedMovie = getMovie(for: preference.id) {
+            print("Check: \(preference.value): f- \(savedMovie.favourite), w- \(savedMovie.watched)")
+        }
+        
     }
     
     func deleteMovie(_ movie: Movie) {

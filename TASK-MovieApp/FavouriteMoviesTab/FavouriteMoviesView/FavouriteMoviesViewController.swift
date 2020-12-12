@@ -48,6 +48,12 @@ class FavouriteMoviesViewController: UIViewController {
         
         setupViewModelSubscribers()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        tableView.reloadData()
+    }
 }
 
 extension FavouriteMoviesViewController {
@@ -76,6 +82,7 @@ extension FavouriteMoviesViewController {
     private func setupViewModelSubscribers() {
         
         favouriteMoviesViewModel.getNewScreenData()
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (newScreenData) in
                 self.favouriteMoviesViewModel.screenData = newScreenData

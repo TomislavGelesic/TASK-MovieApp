@@ -114,13 +114,6 @@ extension MovieListViewController {
             })
             .store(in: &disposeBag)
         
-//        movieListViewModel.buttonTappedSubject
-//            .receive(on: RunLoop.main)
-//            .sink { [unowned self] (value) in
-//
-//            }
-//            .store(in: &disposeBag)
-        
         movieListViewModel.alertSubject
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
@@ -135,6 +128,12 @@ extension MovieListViewController {
             }
             .store(in: &disposeBag)
         
+        movieListViewModel.screenDataSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
+            .sink { (<#Publishers.SubscribeOn<PassthroughSubject<Movie, Never>, DispatchQueue>.Output#>) in
+                <#code#>
+            }
     }
 }
 
@@ -150,6 +149,13 @@ extension MovieListViewController: UICollectionViewDataSource {
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
        
         cell.configure(with: movieListViewModel.screenData[indexPath.row])
+        
+        cell.userActionPublisher
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] (preferance) in
+                self.movieListViewModel.updateMovieButtonPreferance(preferance)
+            })
+            .store(in: &disposeBag)
         
         return cell
     }

@@ -21,8 +21,7 @@ class MovieListViewModel {
     
     var alertSubject = PassthroughSubject<Void, Never>()
     
-    var buttonTappedSubject = PassthroughSubject<Bool, Never>()
-    
+    var screenDataSubject = PassthroughSubject<Movie, Never>()
     
 }
 
@@ -78,4 +77,15 @@ extension MovieListViewModel {
         
         return newScreenData
     }
+    
+    func updateMovieButtonPreferance(_ preference: ButtonPreferance) {
+        
+        coreDataManager.updateMovie(with: preference)
+        
+        if let updatedMovie = coreDataManager.getMovie(for: preference.id) {
+            screenDataSubject.send(updatedMovie)
+        }
+    }
+
 }
+

@@ -104,9 +104,9 @@ extension MovieDetailViewController {
         
         movieDetailViewModel?.spinnerSubject
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (action) in
+            .sink(receiveValue: { [unowned self] (isVisible) in
                 
-                switch (action) {
+                switch (isVisible) {
                 case true:
                     self.showSpinner()
                     break

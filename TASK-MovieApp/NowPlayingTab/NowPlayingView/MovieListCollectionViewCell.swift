@@ -16,6 +16,8 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     private var movieID: Int64?
     
+    var userActionPublisher = PassthroughSubject<ButtonPreferance, Never>()
+    
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 20
@@ -105,26 +107,31 @@ extension MovieListCollectionViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        switch watchedButton.isSelected {
+        guard let id = movieID else { return }
+        
+        switch favouriteButton.isSelected {
         case true:
-            watchedButton.isSelected = false
+            favouriteButton.isSelected = false
         case false:
-            watchedButton.isSelected = true
+            favouriteButton.isSelected = true
         }
         
-        #warning("update coreData")
+        userActionPublisher.send(.init(id: id, type: .favourite, value: favouriteButton.isSelected))
     }
     
     @objc func watchedButtonTapped() {
         
+        
+        guard let id = movieID else { return }
+        
         switch watchedButton.isSelected {
         case true:
             watchedButton.isSelected = false
         case false:
             watchedButton.isSelected = true
         }
-        
-        #warning("update coreData")
+
+        userActionPublisher.send(.init(id: id, type: .watched, value: watchedButton.isSelected))
     }
     
     func configure(with data: Movie) {
