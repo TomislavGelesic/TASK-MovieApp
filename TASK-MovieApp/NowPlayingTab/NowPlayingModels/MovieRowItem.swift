@@ -55,6 +55,8 @@ class MovieRowItem {
         self.title = movie.title
         self.year = getReleaseYear(releaseDate: movie.releaseDate)
         self.overview = movie.overview
+        self.favourite = false
+        self.watched = false
     
     }
     

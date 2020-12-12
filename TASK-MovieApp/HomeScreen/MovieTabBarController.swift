@@ -1,9 +1,3 @@
-//
-//  MovieTabBarController.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 04/11/2020.
-//
 
 import UIKit
 

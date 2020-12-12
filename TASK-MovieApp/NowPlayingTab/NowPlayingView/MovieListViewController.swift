@@ -1,9 +1,3 @@
-//
-//  MovieFeedViewController.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 27/10/2020.
-//
 
 import UIKit
 import SnapKit
@@ -61,7 +55,8 @@ class MovieListViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        movieListViewModel.updateScreenDataSubject.send(.all)
+        movieListViewModel.initializeScreenData()
+            .store(in: &disposeBag)
     }
     
 }
@@ -141,8 +136,6 @@ extension MovieListViewController {
                 }
             }
             .store(in: &disposeBag)
-        
-        movieListViewModel.initializeScreenData().store(in: &disposeBag)
     }
 }
 

@@ -1,9 +1,3 @@
-//
-//  MovieListPresenter.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 20.11.2020..
-//
 
 import Foundation
 import Alamofire
@@ -25,7 +19,6 @@ class MovieListViewModel {
 }
 
 extension MovieListViewModel {
-    //MARK: Functions
     
     func initializeScreenData() -> AnyCancellable {
         
@@ -42,7 +35,7 @@ extension MovieListViewModel {
                 return self.createScreenData(from: movieResponseItems)
             }
             .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: DispatchQueue.main)
+            .receive(on: DispatchQueue.global(qos: .background))
             .flatMap({ [unowned self] (screenData) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 self.spinnerSubject.send(false)

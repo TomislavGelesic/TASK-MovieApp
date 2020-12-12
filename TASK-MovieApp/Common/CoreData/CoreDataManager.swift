@@ -113,15 +113,13 @@ extension CoreDataManager {
             savedMovie.watched = movie.watched
             saveContext()
         }
-        else if let success = createMovie(from: movie) {
-            
-        }
         else {
-            fatalError("------ CoreDataManager ---- updateMovie() ------")
+            
+            saveMovie(from: movie)
         }
     }
     
-    private func createMovie(from item: MovieRowItem) -> Movie? {
+    private func saveMovie(from item: MovieRowItem) {
         
         let managedContext = persistentContainer.viewContext
         
@@ -137,11 +135,11 @@ extension CoreDataManager {
         
         saveContext()
         
-        if let savedMovie = getMovie(for: movie.id) {
-            return savedMovie
+        if let _ = getMovie(for: movie.id) { return }
+        else {
+            print("(WARNING) Couldn't save new movie to Core Data. (WARNING)")
+            return
         }
-        
-        return nil
     }
     
     func deleteMovie(_ movie: MovieRowItem) {

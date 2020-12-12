@@ -14,9 +14,9 @@
             filePath = "TASK-MovieApp/NowPlayingTab/NowPlayingView/MovieListCollectionViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "103"
-            endingLineNumber = "103"
-            landmarkName = "favouriteButtonTapped()"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
+            landmarkName = "setupButtons()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,25 +30,9 @@
             filePath = "TASK-MovieApp/NowPlayingTab/NowPlayingView/MovieListCollectionViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "108"
-            endingLineNumber = "108"
-            landmarkName = "watchedButtonTapped()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "56BA39BB-3E9C-4617-A00E-134BE4045FFD"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TASK-MovieApp/NowPlayingTab/NowPlayingViewModel/MovieListViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "100"
-            endingLineNumber = "100"
-            landmarkName = "switchPreference(at:on:)"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
+            landmarkName = "favouriteButtonTapped()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
