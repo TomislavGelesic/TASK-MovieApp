@@ -116,7 +116,7 @@ extension MovieListCollectionViewCell {
             favouriteButton.isSelected = true
         }
         
-        userActionPublisher.send(.init(id: id, type: .favourite, value: favouriteButton.isSelected))
+        userActionPublisher.send(ButtonPreferance.init(type: .favourite, value: favouriteButton.isSelected))
     }
     
     @objc func watchedButtonTapped() {
@@ -131,7 +131,7 @@ extension MovieListCollectionViewCell {
             watchedButton.isSelected = true
         }
 
-        userActionPublisher.send(.init(id: id, type: .watched, value: watchedButton.isSelected))
+        userActionPublisher.send(ButtonPreferance.init(type: .watched, value: watchedButton.isSelected))
     }
     
     func configure(with data: Movie) {

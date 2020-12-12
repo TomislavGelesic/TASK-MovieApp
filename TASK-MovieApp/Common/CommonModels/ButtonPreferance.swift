@@ -8,7 +8,6 @@
 import Foundation
 
 struct ButtonPreferance {
-    var id: Int64
     var type: ButtonType
     var value: Bool
 }

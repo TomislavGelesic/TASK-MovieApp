@@ -14,7 +14,7 @@ class MovieListViewController: UIViewController {
     //MARK: Properties
     
     private var movieListViewModel = MovieListViewModel()
-    
+        
     private var disposeBag = Set<AnyCancellable>()
     
     private let flowLayout: UICollectionViewFlowLayout = {
@@ -121,19 +121,21 @@ extension MovieListViewController {
             }
             .store(in: &disposeBag)
         
-        movieListViewModel.fetchScreenData()
-            .sink { [unowned self] (newScreenData) in
-                self.movieListViewModel.screenData = newScreenData
-                self.movieCollectionView.reloadData()
+        movieListViewModel.updateScreenDataSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (rowUpdateState) in
+                
+                switch (rowUpdateState) {
+                case .all:
+                    self.movieCollectionView.reloadData()
+                case .cellAt(let pathToUpdate):
+                    self.movieCollectionView.reloadItems(at: [pathToUpdate])
+                }
             }
             .store(in: &disposeBag)
         
-        movieListViewModel.screenDataSubject
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
-            .sink { (<#Publishers.SubscribeOn<PassthroughSubject<Movie, Never>, DispatchQueue>.Output#>) in
-                <#code#>
-            }
+        movieListViewModel.initializeScreenData().store(in: &disposeBag)
     }
 }
 
@@ -151,9 +153,10 @@ extension MovieListViewController: UICollectionViewDataSource {
         cell.configure(with: movieListViewModel.screenData[indexPath.row])
         
         cell.userActionPublisher
+            .subscribe(on: RunLoop.main)
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (preferance) in
-                self.movieListViewModel.updateMovieButtonPreferance(preferance)
+            .sink(receiveValue: { [unowned self] (buttonPreferance) in
+                self.movieListViewModel.updateScreenData(with: buttonPreferance, at: indexPath)
             })
             .store(in: &disposeBag)
         

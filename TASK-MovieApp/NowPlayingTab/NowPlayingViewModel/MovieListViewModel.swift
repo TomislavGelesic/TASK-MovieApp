@@ -15,20 +15,19 @@ class MovieListViewModel {
     
     private var movieAPIManager = MovieAPIManager()
     
-    var screenData = [Movie]()
+    var screenData = [MovieRowItem]()
     
     var spinnerSubject = PassthroughSubject<Bool, Never>()
     
     var alertSubject = PassthroughSubject<Void, Never>()
     
-    var screenDataSubject = PassthroughSubject<Movie, Never>()
-    
+    var updateScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 }
 
 extension MovieListViewModel {
     //MARK: Functions
     
-    func fetchScreenData() -> AnyPublisher<[Movie], Never> {
+    func initializeScreenData() -> AnyCancellable {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
@@ -39,7 +38,7 @@ extension MovieListViewModel {
         return movieAPIManager
             .fetch(url: nowPlayingURLPath, as: MovieResponse.self)
             .map(\.results)
-            .map { [unowned self] (movieResponseItems) -> [Movie] in
+            .map { [unowned self] (movieResponseItems) -> [MovieRowItem] in
                 return self.createScreenData(from: movieResponseItems)
             }
             .subscribe(on: DispatchQueue.global(qos: .background))
@@ -58,11 +57,15 @@ extension MovieListViewModel {
                 
                 return Just([]).eraseToAnyPublisher()
             })
-            .eraseToAnyPublisher()
+            .sink { [unowned self] (newScreenData) in
+                
+                self.screenData = newScreenData
+                self.updateScreenDataSubject.send(.all)
+            }
         
     }
     
-    private func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [Movie] {
+    private func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
         
         var newScreenData = [Movie]()
         
@@ -77,14 +80,28 @@ extension MovieListViewModel {
         
         return newScreenData
     }
+
     
-    func updateMovieButtonPreferance(_ preference: ButtonPreferance) {
+    func updateScreenData(with buttonPreference: ButtonPreferance, at indexPath: IndexPath) {
         
-        coreDataManager.updateMovie(with: preference)
-        
-        if let updatedMovie = coreDataManager.getMovie(for: preference.id) {
-            screenDataSubject.send(updatedMovie)
+        let movie = screenData[indexPath.row]
+       
+        switch buttonPreference.type {
+        case .favourite:
+            movie.favourite = buttonPreference.value
+        case .watched:
+            movie.watched = buttonPreference.value
         }
+        
+        coreDataManager.updateMovie(movie)
+        
+        if !movie.favourite,
+           !movie.watched {
+            coreDataManager.deleteMovie(movie)
+        }
+        
+        updateScreenDataSubject.send(.cellAt(indexPath))
+        
     }
 
 }
