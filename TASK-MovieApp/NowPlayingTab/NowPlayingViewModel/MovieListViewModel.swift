@@ -82,7 +82,7 @@ extension MovieListViewModel {
     }
 
     
-    func switchValue(at indexPath: IndexPath, on type: ButtonType) {
+    func switchPreference(at indexPath: IndexPath, on type: ButtonType) {
        
         switch type {
         case .favourite:
@@ -96,12 +96,11 @@ extension MovieListViewModel {
         default:
         break
         }
+        
         coreDataManager.updateMovie(screenData[indexPath.row])
         
-        if !screenData[indexPath.row].favourite,
-           !screenData[indexPath.row].watched {
-            coreDataManager.deleteMovie(screenData[indexPath.row])
-        }
+        updateScreenDataSubject.send(.cellAt(indexPath))
+        
         
     }
 

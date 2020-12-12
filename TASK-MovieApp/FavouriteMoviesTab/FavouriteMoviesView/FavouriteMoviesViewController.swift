@@ -52,7 +52,7 @@ class FavouriteMoviesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        tableView.reloadData()
+        favouriteMoviesViewModel.getNewScreenData()
     }
 }
 
@@ -69,10 +69,7 @@ extension FavouriteMoviesViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         
-        setTableViewConstraints()
-    }
-    
-    private func setTableViewConstraints() {
+        tableView.addSubview(pullToRefreshControl)
         
         tableView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
@@ -81,27 +78,23 @@ extension FavouriteMoviesViewController {
     
     private func setupViewModelSubscribers() {
         
-        favouriteMoviesViewModel.getNewScreenData()
-            .subscribe(on: DispatchQueue.global(qos: .background))
+        favouriteMoviesViewModel.updateScreenDataSubject
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (newScreenData) in
-                self.favouriteMoviesViewModel.screenData = newScreenData
+            .sink { [unowned self] (_) in
                 self.tableView.reloadData()
-            }.store(in: &disposeBag)
+                self.pullToRefreshControl.endRefreshing()
+            }
+            .store(in: &disposeBag)
     }
     
     private func setupPullToRefreshControl() {
         
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
-        
-        tableView.addSubview(pullToRefreshControl)        
     }
     
     @objc func refreshMovies() {
         
-        #warning("UpdateScreenData")
-        
-        self.pullToRefreshControl.endRefreshing()
+        favouriteMoviesViewModel.getNewScreenData()
     }
 }
 
@@ -117,6 +110,14 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
         cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row])
+        
+        cell.buttonTappedSubject
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (buttonType) in
+                
+                self.favouriteMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
+            }
+            .store(in: &disposeBag)
         
         return cell
     }    

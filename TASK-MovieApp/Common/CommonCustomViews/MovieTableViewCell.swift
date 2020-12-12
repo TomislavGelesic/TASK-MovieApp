@@ -8,19 +8,11 @@
 
 import UIKit
 import SnapKit
-
-protocol MovieTableViewCellDelegate {
-    
-    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType)
-}
+import Combine
 
 class MovieTableViewCell: UITableViewCell {
     
-    //MARK: Properties
-    
-    var movieListTableViewCellDelegate: MovieTableViewCellDelegate?
-    
-    var movie: MovieRowItem?
+    var buttonTappedSubject = PassthroughSubject<ButtonType, Never>()
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -80,8 +72,7 @@ class MovieTableViewCell: UITableViewCell {
         return view
     }()
     
-    
-    //MARK: init
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -118,19 +109,15 @@ extension MovieTableViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        movieListTableViewCellDelegate?.cellButtonTapped(cell: self, type: .favourite)
-        
+        buttonTappedSubject.send(.favourite)
     }
     
     @objc func watchedButtonTapped() {
         
-        movieListTableViewCellDelegate?.cellButtonTapped(cell: self, type: .watched)
-        
+        buttonTappedSubject.send(.watched)
     }
     
     func configure(with item: MovieRowItem) {
-        
-        self.movie = item
         
         imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
         
@@ -149,23 +136,11 @@ extension MovieTableViewCell {
      
         switch type {
         case .favourite:
-            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
+            favouriteButton.isSelected = selected
+            break
         case .watched:
-            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
+            watchedButton.isSelected = selected
+            break
         default:
             break
         }

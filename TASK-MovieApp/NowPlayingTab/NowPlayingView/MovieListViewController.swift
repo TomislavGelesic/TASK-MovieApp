@@ -165,9 +165,7 @@ extension MovieListViewController: UICollectionViewDataSource {
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (buttonType) in
                 
-                self.movieListViewModel.switchValue(at: indexPath, on: buttonType)
-                
-                self.movieListViewModel.updateScreenDataSubject.send(.cellAt(indexPath))
+                self.movieListViewModel.switchPreference(at: indexPath, on: buttonType)
             })
             .store(in: &disposeBag)
         

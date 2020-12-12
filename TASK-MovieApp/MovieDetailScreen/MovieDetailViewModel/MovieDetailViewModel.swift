@@ -78,8 +78,9 @@ extension MovieDetailViewModel {
         if let posterPath = movieDetails.posterPath {
             
             let imagePath = Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + posterPath
+            let newInfo = MovieDetailInfo(imagePath: imagePath, favourite: movie.favourite, watched: movie.watched)
             
-            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePathWithButtonState, value: MovieDetailInfo(imagePath: imagePath, favourite: movie.favourite, watched: movie.watched)))
+            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePathWithButtonState, value: newInfo))
         }
         
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .title, value: movieDetails.title))
@@ -114,7 +115,7 @@ extension MovieDetailViewModel {
         return names
     }
     
-    func switchValue(at indexPath: IndexPath, on type: ButtonType) {
+    func switchPreference(at indexPath: IndexPath, on type: ButtonType) {
         
         switch type {
         case .favourite:
@@ -142,11 +143,6 @@ extension MovieDetailViewModel {
         }
         
         coreDataManager.updateMovie(movie)
-        
-        if !movie.favourite,
-           !movie.watched {
-            coreDataManager.deleteMovie(movie)
-        }
         
         updateScreenDataSubject.send()
         

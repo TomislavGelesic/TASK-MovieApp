@@ -159,7 +159,7 @@ extension MovieDetailViewController: UITableViewDataSource {
                     
                     switch buttonType {
                     case .favourite, .watched:
-                        self.movieDetailViewModel?.switchValue(at: indexPath, on: buttonType)
+                        self.movieDetailViewModel?.switchPreference(at: indexPath, on: buttonType)
                         break
                         
                     case .back:

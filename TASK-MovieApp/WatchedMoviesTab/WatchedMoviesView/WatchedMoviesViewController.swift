@@ -43,12 +43,8 @@ class WatchedMoviesViewController: UIViewController {
         super.viewDidLoad()
         
         setupTableView()
+        
         setupPullToRefreshControl()
-        
-        view.addSubview(tableView)
-        tableView.addSubview(pullToRefreshControl)
-        
-        moviesTableViewConstraints()
         
         setupViewModelSubscribers()
     }
@@ -56,7 +52,7 @@ class WatchedMoviesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        tableView.reloadData()
+        watchedMoviesViewModel.getNewScreenData()
     }
 }
 
@@ -66,40 +62,41 @@ extension WatchedMoviesViewController {
     
     private func setupTableView() {
         
+        
+        view.addSubview(tableView)
+        
         tableView.dataSource = self
         tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
-    }
-    
-    private func moviesTableViewConstraints () {
+        
+        
+        tableView.addSubview(pullToRefreshControl)
         
         tableView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
         }
-    }
+    }    
     
     private func setupViewModelSubscribers() {
-        watchedMoviesViewModel.getNewScreenData()
-            .subscribe(on: DispatchQueue.global(qos: .background))
+        
+        watchedMoviesViewModel.updateScreenDataSubject
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (newScreenData) in
-                self.watchedMoviesViewModel.screenData = newScreenData
+            .sink { [unowned self] (_) in
                 self.tableView.reloadData()
-            }.store(in: &disposeBag)
+                self.pullToRefreshControl.endRefreshing()
+            }
+            .store(in: &disposeBag)
     }
     
     private func setupPullToRefreshControl() {
         
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
-        
     }
     
     @objc func refreshMovies() {
         
-        #warning("UpdateScreenData")
-        
-        self.pullToRefreshControl.endRefreshing()
+        watchedMoviesViewModel.getNewScreenData()
     }
 }
 
@@ -115,6 +112,14 @@ extension WatchedMoviesViewController: UITableViewDataSource {
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
         cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row])
+        
+        cell.buttonTappedSubject
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (buttonType) in
+                
+                self.watchedMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
+            }
+            .store(in: &disposeBag)
         
         return cell
     }

@@ -7,38 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "54731C2B-7603-4682-A63C-F20CC603CA62"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TASK-MovieApp/WatchedMoviesTab/WatchedMoviesView/WatchedMoviesViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "37"
-            endingLineNumber = "37"
-            landmarkName = "deinit"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "82A2731D-B886-4A96-B2F4-72759FF27730"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TASK-MovieApp/FavouriteMoviesTab/FavouriteMoviesView/FavouriteMoviesViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "37"
-            endingLineNumber = "37"
-            landmarkName = "deinit"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "6BFF9D10-2D0E-4FB7-A24E-BE08E2D886B3"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -78,9 +46,9 @@
             filePath = "TASK-MovieApp/NowPlayingTab/NowPlayingViewModel/MovieListViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
-            landmarkName = "switchValue(at:on:)"
+            startingLineNumber = "100"
+            endingLineNumber = "100"
+            landmarkName = "switchPreference(at:on:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

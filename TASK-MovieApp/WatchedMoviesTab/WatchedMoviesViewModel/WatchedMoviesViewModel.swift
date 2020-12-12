@@ -12,19 +12,41 @@ class WatchedMoviesViewModel {
     
     private var coreDataManager = CoreDataManager.sharedInstance
     
+    var updateScreenDataSubject = PassthroughSubject<Void, Never>()
+    
     var screenData = [MovieRowItem]()
     
 }
 
 extension WatchedMoviesViewModel {
     
-    func getNewScreenData() -> AnyPublisher<[MovieRowItem], Never> {
+    func getNewScreenData() {
         
         if let savedData = coreDataManager.getMovies(.watched) {
             
-            return Just(savedData).eraseToAnyPublisher()
+            screenData = savedData
+            updateScreenDataSubject.send()
+            
         }
-        return Just([]).eraseToAnyPublisher()
+    }
+    
+    func switchPreference(at indexPath: IndexPath, on type: ButtonType) {
+       
+        switch type {
+        case .favourite:
+            screenData[indexPath.row].favourite = !screenData[indexPath.row].favourite
+            print("F: \(screenData[indexPath.row].favourite)")
+            break
+        case .watched:
+            screenData[indexPath.row].watched = !screenData[indexPath.row].watched
+            print("W: \(screenData[indexPath.row].watched)")
+            break
+        default:
+        break
+        }
+        
+        coreDataManager.updateMovie(screenData[indexPath.row])
+        
+        updateScreenDataSubject.send()
     }
 }
-

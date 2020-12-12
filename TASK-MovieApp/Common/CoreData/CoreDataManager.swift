@@ -104,18 +104,21 @@ extension CoreDataManager {
     
     func updateMovie(_ movie: MovieRowItem) {
         
-        if let savedMovie = getMovie(for: movie.id) {
+        if !movie.favourite,!movie.watched {
+            deleteMovie(movie)
+        }
+        else if let savedMovie = getMovie(for: movie.id) {
+            
             savedMovie.favourite = movie.favourite
             savedMovie.watched = movie.watched
             saveContext()
-            return
         }
-        
-        if let success = createMovie(from: movie) {
-            return
+        else if let success = createMovie(from: movie) {
+            
         }
-        
-        fatalError("------ CoreDataManager ---- updateMovie() ------")
+        else {
+            fatalError("------ CoreDataManager ---- updateMovie() ------")
+        }
     }
     
     private func createMovie(from item: MovieRowItem) -> Movie? {
@@ -151,7 +154,6 @@ extension CoreDataManager {
             
             saveContext()
         }
-        
     }
     
     func deleteAll() {
