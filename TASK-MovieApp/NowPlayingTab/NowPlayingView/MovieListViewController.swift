@@ -58,6 +58,12 @@ class MovieListViewController: UIViewController {
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        movieListViewModel.updateScreenDataSubject.send(.all)
+    }
+    
 }
 
 extension MovieListViewController {
@@ -174,7 +180,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row], delegate: self)
+        let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row])
         
         movieDetailScreen.modalPresentationStyle = .fullScreen
         
@@ -189,13 +195,6 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
         let cellWidth = (movieCollectionView.frame.width - 30) / 2
         let cellHeight = cellWidth * 1.5
         return CGSize(width: cellWidth, height: cellHeight)
-    }
-}
-
-extension MovieListViewController: MovieDetailViewControllerDelegate {
-    
-    func reloadData() {
-        movieCollectionView.reloadData()
     }
 }
 

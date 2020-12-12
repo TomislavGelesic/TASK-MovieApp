@@ -9,18 +9,11 @@ import UIKit
 import SnapKit
 import Combine
 
-protocol MovieDetailViewControllerDelegate: class {
-    
-    func reloadData()
-}
-
 class MovieDetailViewController: UIViewController {
     
     var movieDetailViewModel: MovieDetailViewModel?
     
     var disposeBag = Set<AnyCancellable>()
-    
-    weak var movieDetailViewControllerDelegate: MovieDetailViewControllerDelegate?
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -31,15 +24,14 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for movie: MovieRowItem, delegate: MovieDetailViewControllerDelegate) {
+    init(for movie: MovieRowItem) {
         
         movieDetailViewModel = MovieDetailViewModel(movie: movie)
-        
-        movieDetailViewControllerDelegate = delegate
         
         super.init(nibName: nil, bundle: nil)
     }
     
+    #warning("do i need this??")
     deinit {
         for cancellable in disposeBag {
             cancellable.cancel()
@@ -51,7 +43,6 @@ class MovieDetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: Life-cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,17 +52,13 @@ class MovieDetailViewController: UIViewController {
         setupTableView()
         
         setupDetailViewModelSubscribers()
-        
     }
-    
 }
 
 extension MovieDetailViewController {
-    
     //MARK: Functions
     
     private func setupViewController() {
-        
         view.backgroundColor = .darkGray
     }
     
@@ -124,13 +111,18 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel?.fetchScreenData()
+        movieDetailViewModel?.updateScreenDataSubject
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (newScreenData) in
-                self.movieDetailViewModel?.screenData = newScreenData
+            .sink(receiveValue: { [unowned self] _ in
+                
                 self.tableView.reloadData()
             })
             .store(in: &disposeBag)
+        
+        movieDetailViewModel?.fetchScreenData()
+            .store(in: &disposeBag)
+        
+        
     }
     
     private func returnToNowPlayingTab (_ value: Bool) {
@@ -161,6 +153,22 @@ extension MovieDetailViewController: UITableViewDataSource {
                 cell.configure(with: info)
             }
             
+            cell.buttonTappedPublisher
+                .receive(on: RunLoop.main)
+                .sink { [unowned self] (buttonType) in
+                    
+                    switch buttonType {
+                    case .favourite, .watched:
+                        self.movieDetailViewModel?.switchValue(at: indexPath, on: buttonType)
+                        break
+                        
+                    case .back:
+                        self.dismiss(animated: true, completion: nil)
+                        break
+                    }
+                }
+                .store(in: &disposeBag)
+        
             return cell
             
         case .title:

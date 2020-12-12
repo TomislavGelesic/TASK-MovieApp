@@ -1,11 +1,11 @@
 
 import UIKit
 import SnapKit
-
+import Combine
 
 class MovieDetailImageCell: UITableViewCell {
     
-    //MARK: Properties
+    var buttonTappedPublisher = PassthroughSubject<ButtonType, Never>()
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -133,40 +133,29 @@ extension MovieDetailImageCell {
     
     private func setButtonImage(on type: ButtonType, selected: Bool) {
         
-        switch type {
+        switch (type) {
         case .favourite:
             favouriteButton.isSelected = selected
         case .watched:
             watchedButton.isSelected = selected
+        default:
+        break
         }
     }
     
     //MARK: Delegate methods
     @objc func backButtonTapped() {
-        #warning("ADD FUNCTIONALITY")
+        buttonTappedPublisher.send(.back)
     }
     
     @objc func favouriteButtonTapped() {
         
-        switch favouriteButton.isSelected {
-        case true:
-            favouriteButton.isSelected = false
-        case false:
-            favouriteButton.isSelected = true
-        }
-        #warning("update coreData")
+        buttonTappedPublisher.send(.favourite)
     }
     
     @objc func watchedButtonTapped() {
-        switch watchedButton.isSelected {
-        case true:
-            watchedButton.isSelected = false
-        case false:
-            watchedButton.isSelected = true
-        }
         
-        #warning("update coreData")
-        
+        buttonTappedPublisher.send(.watched)
     }
     
 }

@@ -108,7 +108,37 @@ extension CoreDataManager {
             savedMovie.favourite = movie.favourite
             savedMovie.watched = movie.watched
             saveContext()
+            return
         }
+        
+        if let success = createMovie(from: movie) {
+            return
+        }
+        
+        fatalError("------ CoreDataManager ---- updateMovie() ------")
+    }
+    
+    private func createMovie(from item: MovieRowItem) -> Movie? {
+        
+        let managedContext = persistentContainer.viewContext
+        
+        let movie = Movie(context: managedContext)
+        
+        movie.setValue(Int64(item.id), forKey: "id")
+        movie.setValue(item.title, forKey: "title")
+        movie.setValue(item.overview, forKey: "overview")
+        movie.setValue(item.imagePath, forKey: "imagePath")
+        movie.setValue(item.year, forKey: "year")
+        movie.setValue(item.favourite, forKey: "favourite")
+        movie.setValue(item.watched, forKey: "watched")
+        
+        saveContext()
+        
+        if let savedMovie = getMovie(for: movie.id) {
+            return savedMovie
+        }
+        
+        return nil
     }
     
     func deleteMovie(_ movie: MovieRowItem) {

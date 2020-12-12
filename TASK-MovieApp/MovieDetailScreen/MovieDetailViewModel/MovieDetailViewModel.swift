@@ -11,6 +11,8 @@ import Combine
 
 class MovieDetailViewModel {
     
+    private var coreDataManager = CoreDataManager.sharedInstance
+    
     private var movieAPIManager = MovieAPIManager()
     
     private var movie: MovieRowItem
@@ -21,6 +23,9 @@ class MovieDetailViewModel {
     
     var alertSubject = PassthroughSubject<Void, Never>()
     
+    var updateScreenDataSubject = PassthroughSubject<Void, Never>()
+    
+    
     init(movie: MovieRowItem) {
         self.movie = movie
     }
@@ -29,7 +34,7 @@ class MovieDetailViewModel {
 extension MovieDetailViewModel {
     //MARK: Functions
     
-    func fetchScreenData() -> AnyPublisher<[RowItem<MovieDetailsRowType, Any>], Never> {
+    func fetchScreenData() -> AnyCancellable {
         
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movie.id))\(Constants.MOVIE_API.KEY)"
 
@@ -43,8 +48,7 @@ extension MovieDetailViewModel {
             .map { [unowned self] (movieDetails) -> [RowItem<MovieDetailsRowType, Any>] in
                 return self.createScreenData(from: movieDetails)
             }
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: DispatchQueue.main)
+            .receive(on: DispatchQueue.global(qos: .background))
             .flatMap({ [unowned self] (screenData) -> AnyPublisher<[RowItem<MovieDetailsRowType, Any>], Never> in
                 
                 self.spinnerSubject.send(false)
@@ -59,7 +63,11 @@ extension MovieDetailViewModel {
                 
                 return Just([]).eraseToAnyPublisher()
             })
-            .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.global(qos: .background))
+            .sink { [unowned self] (newScreenData) in
+                self.screenData = newScreenData
+                self.updateScreenDataSubject.send()
+            }
         
     }
     
@@ -105,4 +113,43 @@ extension MovieDetailViewModel {
         
         return names
     }
+    
+    func switchValue(at indexPath: IndexPath, on type: ButtonType) {
+        
+        switch type {
+        case .favourite:
+            
+            if var data = screenData[indexPath.row].value as? MovieDetailInfo {
+                data.favourite = !data.favourite
+                screenData[indexPath.row].value = data
+            }
+            
+            movie.favourite = !movie.favourite
+            break
+            
+        case .watched:
+            
+            if var data = screenData[indexPath.row].value as? MovieDetailInfo {
+                data.watched = !data.watched
+                screenData[indexPath.row].value = data
+            }
+            
+            movie.watched = !movie.watched
+            break
+            
+        default:
+            break
+        }
+        
+        coreDataManager.updateMovie(movie)
+        
+        if !movie.favourite,
+           !movie.watched {
+            coreDataManager.deleteMovie(movie)
+        }
+        
+        updateScreenDataSubject.send()
+        
+    }
+    
 }

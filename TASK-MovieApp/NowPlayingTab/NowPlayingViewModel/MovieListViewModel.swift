@@ -83,23 +83,24 @@ extension MovieListViewModel {
 
     
     func switchValue(at indexPath: IndexPath, on type: ButtonType) {
-        
-        let movie = screenData[indexPath.row]
        
         switch type {
         case .favourite:
-            movie.favourite = !movie.favourite
-            print("F: \(movie.favourite)")
+            screenData[indexPath.row].favourite = !screenData[indexPath.row].favourite
+            print("F: \(screenData[indexPath.row].favourite)")
+            break
         case .watched:
-            movie.watched = !movie.watched
-            print("W: \(movie.watched)")
+            screenData[indexPath.row].watched = !screenData[indexPath.row].watched
+            print("W: \(screenData[indexPath.row].watched)")
+            break
+        default:
+        break
         }
+        coreDataManager.updateMovie(screenData[indexPath.row])
         
-        coreDataManager.updateMovie(movie)
-        
-        if !movie.favourite,
-           !movie.watched {
-            coreDataManager.deleteMovie(movie)
+        if !screenData[indexPath.row].favourite,
+           !screenData[indexPath.row].watched {
+            coreDataManager.deleteMovie(screenData[indexPath.row])
         }
         
     }

@@ -166,6 +166,8 @@ extension MovieTableViewCell {
                 watchedButton.setImage(image, for: .normal)
                 return
             }
+        default:
+            break
         }
     }
     

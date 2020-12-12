@@ -129,9 +129,14 @@ extension MovieListCollectionViewCell {
         switch type {
         case .favourite:
             favouriteButton.isSelected = selected
+            break
         case .watched:
             watchedButton.isSelected = selected
+            break
+        default:
+            break
         }
+        
     }
     
     
