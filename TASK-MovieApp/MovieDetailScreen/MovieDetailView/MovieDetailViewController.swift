@@ -7,20 +7,13 @@
 
 import UIKit
 import SnapKit
-import Kingfisher
-import Alamofire
-
-protocol MovieDetailViewControllerDelegate: class {
-    func reloadData()
-}
+import Combine
 
 class MovieDetailViewController: UIViewController {
     
-    var movieDetailPresenter: MovieDetailPresenter?
+    var movieDetailViewModel: MovieDetailViewModel?
     
-    var data: RowItem<MovieRowType, Movie>?
-    
-    weak var movieDetailViewControllerDelegate: MovieDetailViewControllerDelegate?
+    var disposeBag = Set<AnyCancellable>()
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -31,13 +24,18 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for rowItem: RowItem<MovieRowType, Movie>, delegate: MovieDetailViewControllerDelegate) {
+    init(for movie: MovieRowItem) {
         
-        movieDetailViewControllerDelegate = delegate
-        
-        data = rowItem
+        movieDetailViewModel = MovieDetailViewModel(movie: movie)
         
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    #warning("do i need this??")
+    deinit {
+        for cancellable in disposeBag {
+            cancellable.cancel()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -45,33 +43,22 @@ class MovieDetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: Life-cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let id = data?.value.id {
-            movieDetailPresenter = MovieDetailPresenter(delegate: self, for: id)
-        }
-        view.backgroundColor = .darkGray
-        
         setupViewController()
-        setupTableView()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         
-        movieDetailPresenter?.getNewScreenData()
+        setupTableView()
+        
+        setupDetailViewModelSubscribers()
     }
 }
 
 extension MovieDetailViewController {
-    
     //MARK: Functions
     
     private func setupViewController() {
-        
         view.backgroundColor = .darkGray
     }
     
@@ -99,6 +86,49 @@ extension MovieDetailViewController {
             make.edges.equalTo(view)
         }
     }
+    
+    private func setupDetailViewModelSubscribers() {
+        
+        movieDetailViewModel?.spinnerSubject
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] (isVisible) in
+                
+                switch (isVisible) {
+                case true:
+                    self.showSpinner()
+                    break
+                case false:
+                    self.hideSpinner()
+                    break
+                }
+            })
+            .store(in: &disposeBag)
+        
+        movieDetailViewModel?.alertSubject
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { _ in
+                self.showAPIFailedAlert()
+            })
+            .store(in: &disposeBag)
+        
+        movieDetailViewModel?.updateScreenDataSubject
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] _ in
+                
+                self.tableView.reloadData()
+            })
+            .store(in: &disposeBag)
+        
+        movieDetailViewModel?.fetchScreenData()
+            .store(in: &disposeBag)
+        
+        
+    }
+    
+    private func returnToNowPlayingTab (_ value: Bool) {
+        
+        dismiss(animated: true, completion: nil)
+    }
 }
 
 
@@ -106,14 +136,12 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return movieDetailPresenter?.screenData.count ?? 0
+        return movieDetailViewModel?.screenData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        //how to return exactly that?!?!
         
-        guard let item = movieDetailPresenter?.screenData[indexPath.row] else { return UITableViewCell() }
+        guard let item = movieDetailViewModel?.screenData[indexPath.row] else { return UITableViewCell() }
         
         switch item.type {
         
@@ -123,29 +151,44 @@ extension MovieDetailViewController: UITableViewDataSource {
             
             if let info = item.value as? MovieDetailInfo {
                 cell.configure(with: info)
-                cell.movieDetailImageCellDelegate = self
             }
             
-            return cell
+            cell.buttonTappedPublisher
+                .receive(on: RunLoop.main)
+                .sink { [unowned self] (buttonType) in
+                    
+                    switch buttonType {
+                    case .favourite, .watched:
+                        self.movieDetailViewModel?.switchPreference(at: indexPath, on: buttonType)
+                        break
+                        
+                    case .back:
+                        self.dismiss(animated: true, completion: nil)
+                        break
+                    }
+                }
+                .store(in: &disposeBag)
         
+            return cell
+            
         case .title:
             
             let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
             
             if let title = item.value as? String {
-                
                 cell.configure(with: title)
             }
             
             return cell
-        
+            
         case .genre:
             
             let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
-           
+            
             if let genres = item.value as? String {
                 cell.configure(with: genres)
             }
+                
             return cell
             
         case .quote:
@@ -155,7 +198,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             if let quote = item.value as? String {
                 cell.configure(with: quote)
             }
-            
+                
             return cell
             
         case .description:
@@ -165,51 +208,12 @@ extension MovieDetailViewController: UITableViewDataSource {
             if let description = item.value as? String {
                 cell.configure(with: description)
             }
-            
+                
             return cell
         }
     }    
 }
 
-
-extension MovieDetailViewController: MovieDetailImageCellDelegate {
-    
-    func buttonTapped(type: ButtonType) {
-        
-        if let id = movieDetailPresenter?.movieID {
-            
-            movieDetailPresenter?.buttonTapped(id: id, type: type)
-            
-            movieDetailPresenter?.getNewScreenData()
-        }
-    }
-    
-    func backButtonTapped() {
-        
-        movieDetailViewControllerDelegate?.reloadData()
-        dismiss(animated: true, completion: nil)
-    }
-}
-
-extension MovieDetailViewController: MovieDetailPresenterDelegate {
-    
-    func startSpinner() {
-        showSpinner()
-    }
-    
-    func stopSpinner() {
-        hideSpinner()
-    }
-    
-    func showAlertView() {
-        showAPIFailedAlert()
-    }
-    
-    func reloadTableView() {
-        
-        tableView.reloadData()
-    }
-}
 
 
 

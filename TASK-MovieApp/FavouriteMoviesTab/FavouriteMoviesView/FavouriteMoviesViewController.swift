@@ -1,5 +1,5 @@
 //
-//  WatchedMoviesViewController.swift
+//  FavouriteMoviesViewController.swift
 //  TASK-MovieApp
 //
 //  Created by Tomislav Gelesic on 04/11/2020.
@@ -7,12 +7,15 @@
 
 import UIKit
 import SnapKit
+import Combine
 
-class WatchedMoviesViewController: UIViewController {
+class FavouriteMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    var watchedMoviesPresenter: WatchedMoviesPresenter?
+    private var favouriteMoviesViewModel = FavouriteMoviesViewModel()
+    
+    private var disposeBag = Set<AnyCancellable>()
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -30,107 +33,94 @@ class WatchedMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
+    deinit {
+        for cancellable in disposeBag {
+            cancellable.cancel()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupTableView()
+        
         setupPullToRefreshControl()
         
-        view.addSubview(tableView)
-        tableView.addSubview(pullToRefreshControl)
-        
-        moviesTableViewConstraints()
-        
-        watchedMoviesPresenter = WatchedMoviesPresenter(delegate: self)
-        
-        watchedMoviesPresenter?.getNewScreenData()
-        
+        setupViewModelSubscribers()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-       
-        watchedMoviesPresenter?.getNewScreenData()
+        super.viewWillAppear(animated)
+        
+        favouriteMoviesViewModel.getNewScreenData()
     }
 }
 
-extension WatchedMoviesViewController {
+extension FavouriteMoviesViewController {
     
     //MARK: Private Functions
     
     private func setupTableView() {
         
+        view.addSubview(tableView)
+        
         tableView.dataSource = self
         tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
-    }
-    
-    private func moviesTableViewConstraints () {
+        
+        tableView.addSubview(pullToRefreshControl)
         
         tableView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
         }
     }
     
+    private func setupViewModelSubscribers() {
+        
+        favouriteMoviesViewModel.updateScreenDataSubject
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (_) in
+                self.tableView.reloadData()
+                self.pullToRefreshControl.endRefreshing()
+            }
+            .store(in: &disposeBag)
+    }
+    
     private func setupPullToRefreshControl() {
         
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
-        
     }
     
     @objc func refreshMovies() {
         
-        watchedMoviesPresenter?.getNewScreenData()
-        
-        self.pullToRefreshControl.endRefreshing()
+        favouriteMoviesViewModel.getNewScreenData()
     }
 }
 
-extension WatchedMoviesViewController: UITableViewDataSource {
+extension FavouriteMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return watchedMoviesPresenter?.screenData.count ?? 0
+        return favouriteMoviesViewModel.screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        if let item = watchedMoviesPresenter?.screenData[indexPath.row] {
-            cell.configure(with: item)
-        }
+        cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row])
         
-        cell.movieListTableViewCellDelegate = self
+        cell.buttonTappedSubject
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (buttonType) in
+                
+                self.favouriteMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
+            }
+            .store(in: &disposeBag)
         
         return cell
-    }
-}
-
-extension WatchedMoviesViewController: MovieTableViewCellDelegate {
-    
-    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType) {
-        
-        guard let id = cell.movie?.id else { return }
-        
-        watchedMoviesPresenter?.buttonTapped(for: id, type: type)
-    }
-}
-
-extension WatchedMoviesViewController: WatchedMoviesPresenterDelegate {
-    
-    func showAlertView() {
-        
-        showSpinner()
-    }
-    
-    func reloadTableView() {
-        
-        tableView.reloadData()
-    }
-    
-    
+    }    
 }
 
 

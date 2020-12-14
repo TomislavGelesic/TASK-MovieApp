@@ -6,29 +6,43 @@
 //
 
 import Foundation
+import Combine
 import Alamofire
+
+
 
 class MovieAPIManager {
     
-    func fetch<T: Codable> (url: URL, as: T.Type, completion: @escaping (_ data: T?, _ message: String ) -> Void ) {
+    func fetch<T: Codable>(url: URL, as: T.Type) -> AnyPublisher<T, MovieAPIError> {
         
-        Alamofire.request(url)
-            .validate()
-            .responseData { (response) in
-                guard let data = response.data else {
-                    completion( nil, "")
-                    return
-                }
-                
-                do {
-                    let jsonDecoded = try JSONDecoder().decode(T.self, from: data)
+        return Future<T, MovieAPIError> { promise in
+            Alamofire
+                .request(url)
+                .validate()
+                .responseData { (response) in
                     
-                    completion(jsonDecoded, "")
-                    
-                } catch {
-                    completion(nil, error.localizedDescription)
+                    if let data = response.data {
+                        
+                        do {
+                            let decoderJSON = JSONDecoder()
+                            decoderJSON.keyDecodingStrategy = .convertFromSnakeCase
+                            
+                            let decodedData: T = try decoderJSON.decode(T.self, from: data)
+                            
+                            promise(.success(decodedData))
+                            
+                        } catch {
+                            
+                            promise(.failure(MovieAPIError.decodingError))
+                        }
+                    }
+                    else {
+                        
+                        promise(.failure(MovieAPIError.noDataError))
+                    }
                 }
-            }
-        
+        }
+        .eraseToAnyPublisher()
     }
+    
 }

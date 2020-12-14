@@ -1,27 +1,12 @@
-//
-//  MovieTableViewCell.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 27/10/2020.
-//
 
 import UIKit
 import SnapKit
 import Kingfisher
-
-protocol CellButtonDelegate: class {
-    
-    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType)
-}
-
+import Combine
 
 class MovieListCollectionViewCell: UICollectionViewCell {
     
-    //MARK: Properties
-    
-    weak var cellButtonDelegate: CellButtonDelegate?
-    
-    var movieID: Int64?
+    var buttonTappedPublisher = PassthroughSubject<ButtonType, Never>()
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -62,6 +47,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
         let favouriteButton = UIButton()
         favouriteButton.layer.cornerRadius = 20
         favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
         return favouriteButton
     }()
     
@@ -69,11 +55,10 @@ class MovieListCollectionViewCell: UICollectionViewCell {
         let watchedButton = UIButton()
         watchedButton.layer.cornerRadius = 20
         watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
         return watchedButton
     }()
     
-    
-    //MARK: Initialization
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -87,7 +72,6 @@ class MovieListCollectionViewCell: UICollectionViewCell {
 }
 
 extension MovieListCollectionViewCell {
-    //MARK: Functions
     
     private func setupViews() {
         
@@ -109,58 +93,44 @@ extension MovieListCollectionViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        cellButtonDelegate?.cellButtonTapped(on: self, type: .favourite)
+        
+        buttonTappedPublisher.send(.favourite)
     }
     
     @objc func watchedButtonTapped() {
-        cellButtonDelegate?.cellButtonTapped(on: self, type: .watched)
+
+        buttonTappedPublisher.send(.watched)
     }
     
-    func configure(with rowItem: RowItem<MovieRowType, Movie>) {
+    func configure(with item: MovieRowItem) {
         
-        switch rowItem.type {
-        case .movie:
-            
-            movieID = rowItem.value.id
-            
-            if let imagePath = rowItem.value.imagePath {
-                imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
-            }
-            yearLabel.text = rowItem.value.year
-            
-            titleLabel.text = rowItem.value.title
-            
-            descriptionLabel.text = rowItem.value.overview
-            
-            setButtonImage(on: .favourite, selected: rowItem.value.favourite)
-            
-            setButtonImage(on: .watched, selected: rowItem.value.watched)
-        }
+        imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
+        
+        yearLabel.text = item.year
+        
+        titleLabel.text = item.title
+        
+        descriptionLabel.text = item.overview
+        
+        setButtonImage(on: .favourite, selected: item.favourite)
+        
+        setButtonImage(on: .watched, selected: item.watched)
         
     }
     
-    func setButtonImage(on type: ButtonType, selected: Bool) {
+    private func setButtonImage(on type: ButtonType, selected: Bool) {
      
         switch type {
         case .favourite:
-            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
+            favouriteButton.isSelected = selected
+            break
         case .watched:
-            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
+            watchedButton.isSelected = selected
+            break
+        default:
+            break
         }
+        
     }
     
     
@@ -236,3 +206,4 @@ extension MovieListCollectionViewCell {
     }
     
 }
+

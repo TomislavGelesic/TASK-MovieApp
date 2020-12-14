@@ -1,19 +1,15 @@
-//
-//  MovieFeedViewController.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 27/10/2020.
-//
 
 import UIKit
 import SnapKit
-import Alamofire
+import Combine
 
 class MovieListViewController: UIViewController {
     
     //MARK: Properties
     
-    private var movieListPresenter: MovieListPresenter?
+    private var movieListViewModel = MovieListViewModel()
+        
+    private var disposeBag = Set<AnyCancellable>()
     
     private let flowLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
@@ -39,20 +35,30 @@ class MovieListViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
+    deinit {
+        for cancellable in disposeBag {
+            cancellable.cancel()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupCollectionView()
+        
         setupPullToRefreshControl()
         
-        movieListPresenter = MovieListPresenter(delegate: self)
+        setupViewModelSubscribers()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        movieListPresenter?.updateUI()
+        movieListViewModel.initializeScreenData()
+            .store(in: &disposeBag)
     }
+    
 }
 
 extension MovieListViewController {
@@ -62,8 +68,11 @@ extension MovieListViewController {
     private func setupCollectionView() {
         
         movieCollectionView.collectionViewLayout = flowLayout
+        
         movieCollectionView.delegate = self
+        
         movieCollectionView.dataSource = self
+        
         movieCollectionView.register(MovieListCollectionViewCell.self, forCellWithReuseIdentifier: MovieListCollectionViewCell.reuseIdentifier)
         
         view.addSubview(movieCollectionView)
@@ -87,9 +96,46 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        movieListPresenter?.updateUI()
+        movieListViewModel.initializeScreenData().store(in: &disposeBag)
         
         self.pullToRefreshControl.endRefreshing()
+    }
+    
+    private func setupViewModelSubscribers() {
+        
+        movieListViewModel.spinnerSubject
+            .subscribe(on: RunLoop.main)
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] (value) in
+                switch (value) {
+                case true:
+                    self.showSpinner()
+                case false:
+                    self.hideSpinner()
+                }
+            })
+            .store(in: &disposeBag)
+        
+        movieListViewModel.alertSubject
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] _ in
+                self.showAPIFailedAlert()
+            }
+            .store(in: &disposeBag)
+        
+        movieListViewModel.updateScreenDataSubject
+            .subscribe(on: RunLoop.main)
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (rowUpdateState) in
+                
+                switch (rowUpdateState) {
+                case .all:
+                    self.movieCollectionView.reloadData()
+                case .cellAt(let position):
+                    self.movieCollectionView.reloadItems(at: [position])
+                }
+            }
+            .store(in: &disposeBag)
     }
 }
 
@@ -97,18 +143,24 @@ extension MovieListViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return movieListPresenter?.screenData.count ?? 0
+        return movieListViewModel.screenData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
+       
+        cell.configure(with: movieListViewModel.screenData[indexPath.row])
         
-        if let rowItem = movieListPresenter?.screenData[indexPath.row] {
-            cell.configure(with: rowItem)
-        }
-        
-        cell.cellButtonDelegate = self
+        //should i pass this subscription to modelView - updateScreenDataSubject somehow??
+        cell.buttonTappedPublisher
+            .subscribe(on: RunLoop.main)
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] (buttonType) in
+                
+                self.movieListViewModel.switchPreference(at: indexPath, on: buttonType)
+            })
+            .store(in: &disposeBag)
         
         return cell
     }
@@ -119,9 +171,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard let rowItem = movieListPresenter?.screenData[indexPath.row] else { return }
-        
-        let movieDetailScreen = MovieDetailViewController(for: rowItem, delegate: self)
+        let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row])
         
         movieDetailScreen.modalPresentationStyle = .fullScreen
         
@@ -139,45 +189,5 @@ extension MovieListViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension MovieListViewController: CellButtonDelegate {
-    
-    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType) {
-        
-        guard let id = cell.movieID else { return }
-        
-        movieListPresenter?.buttonTapped(for: id, type: type)
-        
-    }
-}
-
-extension MovieListViewController: MovieListPresenterDelegate {
-    
-    func startSpinner() {
-        showSpinner()
-    }
-    
-    func stopSpinner() {
-        hideSpinner()
-    }
-    
-    func showAlertView() {
-        showAPIFailedAlert()
-    }
-    
-    func reloadCollectionView() {
-        
-        movieCollectionView.reloadData()
-    }
-}
-
-extension MovieListViewController: MovieDetailViewControllerDelegate {
-    
-    func reloadData() {
-        
-        movieCollectionView.reloadData()
-    }
-    
-    
-}
 
 

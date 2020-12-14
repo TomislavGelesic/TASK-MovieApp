@@ -11,4 +11,5 @@ enum ButtonType {
     
     case favourite
     case watched
+    case back
 }
