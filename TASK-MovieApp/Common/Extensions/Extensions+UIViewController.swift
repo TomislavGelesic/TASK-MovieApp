@@ -7,21 +7,31 @@
 
 import UIKit
 
-//MARK: Spinner Indicator
-
-let spinnerView = SpinnerView()
 
 extension UIViewController {
     
+    
     func showSpinner() {
-        view.addSubview(spinnerView)
-        spinnerView.center = view.center
-        spinnerView.startSpinner()
+        
+        SpinnerViewManager.addSpinnerView(to: self.view)
     }
     
     func hideSpinner() {
-        spinnerView.stopSpinner()
-        spinnerView.removeFromSuperview()
+        
+        SpinnerViewManager.removeSpinnerView()
+    }
+    
+    func showAPIFailedAlert() {
+        
+        let alert: UIAlertController = {
+            let alert = UIAlertController(title: "Error", message: "Ups, error occured!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+            return alert
+        }()
+        
+        hideSpinner()
+        
+        present(alert, animated: true, completion: nil)
     }
 }
 

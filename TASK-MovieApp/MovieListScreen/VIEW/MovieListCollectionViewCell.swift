@@ -9,13 +9,19 @@ import UIKit
 import SnapKit
 import Kingfisher
 
+protocol CellButtonDelegate: class {
+    
+    func cellButtonTapped(on cell: MovieListCollectionViewCell, type: ButtonType)
+}
+
+
 class MovieListCollectionViewCell: UICollectionViewCell {
     
     //MARK: Properties
     
-    var movieListCollectionViewCellDelegate: MovieListCollectionViewCellDelegate?
+    weak var cellButtonDelegate: CellButtonDelegate?
     
-    var movie: Movie?
+    var movieID: Int64?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -80,9 +86,8 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     }
 }
 
-//MARK: Functions
-
 extension MovieListCollectionViewCell {
+    //MARK: Functions
     
     private func setupViews() {
         
@@ -104,69 +109,68 @@ extension MovieListCollectionViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        
-        movieListCollectionViewCellDelegate?.favouriteButtonTapped(cell: self)
+        cellButtonDelegate?.cellButtonTapped(on: self, type: .favourite)
     }
     
     @objc func watchedButtonTapped() {
-        
-        movieListCollectionViewCellDelegate?.watchedButtonTapped(cell: self)
+        cellButtonDelegate?.cellButtonTapped(on: self, type: .watched)
     }
     
-    func configure(with movie: Movie) {
+    func configure(with rowItem: RowItem<MovieRowType, Movie>) {
         
-        self.movie = movie
-        
-        if let imagePath = movie.posterPath,
-           let url = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+        switch rowItem.type {
+        case .movie:
             
-            imageViewMovie.kf.setImage(with: url)
-        }
-        else {
-            imageViewMovie.backgroundColor = .cyan
-        }
-        if let date = movie.releaseDate {
-            yearLabel.text = getReleaseYear(releaseDate: date)
-        }
-        titleLabel.text = movie.title
-        descriptionLabel.text = movie.overview
-        
-        if movie.favourite {
-            favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
+            movieID = rowItem.value.id
+            
+            if let imagePath = rowItem.value.imagePath {
+                imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
+            }
+            yearLabel.text = rowItem.value.year
+            
+            titleLabel.text = rowItem.value.title
+            
+            descriptionLabel.text = rowItem.value.overview
+            
+            setButtonImage(on: .favourite, selected: rowItem.value.favourite)
+            
+            setButtonImage(on: .watched, selected: rowItem.value.watched)
         }
         
-        if movie.watched {
-            watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
     }
     
-    private func getReleaseYear(releaseDate: String) -> String {
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
-        
-        dateFormatter.dateFormat = "yyyy"
-        
-        return dateFormatter.string(from: date)
+    func setButtonImage(on type: ButtonType, selected: Bool) {
+     
+        switch type {
+        case .favourite:
+            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+        case .watched:
+            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+        }
     }
-
     
     
     //MARK: Constraints
     private func setupConstraints() {
         
-        titleLabelCOnstraints()
-        descriptionLabelCOnstraints()
         imageViewConstraints()
         overlayConstraints()
+        titleLabelCOnstraints()
+        descriptionLabelCOnstraints()
         favouriteButtonConstraints()
         yearLabelConstraints()
         watchedButtonConstraints()
@@ -219,15 +223,15 @@ extension MovieListCollectionViewCell {
             make.top.equalTo(imageViewMovie.snp.bottom).offset(10)
             make.leading.equalTo(contentView).offset(10)
             make.trailing.equalTo(contentView).offset(-10)
+            
         }
     }
     
     private func descriptionLabelCOnstraints() {
         
         descriptionLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(titleLabel.snp.bottom).offset(10)            
-            make.leading.equalTo(contentView).offset(10)
-            make.trailing.equalTo(contentView).offset(-10)
+            make.top.equalTo(titleLabel.snp.bottom)
+            make.bottom.leading.trailing.equalTo(contentView).inset(UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
         }
     }
     

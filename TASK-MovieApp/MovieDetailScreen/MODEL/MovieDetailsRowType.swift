@@ -1,5 +1,5 @@
 //
-//  RowType.swift
+//  MovieDetailsRowType.swift
 //  TASK-MovieApp
 //
 //  Created by Tomislav Gelesic on 02/11/2020.
@@ -7,8 +7,8 @@
 
 import UIKit
 
-enum MovieDetailScreenDataTypes {
-    case image
+enum MovieDetailsRowType {
+    case imagePathWithButtonState
     case title
     case quote
     case description

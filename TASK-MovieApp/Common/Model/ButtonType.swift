@@ -8,6 +8,7 @@
 import Foundation
 
 enum ButtonType {
+    
     case favourite
     case watched
 }

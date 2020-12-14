@@ -9,11 +9,16 @@
 import UIKit
 import SnapKit
 
-class MovieListTableViewCell: UITableViewCell {
+protocol MovieTableViewCellDelegate {
+    
+    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType)
+}
+
+class MovieTableViewCell: UITableViewCell {
     
     //MARK: Properties
     
-    var movieListTableViewCellDelegate: MovieListTableViewCellDelegate?
+    var movieListTableViewCellDelegate: MovieTableViewCellDelegate?
     
     var movie: Movie?
     
@@ -85,16 +90,20 @@ class MovieListTableViewCell: UITableViewCell {
     }
 }
 
-extension MovieListTableViewCell {
+extension MovieTableViewCell {
     
     //MARK: Functions
     private func setupViews() {
+    
         contentView.backgroundColor = .darkGray
+    
+        setupButtons()
+        
         contentView.addSubview(container)
         container.addSubviews([titleLabel, descriptionLabel, imageViewMovie, watchedButton, favouriteButton])
         imageViewMovie.addSubview(gradientOverlay)
         gradientOverlay.addSubview(yearLabel)
-        setupButtons()
+        
         setupConstraints()
     }
     
@@ -107,65 +116,58 @@ extension MovieListTableViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        movieListTableViewCellDelegate?.favouriteButtonTapped(cell: self)
+        movieListTableViewCellDelegate?.cellButtonTapped(cell: self, type: .favourite)
         
     }
     
     @objc func watchedButtonTapped() {
         
-        movieListTableViewCellDelegate?.watchedButtonTapped(cell: self)
+        movieListTableViewCellDelegate?.cellButtonTapped(cell: self, type: .watched)
         
     }
     
-    func configure(with movie: Movie) {
+    func configure(with item: RowItem<MovieRowType, Movie>) {
         
-        self.movie = movie
+        self.movie = item.value
         
-        if let imagePath = movie.posterPath,
-           let urlToImage = URL(string: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath) {
+        if let imagePath = item.value.imagePath {
             
-            imageViewMovie.kf.setImage(with: urlToImage)
-        }
-        else {
-            imageViewMovie.backgroundColor = .cyan
-        }
-        if let date = movie.releaseDate {
-            yearLabel.text = getReleaseYear(releaseDate: date)
+            imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + imagePath)
         }
         
-        titleLabel.text = movie.title
+        yearLabel.text = item.value.year
+    
+        titleLabel.text = item.value.title
         
-        descriptionLabel.text = movie.overview
+        descriptionLabel.text = item.value.overview
         
-        if movie.favourite == true {
-            
-            favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            
-            favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
+        setButtonImage(on: .favourite, selected: item.value.favourite)
         
-        if movie.watched == true {
-            
-            watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
-        else {
-            
-            watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        }
+        setButtonImage(on: .watched, selected: item.value.watched)
     }
     
-    private func getReleaseYear(releaseDate: String) -> String {
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        guard let date = dateFormatter.date(from: releaseDate) else { return "-1" }
-        
-        dateFormatter.dateFormat = "yyyy"
-        
-        return dateFormatter.string(from: date)
+    func setButtonImage(on type: ButtonType, selected: Bool) {
+     
+        switch type {
+        case .favourite:
+            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+        case .watched:
+            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+        }
     }
     
     
@@ -187,8 +189,7 @@ extension MovieListTableViewCell {
     private func containerConstraints() {
         
         container.snp.makeConstraints { (make) in
-            make.top.leading.equalTo(contentView).offset(5)
-            make.bottom.trailing.equalTo(contentView).offset(-5)
+            make.edges.equalTo(contentView).inset(UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5))
         }
     }
     

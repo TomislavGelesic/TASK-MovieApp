@@ -1,12 +1,14 @@
-//
-//  MovieDetailCellTableViewCell.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 28/10/2020.
-//
 
 import UIKit
 import SnapKit
+
+
+protocol MovieDetailImageCellDelegate: class {
+    
+    func backButtonTapped()
+    
+    func buttonTapped(type: ButtonType)
+}
 
 class MovieDetailImageCell: UITableViewCell {
     
@@ -68,56 +70,15 @@ extension MovieDetailImageCell {
         imageViewMovie.addSubview(gradientOverlay)
         contentView.addSubviews([backButton, favouriteButton, watchedButton])
         
-        backButton.addTarget(self, action: #selector(backBarButtonTapped), for: .touchUpInside)
-        favouriteButton.addTarget(self, action: #selector(favouriteBarButtonTapped), for: .touchUpInside)
-        watchedButton.addTarget(self, action: #selector(watchedBarButtonTapped), for: .touchUpInside)
+        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+        favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
+        watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
         
         imageViewMovieConstraints()
         gradientOverlayConstraints()
         backButtonConstraints()
         favouriteButtonConstraints()
         watchedButtonConstraints()
-    }
-    
-    @objc func backBarButtonTapped() {
-        
-        movieDetailImageCellDelegate?.backButtonTapped()
-    }
-    
-    @objc func favouriteBarButtonTapped() {
-        
-        movieDetailImageCellDelegate?.favouriteButtonTapped(cell: self)
-    }
-    
-    @objc func watchedBarButtonTapped() {
-        
-        movieDetailImageCellDelegate?.watchedButtonTapped(cell: self)
-    }
-    
-    func updateButtonImage(for id: Int64, and type: ButtonType) {
-    
-        guard let status = CoreDataManager.sharedInstance.checkButtonStatus(for: id, and: type) else { return }
-     
-        switch type {
-        case .favourite:
-            if status, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
-                favouriteButton.setImage(image, for: .normal)
-                return
-            }
-        case .watched:
-            if status, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
-            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
-                watchedButton.setImage(image, for: .normal)
-                return
-            }
-        }
     }
     
     //MARK: Constraints
@@ -161,4 +122,56 @@ extension MovieDetailImageCell {
             make.width.height.equalTo(40)
         }
     }
+}
+
+
+extension MovieDetailImageCell {
+    //MARK: Functions
+    
+    func configure(with info: MovieDetailInfo) {
+        
+        setButtonImage(on: .favourite, selected: info.favourite)
+        
+        setButtonImage(on: .watched, selected: info.watched)        
+        
+        imageViewMovie.setImage(with: info.imagePath)
+    }
+    
+    func setButtonImage(on type: ButtonType, selected: Bool) {
+        
+        switch type {
+        case .favourite:
+            if selected, let image = UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal) {
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal){
+                favouriteButton.setImage(image, for: .normal)
+                return
+            }
+        case .watched:
+            if selected, let image = UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal) {
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+            if let image = UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal){
+                watchedButton.setImage(image, for: .normal)
+                return
+            }
+        }
+    }
+    
+    //MARK: Delegate methods
+    @objc func backButtonTapped() {
+        movieDetailImageCellDelegate?.backButtonTapped()
+    }
+    
+    @objc func favouriteButtonTapped() {
+        movieDetailImageCellDelegate?.buttonTapped(type: .favourite)
+    }
+    
+    @objc func watchedButtonTapped() {
+        movieDetailImageCellDelegate?.buttonTapped(type: .watched)
+    }
+    
 }

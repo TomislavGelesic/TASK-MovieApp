@@ -12,7 +12,7 @@ class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    var screenData = [Movie]()
+    var watchedMoviesPresenter: WatchedMoviesPresenter?
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -21,20 +21,36 @@ class WatchedMoviesViewController: UIViewController {
         return tableView
     }()
     
+    private let pullToRefreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.tintColor = .white
+        control.backgroundColor = .darkGray
+        control.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        return control
+    }()
+    
     //MARK: Life-cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupTableView()
-        fetchScreenData()
-        tableView.reloadData()
+        setupPullToRefreshControl()
+        
+        view.addSubview(tableView)
+        tableView.addSubview(pullToRefreshControl)
+        
+        moviesTableViewConstraints()
+        
+        watchedMoviesPresenter = WatchedMoviesPresenter(delegate: self)
+        
+        watchedMoviesPresenter?.getNewScreenData()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        
-        fetchScreenData()
-        tableView.reloadData()
+       
+        watchedMoviesPresenter?.getNewScreenData()
     }
 }
 
@@ -42,23 +58,12 @@ extension WatchedMoviesViewController {
     
     //MARK: Private Functions
     
-    private func fetchScreenData() {
-        
-        if let data = CoreDataManager.sharedInstance.getWatchedMovies(){
-            self.screenData = data
-        }
-    }
-    
     private func setupTableView() {
         
-        view.addSubview(tableView)
-        
         tableView.dataSource = self
-        tableView.register(MovieListTableViewCell.self, forCellReuseIdentifier: MovieListTableViewCell.reuseIdentifier)
+        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
-        
-        moviesTableViewConstraints()
     }
     
     private func moviesTableViewConstraints () {
@@ -68,50 +73,64 @@ extension WatchedMoviesViewController {
         }
     }
     
+    private func setupPullToRefreshControl() {
+        
+        pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
+        
+    }
     
-    
+    @objc func refreshMovies() {
+        
+        watchedMoviesPresenter?.getNewScreenData()
+        
+        self.pullToRefreshControl.endRefreshing()
+    }
 }
 
 extension WatchedMoviesViewController: UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return screenData.count
+        return watchedMoviesPresenter?.screenData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell: MovieListTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.configure(with: screenData[indexPath.row])
+        if let item = watchedMoviesPresenter?.screenData[indexPath.row] {
+            cell.configure(with: item)
+        }
+        
         cell.movieListTableViewCellDelegate = self
         
         return cell
     }
 }
 
-extension WatchedMoviesViewController: MovieListTableViewCellDelegate {
+extension WatchedMoviesViewController: MovieTableViewCellDelegate {
     
-    func favouriteButtonTapped(cell: MovieListTableViewCell) {
+    func cellButtonTapped(cell: MovieTableViewCell, type: ButtonType) {
         
         guard let id = cell.movie?.id else { return }
         
-        CoreDataManager.sharedInstance.switchForId(type: .favourite, for: Int64(id))
+        watchedMoviesPresenter?.buttonTapped(for: id, type: type)
+    }
+}
+
+extension WatchedMoviesViewController: WatchedMoviesPresenterDelegate {
+    
+    func showAlertView() {
         
-        fetchScreenData()
+        showSpinner()
+    }
+    
+    func reloadTableView() {
         
         tableView.reloadData()
     }
     
-    func watchedButtonTapped(cell: MovieListTableViewCell) {
-        
-        guard let id = cell.movie?.id else { return }
-        
-        CoreDataManager.sharedInstance.switchForId(type: .watched, for: Int64(id))
-        
-        fetchScreenData()
-        
-        tableView.reloadData()
-    }
+    
 }
 
 

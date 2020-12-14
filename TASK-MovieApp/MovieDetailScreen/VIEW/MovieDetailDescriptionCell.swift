@@ -45,8 +45,8 @@ extension MovieDetailDescriptionCell {
         
         contentView.addSubviews([descriptionTitleLabel, descriptionLabel])
         
-        quoteTitleLabelConstraints()
-        quoteLabelConstraints()
+        descriptionTitleLabelConstraints()
+        descriptionLabelConstraints()
     }
     
     
@@ -57,7 +57,7 @@ extension MovieDetailDescriptionCell {
     
     //MARK: Constraints
     
-    private func quoteTitleLabelConstraints() {
+    private func descriptionTitleLabelConstraints() {
         
         descriptionTitleLabel.snp.makeConstraints { (make) in
             make.top.leading.trailing.equalTo(contentView).inset(UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 10))
@@ -65,7 +65,7 @@ extension MovieDetailDescriptionCell {
         }
     }
     
-    private func quoteLabelConstraints() {
+    private func descriptionLabelConstraints() {
         
         descriptionLabel.snp.makeConstraints { (make) in
             make.bottom.leading.trailing.equalTo(contentView).inset(UIEdgeInsets(top: 0, left: 10, bottom: 10, right: 10))
