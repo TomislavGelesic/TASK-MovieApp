@@ -71,9 +71,10 @@ extension WatchedMoviesViewModel {
 
                 switch buttonType {
                 case .favourite:
-                    item.favourite = value
+                    break
                 case .watched:
                     item.watched = value
+                    break
                 }
                 print("saving button tap on \(buttonType) with value \(value)")
                 coreDataManager.updateMovie(item)

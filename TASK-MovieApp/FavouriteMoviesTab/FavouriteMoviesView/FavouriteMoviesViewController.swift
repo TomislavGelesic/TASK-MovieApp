@@ -47,7 +47,7 @@ class FavouriteMoviesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        favouriteMoviesViewModel.getNewScreenData()
+        favouriteMoviesViewModel.getNewScreenDataSubject.send()
     }
 }
 
@@ -73,11 +73,25 @@ extension FavouriteMoviesViewController {
     
     private func setupViewModelSubscribers() {
         
-        favouriteMoviesViewModel.updateScreenDataSubject
+        favouriteMoviesViewModel.initializeScreenDataSubject(with: self.favouriteMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        favouriteMoviesViewModel.initializeMoviePreferenceSubject(with: self.favouriteMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        favouriteMoviesViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (_) in
-                self.tableView.reloadData()
+            .sink { [unowned self] (rowUpdateType) in
+                switch (rowUpdateType) {
+                case .all:
+                    self.tableView.reloadData()
+                    break
+                case .cellWith(let indexPath):
+                    #warning("Should i use animation to reload specific cells?")
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                    break
+                }
                 self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
@@ -90,7 +104,7 @@ extension FavouriteMoviesViewController {
     
     @objc func refreshMovies() {
         
-        favouriteMoviesViewModel.getNewScreenData()
+        favouriteMoviesViewModel.getNewScreenDataSubject.send()
     }
 }
 
@@ -107,9 +121,11 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
         
         cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row], enable: [.favourite])
         
-        cell.preferanceChanged = { [unowned self] (buttonType) in
+        cell.preferanceChanged = { [unowned self] (buttonType, value) in
             
-            self.favouriteMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
+            let id = self.favouriteMoviesViewModel.screenData[indexPath.row].id
+            
+            self.favouriteMoviesViewModel.movieReferenceSubject.send((id, buttonType, value))
         }
         
         return cell

@@ -47,11 +47,7 @@ class WatchedMoviesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        watchedMoviesViewModel.initializeScreenDataSubject(with: self.watchedMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
-            .store(in: &disposeBag)
-        
-        watchedMoviesViewModel.initializeMoviePreferenceSubject(with: self.watchedMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
-            .store(in: &disposeBag)
+        watchedMoviesViewModel.getNewScreenDataSubject.send()
             
     }
 }
@@ -79,6 +75,12 @@ extension WatchedMoviesViewController {
     }
     
     private func setupViewSubscribers() {
+        
+        watchedMoviesViewModel.initializeScreenDataSubject(with: self.watchedMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        watchedMoviesViewModel.initializeMoviePreferenceSubject(with: self.watchedMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
         
         watchedMoviesViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
