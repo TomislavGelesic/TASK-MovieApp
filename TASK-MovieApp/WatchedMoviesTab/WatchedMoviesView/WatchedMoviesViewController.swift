@@ -41,13 +41,18 @@ class WatchedMoviesViewController: UIViewController {
         
         setupPullToRefreshControl()
         
-        setupViewModelSubscribers()
+        setupViewSubscribers()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        watchedMoviesViewModel.getNewScreenData()
+        watchedMoviesViewModel.initializeScreenDataSubject(with: self.watchedMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        watchedMoviesViewModel.initializeMoviePreferenceSubject(with: self.watchedMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+            
     }
 }
 
@@ -73,12 +78,21 @@ extension WatchedMoviesViewController {
         }
     }
     
-    private func setupViewModelSubscribers() {
-        watchedMoviesViewModel.updateScreenDataSubject
+    private func setupViewSubscribers() {
+        
+        watchedMoviesViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (_) in
-                self.tableView.reloadData()
+            .sink { [unowned self] (rowUpdateType) in
+                switch (rowUpdateType) {
+                case .all:
+                    self.tableView.reloadData()
+                    break
+                case .cellWith(let indexPath):
+                    #warning("Should i use animation to reload specific cells?")
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                    break
+                }
                 self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
@@ -90,8 +104,8 @@ extension WatchedMoviesViewController {
     }
     
     @objc func refreshMovies() {
-        #warning("You are creating a new subscription for every pull to refresh action. This is a big NO NO.")
-        watchedMoviesViewModel.getNewScreenData()
+        
+        watchedMoviesViewModel.getNewScreenDataSubject.send()
     }
 }
 
@@ -108,9 +122,11 @@ extension WatchedMoviesViewController: UITableViewDataSource {
         
         cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row], enable: [.watched])
         
-        cell.preferanceChanged = { [unowned self] (buttonType) in
+        cell.preferanceChanged = { [unowned self] (buttonType, value) in
             
-            self.watchedMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
+            let id = self.watchedMoviesViewModel.screenData[indexPath.row].id
+            
+            self.watchedMoviesViewModel.movieReferenceSubject.send((id, buttonType, value))
         }
         
         return cell

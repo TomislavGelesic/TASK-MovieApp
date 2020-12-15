@@ -24,7 +24,7 @@ class MovieListViewModel {
 
 extension MovieListViewModel {
     
-    func initializeScreenData(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
+    func initializeScreenDataSubject(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
@@ -80,18 +80,17 @@ extension MovieListViewModel {
         return newScreenData
     }
     
-    func initializeMoviePreferanceSubject (with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
+    func initializeMoviePreferenceSubject (with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
     
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .flatMap { [unowned self] (id, buttonType, value) -> Future<IndexPath, Error> in
-                return Future { promise in
-                    if let indexPath = self.updateScreenData(for: id, on: buttonType, with: value) {
-                        promise(.success(indexPath))
-                    }
-                }
+            .flatMap { [unowned self] (id, buttonType, value) -> AnyPublisher<IndexPath?, Never> in
                 
+                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: value) {
+                    return Just(indexPath).eraseToAnyPublisher()
+                }
+                return Just(nil).eraseToAnyPublisher()
             }
             .sink { (completion) in
                 
@@ -104,13 +103,15 @@ extension MovieListViewModel {
                 }
                 
             } receiveValue: { [unowned self] (indexPath) in
-                self.refreshScreenDataSubject.send(.cellWith(indexPath))
+                if let indexPath = indexPath {
+                    self.refreshScreenDataSubject.send(.cellWith(indexPath))
+                }
             }
 
     }
     
     
-    private func updateScreenData(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
+    private func updateMoviePreference(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
 
         for (index,item) in screenData.enumerated() {
 
@@ -122,7 +123,7 @@ extension MovieListViewModel {
                 case .watched:
                     item.watched = value
                 }
-
+                print("saving button tap on \(buttonType) with value \(value)")
                 coreDataManager.updateMovie(item)
                 
                 return IndexPath(row: index, section: 0)

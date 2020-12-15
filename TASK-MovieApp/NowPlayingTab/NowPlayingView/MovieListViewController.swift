@@ -45,12 +45,10 @@ class MovieListViewController: UIViewController {
         
         setupSubscribers()
         
-        
-        movieListViewModel.initializeScreenData(with: self.movieListViewModel.getNewScreenDataSubject.eraseToAnyPublisher()) //creates pipeline #1996
+        movieListViewModel.initializeScreenDataSubject(with: self.movieListViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        
-        movieListViewModel.initializeMoviePreferanceSubject(with: self.movieListViewModel.moviePreferenceSubject.eraseToAnyPublisher())
+        movieListViewModel.initializeMoviePreferenceSubject(with: self.movieListViewModel.moviePreferenceSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
         
@@ -59,7 +57,7 @@ class MovieListViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        movieListViewModel.getNewScreenDataSubject.send() //uses pipeline #1996
+        movieListViewModel.getNewScreenDataSubject.send()
     }
     
 }
@@ -99,9 +97,7 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        self.movieListViewModel.getNewScreenDataSubject.send() //uses pipeline 1996
-        
-        self.pullToRefreshControl.endRefreshing()
+        self.movieListViewModel.getNewScreenDataSubject.send()
     }
     
     private func setupSubscribers() {
@@ -135,8 +131,11 @@ extension MovieListViewController {
                     self.movieCollectionView.reloadItems(at: [indexPath])
                     break
                 }
+                
+                self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
+        
     }
 }
 

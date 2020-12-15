@@ -25,7 +25,7 @@ class MovieDetailViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<Void, Never>()
 
-    var setMoviePreferenceSubject = PassthroughSubject<ButtonType, Never>()
+    var moviePreferenceSubject = PassthroughSubject<(ButtonType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
@@ -100,12 +100,33 @@ extension MovieDetailViewModel {
         return newScreenData
     }
     
-    func saveMoviePreferences(for id: Int64, on buttonType: ButtonType, value: Bool ) {
+    func initializeMoviePreferanceSubject (with subject: AnyPublisher<(ButtonType, Bool), Never>) -> AnyCancellable {
+    
+        return subject
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (buttonType, value) in
+                
+                self.saveMoviePreferences(for: movieID, on: buttonType, value: value)
+                
+                switch buttonType {
+                case .favourite:
+                    self.moviePreferenceSubject.send((.favourite, value))
+                    break
+                case .watched:
+                    self.moviePreferenceSubject.send((.watched, value))
+                    break
+                }
+            }
+
+    }
+    
+    private func saveMoviePreferences(for id: Int64, on buttonType: ButtonType, value: Bool ) {
         coreDataManager.saveMoviePreference(id: id, on: buttonType, value: value)
     }
     
-    func getMoviePreferences(on buttonType: ButtonType) -> Bool? {
-        
+    private func getMoviePreference(on buttonType: ButtonType) -> Bool? {
+
         if let savedMovie = coreDataManager.getMovie(for: movieID) {
             switch buttonType {
             case .favourite:
@@ -115,6 +136,6 @@ extension MovieDetailViewModel {
             }
         }
         return nil
-        
+
     }
 }
