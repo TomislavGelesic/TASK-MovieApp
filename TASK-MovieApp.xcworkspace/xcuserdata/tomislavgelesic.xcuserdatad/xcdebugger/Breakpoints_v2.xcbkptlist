@@ -16,7 +16,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "97"
             endingLineNumber = "97"
-            landmarkName = "setupButtons()"
+            landmarkName = "favouriteButtonTapped()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -32,7 +32,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "102"
             endingLineNumber = "102"
-            landmarkName = "favouriteButtonTapped()"
+            landmarkName = "watchedButtonTapped()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

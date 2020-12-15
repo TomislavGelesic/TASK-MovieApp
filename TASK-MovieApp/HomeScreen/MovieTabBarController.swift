@@ -38,7 +38,7 @@ extension MovieTabBarController {
         
         viewController.view.backgroundColor = .darkGray
         
-        #warning("Couldn't find line of code that equals button images on tabBarItems")
+        #warning("Couldn't find line of code that equals button images on tabBarItems - SOLVE LATER")
         
         let controller = UINavigationController(rootViewController: viewController)
         controller.tabBarItem.image = unselected

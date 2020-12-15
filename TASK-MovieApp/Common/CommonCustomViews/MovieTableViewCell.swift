@@ -12,7 +12,7 @@ import Combine
 
 class MovieTableViewCell: UITableViewCell {
     
-    var buttonTappedSubject = PassthroughSubject<ButtonType, Never>()
+    var preferanceChanged: ((ButtonType) -> ())?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -54,6 +54,7 @@ class MovieTableViewCell: UITableViewCell {
         favouriteButton.layer.cornerRadius = 20
         favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        favouriteButton.isHidden = true
         return favouriteButton
     }()
     
@@ -62,6 +63,7 @@ class MovieTableViewCell: UITableViewCell {
         watchedButton.layer.cornerRadius = 20
         watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
         watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        watchedButton.isHidden = true
         return watchedButton
     }()
     
@@ -109,15 +111,15 @@ extension MovieTableViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        buttonTappedSubject.send(.favourite)
+        preferanceChanged?(.favourite)
     }
     
     @objc func watchedButtonTapped() {
         
-        buttonTappedSubject.send(.watched)
+        preferanceChanged?(.watched)
     }
     
-    func configure(with item: MovieRowItem) {
+    func configure(with item: MovieRowItem, enable enabledButtons: [ButtonType]) {
         
         imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
         
@@ -127,25 +129,25 @@ extension MovieTableViewCell {
         
         descriptionLabel.text = item.overview
         
-        setButtonImage(on: .favourite, selected: item.favourite)
-        
-        setButtonImage(on: .watched, selected: item.watched)
-    }
-    
-    func setButtonImage(on type: ButtonType, selected: Bool) {
-     
-        switch type {
-        case .favourite:
-            favouriteButton.isSelected = selected
-            break
-        case .watched:
-            watchedButton.isSelected = selected
-            break
-        default:
-            break
+        for button in enabledButtons {
+            
+            setButtonImage(on: button, selected: item.favourite)
         }
     }
     
+    func setButtonImage(on type: ButtonType, selected: Bool) {
+    
+        switch type {
+        case .favourite:
+            favouriteButton.isSelected = selected
+            favouriteButton.isHidden = false
+            break
+        case .watched:
+            watchedButton.isSelected = selected
+            watchedButton.isHidden = false
+            break
+        }
+    }
     
     
     //MARK: Constraints

@@ -33,11 +33,6 @@ class FavouriteMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
-    deinit {
-        for cancellable in disposeBag {
-            cancellable.cancel()
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -79,6 +74,7 @@ extension FavouriteMoviesViewController {
     private func setupViewModelSubscribers() {
         
         favouriteMoviesViewModel.updateScreenDataSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (_) in
                 self.tableView.reloadData()
@@ -109,18 +105,15 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row])
+        cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row], enable: [.favourite])
         
-        cell.buttonTappedSubject
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] (buttonType) in
-                
-                self.favouriteMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
-            }
-            .store(in: &disposeBag)
+        cell.preferanceChanged = { [unowned self] (buttonType) in
+            
+            self.favouriteMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
+        }
         
         return cell
-    }    
+    }
 }
 
 

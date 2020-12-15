@@ -33,11 +33,6 @@ class WatchedMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
-    deinit {
-        for cancellable in disposeBag {
-            cancellable.cancel()
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,11 +71,11 @@ extension WatchedMoviesViewController {
         tableView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
         }
-    }    
+    }
     
     private func setupViewModelSubscribers() {
-        
         watchedMoviesViewModel.updateScreenDataSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (_) in
                 self.tableView.reloadData()
@@ -95,7 +90,7 @@ extension WatchedMoviesViewController {
     }
     
     @objc func refreshMovies() {
-        
+        #warning("You are creating a new subscription for every pull to refresh action. This is a big NO NO.")
         watchedMoviesViewModel.getNewScreenData()
     }
 }
@@ -111,15 +106,12 @@ extension WatchedMoviesViewController: UITableViewDataSource {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row])
+        cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row], enable: [.watched])
         
-        cell.buttonTappedSubject
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] (buttonType) in
-                
-                self.watchedMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
-            }
-            .store(in: &disposeBag)
+        cell.preferanceChanged = { [unowned self] (buttonType) in
+            
+            self.watchedMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
+        }
         
         return cell
     }

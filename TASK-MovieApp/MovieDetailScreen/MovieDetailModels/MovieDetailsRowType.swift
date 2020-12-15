@@ -8,7 +8,7 @@
 import UIKit
 
 enum MovieDetailsRowType {
-    case imagePathWithButtonState
+    case imagePath
     case title
     case quote
     case description

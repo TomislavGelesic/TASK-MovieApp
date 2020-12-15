@@ -8,6 +8,10 @@
 import UIKit
 import CoreData
 
+// +++++++++++++++++
+#warning("Should CoreData be refactored to save object with all information for DetailScreen and NowPlayingTab? How?")
+// ++++++++++++++++
+
 class CoreDataManager {
     
     static let sharedInstance = CoreDataManager()
@@ -119,6 +123,47 @@ extension CoreDataManager {
         }
     }
     
+    func saveMoviePreference(id: Int64, on buttonType: ButtonType, value: Bool) {
+    
+        if let savedMovie = getMovie(for: id) {
+            
+            switch buttonType {
+            case .favourite:
+                savedMovie.favourite = value
+                break
+            case .watched:
+                savedMovie.watched = value
+                break
+                
+            }
+            
+            if !savedMovie.favourite, !savedMovie.watched {
+                deleteMovie(savedMovie)
+            }
+            
+            saveContext()
+            
+            print("savedMovie \n\tid: \(savedMovie.id), favourite: \(savedMovie.favourite), watched: \(savedMovie.watched)")
+        }
+        else { // if doesn't exist save new one to CoreData
+            
+            switch buttonType {
+            case .favourite:
+                saveMovie(id: id, preference: true, buttonType: buttonType)
+                break
+            case .watched:
+                saveMovie(id: id, preference: true, buttonType: buttonType)
+                break
+                
+            }
+            
+            print("savedMovie \n\tid: \(id), set: true on btnType: \(buttonType)")
+        }
+        
+        
+    }
+        
+    
     private func saveMovie(from item: MovieRowItem) {
         
         let managedContext = persistentContainer.viewContext
@@ -142,7 +187,46 @@ extension CoreDataManager {
         }
     }
     
+    
+    private func saveMovie(id: Int64, preference: Bool, buttonType: ButtonType) {
+        
+        let managedContext = persistentContainer.viewContext
+        
+        let movie = Movie(context: managedContext)
+        
+        movie.setValue(Int64(id), forKey: "id")
+        
+        switch buttonType {
+        case .favourite:
+            movie.setValue(preference, forKey: "favourite")
+            break
+        case .watched:
+            movie.setValue(preference, forKey: "watched")
+            break
+        }
+        
+        saveContext()
+        
+        if let _ = getMovie(for: movie.id) { return }
+        else {
+            print("(WARNING) Couldn't save new movie to Core Data. (WARNING)")
+            return
+        }
+    }
+    
     func deleteMovie(_ movie: MovieRowItem) {
+        
+        if let savedMovie = getMovie(for: movie.id) {
+            
+            let managedContext = persistentContainer.viewContext
+            
+            managedContext.delete(savedMovie)
+            
+            saveContext()
+        }
+    }
+    
+    func deleteMovie(_ movie: Movie) {
         
         if let savedMovie = getMovie(for: movie.id) {
             

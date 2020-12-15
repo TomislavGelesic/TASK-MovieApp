@@ -35,11 +35,6 @@ class MovieListViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
-    deinit {
-        for cancellable in disposeBag {
-            cancellable.cancel()
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,15 +43,17 @@ class MovieListViewController: UIViewController {
         
         setupPullToRefreshControl()
         
-        setupViewModelSubscribers()
+        setupSubscribers()
         
+        
+        movieListViewModel.initializeScreenData(with: self.movieListViewModel.getNewScreenDataSubject.eraseToAnyPublisher()) //creates pipeline 1996 //uses pipeline 1996
+            .store(in: &disposeBag)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        movieListViewModel.initializeScreenData()
-            .store(in: &disposeBag)
+        #warning("should update with core data only...")
     }
     
 }
@@ -96,43 +93,51 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
-        movieListViewModel.initializeScreenData().store(in: &disposeBag)
+        self.movieListViewModel.getNewScreenDataSubject.send() //uses pipeline 1996
         
         self.pullToRefreshControl.endRefreshing()
     }
     
-    private func setupViewModelSubscribers() {
+    private func setupSubscribers() {
         
         movieListViewModel.spinnerSubject
-            .subscribe(on: RunLoop.main)
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (value) in
-                switch (value) {
-                case true:
-                    self.showSpinner()
-                case false:
-                    self.hideSpinner()
-                }
+            .sink(receiveValue: { [unowned self] (isVisible) in
+                
+                isVisible ? self.showSpinner() : self.hideSpinner()
             })
             .store(in: &disposeBag)
         
         movieListViewModel.alertSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
                 self.showAPIFailedAlert()
             }
             .store(in: &disposeBag)
         
-        movieListViewModel.updateScreenDataSubject
-            .subscribe(on: RunLoop.main)
+        movieListViewModel.setMoviePreferenceSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (id, buttonType, value) in
+                self.movieListViewModel.refreshScreenDataSubject.send(.cellWith(id, buttonType, value))
+            }
+            .store(in: &disposeBag)
+        
+        movieListViewModel.refreshScreenDataSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (rowUpdateState) in
                 
                 switch (rowUpdateState) {
                 case .all:
                     self.movieCollectionView.reloadData()
-                case .cellAt(let position):
-                    self.movieCollectionView.reloadItems(at: [position])
+                case .cellWith(let id, let butonType, let value):
+                    if let indexPath = self.movieListViewModel.updateAtIndex(for: id, on: butonType, with: value) {
+                        self.movieCollectionView.reloadItems(at: [indexPath])
+                    }
+                    break
                 }
             }
             .store(in: &disposeBag)
@@ -151,17 +156,12 @@ extension MovieListViewController: UICollectionViewDataSource {
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
        
         cell.configure(with: movieListViewModel.screenData[indexPath.row])
-        
-        //should i pass this subscription to modelView - updateScreenDataSubject somehow??
-        cell.buttonTappedPublisher
-            .subscribe(on: RunLoop.main)
-            .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (buttonType) in
-                
-                self.movieListViewModel.switchPreference(at: indexPath, on: buttonType)
-            })
-            .store(in: &disposeBag)
-        
+       
+        cell.preferenceChanged = { [unowned self] (buttonType, value) in
+            
+            self.movieListViewModel.setMoviePreferenceSubject.send((id: self.movieListViewModel.screenData[indexPath.row].id, on: buttonType, to: value))
+        }
+
         return cell
     }
     
@@ -170,12 +170,12 @@ extension MovieListViewController: UICollectionViewDataSource {
 extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+    
         let movieDetailScreen = MovieDetailViewController(for: movieListViewModel.screenData[indexPath.row])
         
-        movieDetailScreen.modalPresentationStyle = .fullScreen
+        self.navigationController?.pushViewController(movieDetailScreen, animated: true)
         
-        self.present(movieDetailScreen, animated: true, completion: nil)
+        
     }
 }
 

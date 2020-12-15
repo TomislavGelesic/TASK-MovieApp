@@ -15,12 +15,16 @@ class MovieListViewModel {
     
     var alertSubject = PassthroughSubject<Void, Never>()
     
-    var updateScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
+    var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
+
+    var setMoviePreferenceSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
+    
+    var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
 }
 
 extension MovieListViewModel {
     
-    func initializeScreenData() -> AnyCancellable {
+    func initializeScreenData(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         
         let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
         
@@ -28,20 +32,18 @@ extension MovieListViewModel {
         
         spinnerSubject.send(true)
         
-        return movieAPIManager
-            .fetch(url: nowPlayingURLPath, as: MovieResponse.self)
-            .map(\.results)
-            .map { [unowned self] (movieResponseItems) -> [MovieRowItem] in
-                return self.createScreenData(from: movieResponseItems)
-            }
+        return subject
+            .receive(on: RunLoop.main)
             .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: DispatchQueue.global(qos: .background))
-            .flatMap({ [unowned self] (screenData) -> AnyPublisher<[MovieRowItem], Never> in
-                
-                self.spinnerSubject.send(false)
-                
-                return Just(screenData).eraseToAnyPublisher()
-            })
+            .flatMap { [unowned self] (_) -> AnyPublisher<MovieResponse, MovieAPIError> in
+                self.spinnerSubject.send(true)
+                return self.movieAPIManager.fetch(url: nowPlayingURLPath, as: MovieResponse.self)
+            }
+            .receive(on: RunLoop.main)
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .map { [unowned self] (movieResponse) -> [MovieRowItem] in
+                return self.createScreenData(from: movieResponse.results)
+            }
             .catch({ [unowned self] (error) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 self.spinnerSubject.send(false)
@@ -50,11 +52,15 @@ extension MovieListViewModel {
                 
                 return Just([]).eraseToAnyPublisher()
             })
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
             .sink { [unowned self] (newScreenData) in
                 
                 self.screenData = newScreenData
-                self.updateScreenDataSubject.send(.all)
+                self.spinnerSubject.send(false)
+                self.refreshScreenDataSubject.send(.all)
             }
+        
         
     }
     
@@ -73,29 +79,31 @@ extension MovieListViewModel {
         
         return newScreenData
     }
-
     
-    func switchPreference(at indexPath: IndexPath, on type: ButtonType) {
-       
-        switch type {
-        case .favourite:
-            screenData[indexPath.row].favourite = !screenData[indexPath.row].favourite
-            print("F: \(screenData[indexPath.row].favourite)")
-            break
-        case .watched:
-            screenData[indexPath.row].watched = !screenData[indexPath.row].watched
-            print("W: \(screenData[indexPath.row].watched)")
-            break
-        default:
-        break
+    #warning("Update this to observable stream implementation")
+    
+    #warning("Like this??")
+
+    func updateAtIndex(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
+
+        for (index,item) in screenData.enumerated() {
+
+            if item.id == id {
+
+                switch buttonType {
+                case .favourite:
+                    item.favourite = value
+                case .watched:
+                    item.watched = value
+                }
+
+                coreDataManager.updateMovie(item)
+                
+                return IndexPath(row: index, section: 0)
+            }
         }
         
-        coreDataManager.updateMovie(screenData[indexPath.row])
-        
-        updateScreenDataSubject.send(.cellAt(indexPath))
-        
-        
+        return nil
     }
-
 }
 

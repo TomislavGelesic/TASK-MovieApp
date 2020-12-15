@@ -6,7 +6,7 @@ import Combine
 
 class MovieListCollectionViewCell: UICollectionViewCell {
     
-    var buttonTappedPublisher = PassthroughSubject<ButtonType, Never>()
+    var preferenceChanged: ((ButtonType, Bool) -> ())?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -93,13 +93,12 @@ extension MovieListCollectionViewCell {
     }
     
     @objc func favouriteButtonTapped() {
-        
-        buttonTappedPublisher.send(.favourite)
+        preferenceChanged?(.favourite, favouriteButton.isSelected)
     }
     
     @objc func watchedButtonTapped() {
-
-        buttonTappedPublisher.send(.watched)
+        
+        preferenceChanged?(.watched, watchedButton.isSelected)
     }
     
     func configure(with item: MovieRowItem) {
@@ -119,7 +118,7 @@ extension MovieListCollectionViewCell {
     }
     
     private func setButtonImage(on type: ButtonType, selected: Bool) {
-     
+        
         switch type {
         case .favourite:
             favouriteButton.isSelected = selected
@@ -127,12 +126,9 @@ extension MovieListCollectionViewCell {
         case .watched:
             watchedButton.isSelected = selected
             break
-        default:
-            break
+            
         }
-        
     }
-    
     
     //MARK: Constraints
     private func setupConstraints() {
@@ -206,4 +202,5 @@ extension MovieListCollectionViewCell {
     }
     
 }
+
 
