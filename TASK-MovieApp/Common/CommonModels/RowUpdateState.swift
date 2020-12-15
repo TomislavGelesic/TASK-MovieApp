@@ -9,5 +9,5 @@ import UIKit
 
 enum RowUpdateState {
     case all
-    case cellWith(Int64, ButtonType, Bool)
+    case cellWith(IndexPath)
 }

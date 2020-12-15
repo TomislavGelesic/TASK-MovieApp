@@ -17,7 +17,7 @@ class MovieListViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
-    var setMoviePreferenceSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
+    var moviePreferenceSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
 }
@@ -80,11 +80,37 @@ extension MovieListViewModel {
         return newScreenData
     }
     
-    #warning("Update this to observable stream implementation")
+    func initializeMoviePreferanceSubject (with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
     
-    #warning("Like this??")
+        return subject
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
+            .flatMap { [unowned self] (id, buttonType, value) -> Future<IndexPath, Error> in
+                return Future { promise in
+                    if let indexPath = self.updateScreenData(for: id, on: buttonType, with: value) {
+                        promise(.success(indexPath))
+                    }
+                }
+                
+            }
+            .sink { (completion) in
+                
+                switch (completion) {
+                case .finished:
+                    break
+                case .failure(_):
+                    print("Invalid indexPath in moviePreferenceSubject.")
+                    break
+                }
+                
+            } receiveValue: { [unowned self] (indexPath) in
+                self.refreshScreenDataSubject.send(.cellWith(indexPath))
+            }
 
-    func updateAtIndex(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
+    }
+    
+    
+    private func updateScreenData(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
 
         for (index,item) in screenData.enumerated() {
 

@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-#warning("Implemented screen initialization as observable stream")
 class WatchedMoviesViewModel {
     
     private var coreDataManager = CoreDataManager.sharedInstance
@@ -29,7 +28,7 @@ extension WatchedMoviesViewModel {
             
         }
     }
-    #warning("Update this to observable stream implementation and updated the logic so this feature works as intended")
+    
     func switchPreference(at indexPath: IndexPath, on type: ButtonType) {
        
         switch type {
@@ -41,8 +40,6 @@ extension WatchedMoviesViewModel {
             screenData[indexPath.row].watched = !screenData[indexPath.row].watched
             print("W: \(screenData[indexPath.row].watched)")
             break
-        default:
-        break
         }
         
         coreDataManager.updateMovie(screenData[indexPath.row])
