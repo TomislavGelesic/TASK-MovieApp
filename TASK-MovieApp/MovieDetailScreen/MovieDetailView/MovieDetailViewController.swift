@@ -18,7 +18,7 @@ class MovieDetailViewController: UIViewController {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .black
+        tableView.backgroundColor = .darkGray
         return tableView
     }()
     
@@ -60,19 +60,15 @@ class MovieDetailViewController: UIViewController {
         
         setupSubscribers()
         
-        #warning("coerced unwrapping - advice?")
-        movieDetailViewModel?.initializeScreenData(with: (self.movieDetailViewModel!.getNewScreenDataSubject.eraseToAnyPublisher()))
-            .store(in: &disposeBag)
-        
-        movieDetailViewModel?.initializeMoviePreferanceSubject(with: self.movieDetailViewModel!.moviePreferenceSubject.eraseToAnyPublisher())
-            .store(in: &disposeBag)
-        
         setupNavigationBarButtons()
+        
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        movieDetailViewModel?.getNewScreenDataSubject.send()
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
@@ -133,6 +129,14 @@ extension MovieDetailViewController {
     
     private func setupSubscribers() {
         
+        movieDetailViewModel?.initializeScreenData(with: self.movieDetailViewModel!.getNewScreenDataSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        
+        movieDetailViewModel?.initializeMoviePreferanceSubject(with: self.movieDetailViewModel!.moviePreferenceSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        
         movieDetailViewModel?.spinnerSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
@@ -162,19 +166,29 @@ extension MovieDetailViewController {
         movieDetailViewModel?.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (_) in
+            .sink(receiveValue: { [unowned self] (rowUpdateState) in
                 
-                self.tableView.reloadData()
+                switch (rowUpdateState) {
+                case .all:
+                    self.tableView.reloadData()
+                    break
+                case .cellWith(_):
+                    break
+                }
             })
             .store(in: &disposeBag)
     }
     
     @objc func favouriteButtonTapped() {
         
+        favouriteButton.isSelected = !favouriteButton.isSelected
+        
         movieDetailViewModel?.moviePreferenceSubject.send((.favourite, favouriteButton.isSelected))
     }
     
     @objc func watchedButtonTapped() {
+        
+        watchedButton.isSelected = !watchedButton.isSelected
         
         movieDetailViewModel?.moviePreferenceSubject.send((.watched, watchedButton.isSelected))
     }

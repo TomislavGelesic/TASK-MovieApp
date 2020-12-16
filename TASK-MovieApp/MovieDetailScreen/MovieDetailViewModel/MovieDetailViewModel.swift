@@ -23,7 +23,7 @@ class MovieDetailViewModel {
     
     var alertSubject = PassthroughSubject<Void, Never>()
     
-    var refreshScreenDataSubject = PassthroughSubject<Void, Never>()
+    var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
     var moviePreferenceSubject = PassthroughSubject<(ButtonType, Bool), Never>()
     
@@ -40,7 +40,7 @@ extension MovieDetailViewModel {
         
         let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
 
-        guard let movieDetailURLPath = URL(string: url) else { fatalError("getNewScreenData: DETAILS SCREEN") }
+        guard let movieDetailURLPath = URL(string: url) else { fatalError("ERROR getNewScreenData: DETAILS SCREEN") }
             
         spinnerSubject.send(true)
         
@@ -55,6 +55,14 @@ extension MovieDetailViewModel {
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .map { [unowned self] (movieDetails) -> [RowItem<MovieDetailsRowType, Any>] in
+                
+                if let shouldBeFavourite = getMoviePreference(on: .favourite) {
+                    self.moviePreferenceSubject.send((.favourite, shouldBeFavourite))
+                }
+                if let shouldBeWatched = getMoviePreference(on: .watched) {
+                    self.moviePreferenceSubject.send((.watched, shouldBeWatched))
+                }
+                
                 return self.createScreenData(from: movieDetails)
             }
             .catch({ [unowned self] (error) -> AnyPublisher<[RowItem<MovieDetailsRowType, Any>], Never> in
@@ -73,7 +81,7 @@ extension MovieDetailViewModel {
                 
                 self.spinnerSubject.send(false)
                 
-                self.refreshScreenDataSubject.send()
+                self.refreshScreenDataSubject.send(.all)
             }
         
     }
@@ -108,15 +116,6 @@ extension MovieDetailViewModel {
             .sink { [unowned self] (buttonType, value) in
                 
                 self.saveMoviePreferences(for: movieID, on: buttonType, value: value)
-                
-                switch buttonType {
-                case .favourite:
-                    self.moviePreferenceSubject.send((.favourite, value))
-                    break
-                case .watched:
-                    self.moviePreferenceSubject.send((.watched, value))
-                    break
-                }
             }
 
     }
@@ -134,6 +133,7 @@ extension MovieDetailViewModel {
             case .watched:
                 return savedMovie.watched
             }
+
         }
         return nil
 

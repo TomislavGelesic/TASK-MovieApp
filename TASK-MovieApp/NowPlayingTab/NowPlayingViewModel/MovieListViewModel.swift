@@ -30,8 +30,6 @@ extension MovieListViewModel {
         
         guard let nowPlayingURLPath = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
         
-        spinnerSubject.send(true)
-        
         return subject
             .receive(on: RunLoop.main)
             .subscribe(on: DispatchQueue.global(qos: .background))
