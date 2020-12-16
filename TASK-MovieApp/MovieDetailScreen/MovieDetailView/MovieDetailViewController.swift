@@ -106,11 +106,11 @@ extension MovieDetailViewController {
         
         tableView.dataSource = self
         
-        tableView.register(MovieDetailImageCell.self, forCellReuseIdentifier: MovieDetailImageCell.reuseIdentifier)
-        tableView.register(MovieDetailTitleCell.self, forCellReuseIdentifier: MovieDetailTitleCell.reuseIdentifier)
-        tableView.register(MovieDetailGenreCell.self, forCellReuseIdentifier: MovieDetailGenreCell.reuseIdentifier)
-        tableView.register(MovieDetailQuoteCell.self, forCellReuseIdentifier: MovieDetailQuoteCell.reuseIdentifier)
-        tableView.register(MovieDetailDescriptionCell.self, forCellReuseIdentifier: MovieDetailDescriptionCell.reuseIdentifier)
+        tableView.register(ImageCellMovieDetail.self, forCellReuseIdentifier: ImageCellMovieDetail.reuseIdentifier)
+        tableView.register(TitleCellMovieDetail.self, forCellReuseIdentifier: TitleCellMovieDetail.reuseIdentifier)
+        tableView.register(GenreCellMovieDetail.self, forCellReuseIdentifier: GenreCellMovieDetail.reuseIdentifier)
+        tableView.register(QuoteCellMovieDetail.self, forCellReuseIdentifier: QuoteCellMovieDetail.reuseIdentifier)
+        tableView.register(DescriptionCellMovieDetail.self, forCellReuseIdentifier: DescriptionCellMovieDetail.reuseIdentifier)
         
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 300
@@ -222,7 +222,7 @@ extension MovieDetailViewController: UITableViewDataSource {
         
         case .imagePath:
             
-            let cell: MovieDetailImageCell = tableView.dequeueReusableCell(for: indexPath)
+            let cell: ImageCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
             if let imagePath = item.value as? String {
                 cell.configure(with: imagePath)
             }
@@ -230,7 +230,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             
         case .title:
             
-            let cell: MovieDetailTitleCell = tableView.dequeueReusableCell(for: indexPath)
+            let cell: TitleCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
             if let title = item.value as? String {
                 cell.configure(with: title)
             }
@@ -238,7 +238,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             
         case .genre:
             
-            let cell: MovieDetailGenreCell = tableView.dequeueReusableCell(for: indexPath)
+            let cell: GenreCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
             if let genres = item.value as? String {
                 cell.configure(with: genres)
             }
@@ -246,7 +246,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             
         case .quote:
             
-            let cell: MovieDetailQuoteCell = tableView.dequeueReusableCell(for: indexPath)
+            let cell: QuoteCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
             if let quote = item.value as? String {
                 cell.configure(with: quote)
             }
@@ -254,7 +254,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             
         case .description:
             
-            let cell: MovieDetailDescriptionCell = tableView.dequeueReusableCell(for: indexPath)
+            let cell: DescriptionCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
             if let description = item.value as? String {
                 cell.configure(with: description)
             }

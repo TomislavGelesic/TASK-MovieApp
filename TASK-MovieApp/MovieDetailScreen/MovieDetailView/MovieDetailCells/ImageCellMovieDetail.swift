@@ -3,7 +3,7 @@ import UIKit
 import SnapKit
 import Combine
 
-class MovieDetailImageCell: UITableViewCell {
+class ImageCellMovieDetail: UITableViewCell {
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -30,7 +30,7 @@ class MovieDetailImageCell: UITableViewCell {
     
 }
 
-extension MovieDetailImageCell {
+extension ImageCellMovieDetail {
     private func setupViews() {
         
         contentView.backgroundColor = .black
@@ -59,7 +59,7 @@ extension MovieDetailImageCell {
 }
 
 
-extension MovieDetailImageCell {
+extension ImageCellMovieDetail {
     
     func configure(with imagePath: String) {
         

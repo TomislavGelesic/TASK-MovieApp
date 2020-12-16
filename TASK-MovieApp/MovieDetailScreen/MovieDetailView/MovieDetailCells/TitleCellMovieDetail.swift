@@ -1,5 +1,5 @@
 //
-//  MovieDetailGenreCell.swift
+//  MovieDetailTitleCellTableViewCell.swift
 //  TASK-MovieApp
 //
 //  Created by Tomislav Gelesic on 28/10/2020.
@@ -8,13 +8,13 @@
 import UIKit
 import SnapKit
 
-class MovieDetailGenreCell: UITableViewCell {
-
-    let genreLabel: UILabel = {
+class TitleCellMovieDetail: UITableViewCell {
+    
+    let titleLabel: UILabel = {
         let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 24)
         label.textColor = .white
-        label.numberOfLines = 1
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.numberOfLines = 2
         return label
     }()
 
@@ -28,27 +28,23 @@ class MovieDetailGenreCell: UITableViewCell {
     }
 }
 
-extension MovieDetailGenreCell {
+extension TitleCellMovieDetail {
     
     func setupViews() {
         backgroundColor = .black
         
-        contentView.addSubview(genreLabel)
+        contentView.addSubview(titleLabel)
         
         titleLabelConstraints()
     }
     
-    
-    func configure(with genres: String) {
-        genreLabel.text = genres
-    }
-    
     //MARK: Constraints
-    
     private func titleLabelConstraints() {
-        genreLabel.snp.makeConstraints { (make) in
-            make.edges.equalTo(contentView).inset(10)
-        }
+        titleLabel.snp.makeConstraints { (make) in
+            make.edges.equalTo(contentView).inset(10)        }
     }
     
+    func configure(with title: String) {
+        titleLabel.text = title
+    }
 }
