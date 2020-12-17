@@ -17,15 +17,13 @@ class MovieDetailViewModel {
     
     private var movieID: Int64
     
-    var tableViewData = [RowItem<MovieDetailsRowType, Any>]()
-    
-    var collectionViewData = [MovieRowItem]()
+    var screenData = [RowItem<MovieDetailsRowType, Any>]()
     
     var spinnerSubject = PassthroughSubject<Bool, Never>()
     
     var alertSubject = PassthroughSubject<Void, Never>()
     
-    var refreshTableViewDataSubject = PassthroughSubject<RowUpdateState, Never>()
+    var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
     var moviePreferenceSubject = PassthroughSubject<(ButtonType, Bool), Never>()
     
@@ -50,7 +48,7 @@ extension MovieDetailViewModel {
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>], [MovieRowItem]), MovieAPIError> in
+            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieAPIError> in
                 
                 self.spinnerSubject.send(true)
                 
@@ -66,34 +64,32 @@ extension MovieDetailViewModel {
                         if let shouldBeWatched = getMoviePreference(on: .watched) {
                             self.moviePreferenceSubject.send((.watched, shouldBeWatched))
                         }
-                        return (self.createTableViewData(from: newMovieDetails), self.createCollectionViewData(from: newSimilarMovies.results))
+                        return (self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results)))
                     }
                     .eraseToAnyPublisher()
             }
-            .catch({ [unowned self] (error) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>], [MovieRowItem]), Never> in
+            .catch({ [unowned self] (error) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
                 
                 self.spinnerSubject.send(false)
                 
                 self.alertSubject.send()
                 
-                return Just(([], [])).eraseToAnyPublisher()
+                return Just([]).eraseToAnyPublisher()
             })
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (newTableViewData, newCollectionViewData) in
+            .sink { [unowned self] (newTableViewData) in
                 
-                self.tableViewData = newTableViewData
-                
-                self.collectionViewData = newCollectionViewData
+                self.screenData = newTableViewData
                 
                 self.spinnerSubject.send(false)
                 
-                self.refreshTableViewDataSubject.send(.all)
+                self.refreshScreenDataSubject.send(.all)
             }
         
     }
     
-    private func createTableViewData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {
+    private func createScreenData(from movieDetails: MovieDetailsResponse, and newSimilarMovies: [MovieRowItem]) -> [RowItem<MovieDetailsRowType, Any>] {
         
         var newScreenData = [RowItem<MovieDetailsRowType, Any>]()
         
@@ -111,6 +107,8 @@ extension MovieDetailViewModel {
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .quote, value: movieDetails.tagline))
         
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .description, value: movieDetails.overview))
+        
+        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .similarMovies, value: newSimilarMovies))
         
         return newScreenData
     }

@@ -164,7 +164,7 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel?.refreshTableViewDataSubject
+        movieDetailViewModel?.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (rowUpdateState) in
@@ -213,12 +213,12 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return movieDetailViewModel?.tableViewData.count ?? 0
+        return movieDetailViewModel?.screenData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let item = movieDetailViewModel?.tableViewData[indexPath.row] else { return UITableViewCell() }
+        guard let item = movieDetailViewModel?.screenData[indexPath.row] else { return UITableViewCell() }
         
         switch item.type {
         
@@ -265,7 +265,9 @@ extension MovieDetailViewController: UITableViewDataSource {
         case .similarMovies:
             
             let cell: SimilarMoviesCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(with: self.movieDetailViewModel?.collectionViewData ?? [])
+            if let similarMovies = item.value as? [MovieRowItem] {
+                cell.configure(with: similarMovies)
+            }
             return cell
             
         }
