@@ -89,10 +89,9 @@ extension SimilarMoviesCellMovieDetail: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
                 
-//        let cellWidth = (movieCollectionView.frame.width - 30) / 2
-//        let cellHeight = cellWidth * 1.5
+        #warning("couldn't se this up because my emulator didn't show table view contents")
         let cellWidth = contentView.frame.width/2
-        let cellHeight = contentView.frame.width/2
+        let cellHeight = cellWidth * 1.5
         return CGSize(width: cellWidth, height: cellHeight)
     }
 }
