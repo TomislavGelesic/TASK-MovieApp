@@ -92,7 +92,7 @@ extension MovieDetailViewController {
         navigationController?.navigationBar.isTranslucent = true
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.backgroundColor = .darkGray
+        navigationController?.navigationBar.backgroundColor = .clear
         
         
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: favouriteButton), UIBarButtonItem(customView: watchedButton)]
@@ -111,6 +111,7 @@ extension MovieDetailViewController {
         tableView.register(GenreCellMovieDetail.self, forCellReuseIdentifier: GenreCellMovieDetail.reuseIdentifier)
         tableView.register(QuoteCellMovieDetail.self, forCellReuseIdentifier: QuoteCellMovieDetail.reuseIdentifier)
         tableView.register(DescriptionCellMovieDetail.self, forCellReuseIdentifier: DescriptionCellMovieDetail.reuseIdentifier)
+        tableView.register(SimilarMoviesCellMovieDetail.self, forCellReuseIdentifier: SimilarMoviesCellMovieDetail.reuseIdentifier)
         
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 300
@@ -163,7 +164,7 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel?.refreshScreenDataSubject
+        movieDetailViewModel?.refreshTableViewDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (rowUpdateState) in
@@ -177,6 +178,7 @@ extension MovieDetailViewController {
                 }
             })
             .store(in: &disposeBag)
+        
     }
     
     @objc func favouriteButtonTapped() {
@@ -211,12 +213,12 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return movieDetailViewModel?.screenData.count ?? 0
+        return movieDetailViewModel?.tableViewData.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let item = movieDetailViewModel?.screenData[indexPath.row] else { return UITableViewCell() }
+        guard let item = movieDetailViewModel?.tableViewData[indexPath.row] else { return UITableViewCell() }
         
         switch item.type {
         
@@ -259,6 +261,13 @@ extension MovieDetailViewController: UITableViewDataSource {
                 cell.configure(with: description)
             }
             return cell
+            
+        case .similarMovies:
+            
+            let cell: SimilarMoviesCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
+            cell.configure(with: self.movieDetailViewModel?.collectionViewData ?? [])
+            return cell
+            
         }
     }
 }

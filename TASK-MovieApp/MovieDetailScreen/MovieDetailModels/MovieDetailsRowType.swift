@@ -13,4 +13,5 @@ enum MovieDetailsRowType {
     case quote
     case description
     case genre
+    case similarMovies
 }
