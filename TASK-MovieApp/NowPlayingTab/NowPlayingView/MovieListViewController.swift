@@ -97,6 +97,8 @@ extension MovieListViewController {
     
     @objc func refreshMovies() {
         
+        self.showSpinner()
+        
         self.movieListViewModel.getNewScreenDataSubject.send()
     }
     

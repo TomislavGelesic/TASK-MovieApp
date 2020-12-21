@@ -69,8 +69,9 @@ extension MovieListViewModel {
             .sink { [unowned self] (newScreenData) in
                 
                 self.screenData = newScreenData
-                self.spinnerSubject.send(false)
+                self.pullToRefreshControlSubject.send(false)
                 self.refreshScreenDataSubject.send(.all)
+                self.spinnerSubject.send(false)
             }
         
         
@@ -119,7 +120,6 @@ extension MovieListViewModel {
                 if let indexPath = indexPath {
                     
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
-                    self.pullToRefreshControlSubject.send(false)
                 }
             }
 
