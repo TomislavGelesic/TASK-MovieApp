@@ -103,7 +103,7 @@
 		6064D568256B0BDA004CE578 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
 		6064F5F9256D24E700239C5A /* MovieListWithPreferenceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieListWithPreferenceViewModel.swift; path = "TASK-MovieApp/Common/CommonClasses/MovieListWithPreferenceViewModel.swift"; sourceTree = SOURCE_ROOT; };
 		606FD8052552AF8B00F5FBFF /* MovieCoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MovieCoreDataModel.xcdatamodel; sourceTree = "<group>"; };
-		606FD8272552E1EC00F5FBFF /* FavouriteMoviesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FavouriteMoviesViewController.swift; path = "TASK-MovieApp/FavouriteMoviesTab/FavouriteMoviesView/FavouriteMoviesViewController.swift"; sourceTree = SOURCE_ROOT; };
+		606FD8272552E1EC00F5FBFF /* FavouriteMoviesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FavouriteMoviesViewController.swift; path = "TASK-MovieApp/FavouriteMoviesTab/FavouriteMoviesViewController.swift"; sourceTree = SOURCE_ROOT; };
 		606FD82A2552E20600F5FBFF /* WatchedMoviesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchedMoviesViewController.swift; sourceTree = "<group>"; };
 		606FD82D2552E24A00F5FBFF /* MovieTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieTabBarController.swift; path = "TASK-MovieApp/HomeScreen/MovieTabBarController.swift"; sourceTree = SOURCE_ROOT; };
 		60858754256521D200FCD5A1 /* MovieTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieTableViewCell.swift; sourceTree = "<group>"; };
@@ -139,7 +139,7 @@
 		6019C1D825545BD6002141B0 /* WatchedMoviesTab */ = {
 			isa = PBXGroup;
 			children = (
-				607CBFD0258214AC00AE5B7B /* WatchedMoviesView */,
+				606FD82A2552E20600F5FBFF /* WatchedMoviesViewController.swift */,
 			);
 			path = WatchedMoviesTab;
 			sourceTree = "<group>";
@@ -249,7 +249,7 @@
 		607CBFAB25820E3300AE5B7B /* FavouriteMoviesTab */ = {
 			isa = PBXGroup;
 			children = (
-				607CBFD2258214C900AE5B7B /* FavouriteMoviesView */,
+				606FD8272552E1EC00F5FBFF /* FavouriteMoviesViewController.swift */,
 			);
 			path = FavouriteMoviesTab;
 			sourceTree = "<group>";
@@ -354,22 +354,6 @@
 				6058934625659ECE003681E6 /* MovieDetailsResponse.swift */,
 			);
 			path = MovieDetailModels;
-			sourceTree = "<group>";
-		};
-		607CBFD0258214AC00AE5B7B /* WatchedMoviesView */ = {
-			isa = PBXGroup;
-			children = (
-				606FD82A2552E20600F5FBFF /* WatchedMoviesViewController.swift */,
-			);
-			path = WatchedMoviesView;
-			sourceTree = "<group>";
-		};
-		607CBFD2258214C900AE5B7B /* FavouriteMoviesView */ = {
-			isa = PBXGroup;
-			children = (
-				606FD8272552E1EC00F5FBFF /* FavouriteMoviesViewController.swift */,
-			);
-			path = FavouriteMoviesView;
 			sourceTree = "<group>";
 		};
 		607CBFDB25821D6000AE5B7B /* NowPlayingTab */ = {

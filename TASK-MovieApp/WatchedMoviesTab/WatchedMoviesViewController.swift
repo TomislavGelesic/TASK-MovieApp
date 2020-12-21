@@ -1,13 +1,19 @@
+//
+//  WatchedMoviesViewController.swift
+//  TASK-MovieApp
+//
+//  Created by Tomislav Gelesic on 04/11/2020.
+//
 
 import UIKit
 import SnapKit
 import Combine
 
-class FavouriteMoviesViewController: UIViewController {
+class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    private var favouriteMoviesViewModel = MovieListWithPreferenceViewModel(preferenceType: .favourite)
+    private var watchedMoviesViewModel = MovieListWithPreferenceViewModel(preferenceType: .watched)
     
     private var disposeBag = Set<AnyCancellable>()
     
@@ -25,21 +31,23 @@ class FavouriteMoviesViewController: UIViewController {
         
         setupTableView()
         
-        setupViewModelSubscribers()
+        setupViewSubscribers()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        favouriteMoviesViewModel.getNewScreenDataSubject.send()
+        watchedMoviesViewModel.getNewScreenDataSubject.send()
+            
     }
 }
 
-extension FavouriteMoviesViewController {
+extension WatchedMoviesViewController {
     
     //MARK: Private Functions
     
     private func setupTableView() {
+        
         
         view.addSubview(tableView)
         
@@ -53,15 +61,15 @@ extension FavouriteMoviesViewController {
         }
     }
     
-    private func setupViewModelSubscribers() {
+    private func setupViewSubscribers() {
         
-        favouriteMoviesViewModel.initializeScreenDataSubject(with: self.favouriteMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+        watchedMoviesViewModel.initializeScreenDataSubject(with: self.watchedMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        favouriteMoviesViewModel.initializeMoviePreferenceSubject(with: self.favouriteMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
+        watchedMoviesViewModel.initializeMoviePreferenceSubject(with: self.watchedMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        favouriteMoviesViewModel.refreshScreenDataSubject
+        watchedMoviesViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (rowUpdateType) in
@@ -78,24 +86,24 @@ extension FavouriteMoviesViewController {
     }
 }
 
-extension FavouriteMoviesViewController: UITableViewDataSource {
+extension WatchedMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return favouriteMoviesViewModel.screenData.count
+        return watchedMoviesViewModel.screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row], enable: [.favourite])
+        let item = watchedMoviesViewModel.screenData[indexPath.row]
+        
+        cell.configure(with: item, enable: [.favourite])
         
         cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
-            let id = self.favouriteMoviesViewModel.screenData[indexPath.row].id
-            
-            self.favouriteMoviesViewModel.movieReferenceSubject.send((id, buttonType, value))
+            self.watchedMoviesViewModel.movieReferenceSubject.send((item.id, buttonType, value))
         }
         
         return cell
