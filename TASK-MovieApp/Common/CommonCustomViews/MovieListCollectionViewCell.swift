@@ -94,13 +94,11 @@ extension MovieListCollectionViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        favouriteButton.isSelected = !favouriteButton.isSelected
         preferenceChanged?(.favourite, favouriteButton.isSelected)
     }
     
     @objc func watchedButtonTapped() {
         
-        watchedButton.isSelected = !watchedButton.isSelected
         preferenceChanged?(.watched, watchedButton.isSelected)
     }
     

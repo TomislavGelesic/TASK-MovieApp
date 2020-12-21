@@ -101,7 +101,7 @@ extension MovieListViewModel {
             .receive(on: RunLoop.main)
             .flatMap { [unowned self] (id, buttonType, value) -> AnyPublisher<IndexPath?, Never> in
                 
-                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: value) {
+                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: !value) {
                     return Just(indexPath).eraseToAnyPublisher()
                 }
                 return Just(nil).eraseToAnyPublisher()
