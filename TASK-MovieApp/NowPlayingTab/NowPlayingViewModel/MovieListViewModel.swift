@@ -93,33 +93,15 @@ extension MovieListViewModel {
     func initializeMoviePreferenceSubject (with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
     
         return subject
-            .flatMap { [unowned self] (id, buttonType, value) -> AnyPublisher<IndexPath?, Never> in
-                
-                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: !value) {
-                    return Just(indexPath).eraseToAnyPublisher()
-                }
-                return Just(nil).eraseToAnyPublisher()
-            }
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { (completion) in
+            .sink(receiveValue: { [unowned self] (id, buttonType, value) in
                 
-                switch (completion) {
-                case .finished:
-                    break
-                case .failure(_):
-                    print("Invalid indexPath in moviePreferenceSubject.")
-                    break
-                }
-                
-            } receiveValue: { [unowned self] (indexPath) in
-                
-                if let indexPath = indexPath {
+                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: !value) {
                     
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
                 }
-            }
-
+            })
     }
     
     
