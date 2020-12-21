@@ -124,15 +124,9 @@ extension MovieListViewController {
         movieListViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (rowUpdateState) in
+            .sink { [unowned self] (position) in
                 
-                switch (rowUpdateState) {
-                case .all:
-                    self.movieCollectionView.reloadData()
-                case .cellWith(let indexPath):
-                    self.movieCollectionView.reloadItems(at: [indexPath])
-                    break
-                }
+                self.reloadCollectionView(at: position)
             }
             .store(in: &disposeBag)
         
@@ -144,6 +138,17 @@ extension MovieListViewController {
                 shouldBeRunning ? self.pullToRefreshControl.beginRefreshing() : self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
+    }
+    
+    func reloadCollectionView(at position: RowUpdateState) {
+        
+        switch (position) {
+        case .all:
+            movieCollectionView.reloadData()
+        case .cellWith(let indexPath):
+            movieCollectionView.reloadItems(at: [indexPath])
+            break
+        }
     }
 }
 
