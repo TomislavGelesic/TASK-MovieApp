@@ -11,7 +11,7 @@ import Combine
 
 class MovieDetailViewController: UIViewController {
     
-    var movieDetailViewModel: MovieDetailViewModel?
+    var movieDetailViewModel: MovieDetailViewModel
     
     var disposeBag = Set<AnyCancellable>()
     
@@ -38,9 +38,9 @@ class MovieDetailViewController: UIViewController {
     
     //MARK: init
     
-    init(for movie: MovieRowItem) {
+    init(viewModel: MovieDetailViewModel) {
         
-        movieDetailViewModel = MovieDetailViewModel(id: movie.id)
+        movieDetailViewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -68,7 +68,7 @@ class MovieDetailViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        movieDetailViewModel?.getNewScreenDataSubject.send()
+        movieDetailViewModel.getNewScreenDataSubject.send()
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
@@ -130,15 +130,15 @@ extension MovieDetailViewController {
     
     private func setupSubscribers() {
         
-        movieDetailViewModel?.initializeScreenData(with: self.movieDetailViewModel!.getNewScreenDataSubject.eraseToAnyPublisher())
+        movieDetailViewModel.initializeScreenData(with: self.movieDetailViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
         
-        movieDetailViewModel?.initializeMoviePreferanceSubject(with: self.movieDetailViewModel!.moviePreferenceSubject.eraseToAnyPublisher())
+        movieDetailViewModel.initializeMoviePreferanceSubject(with: self.movieDetailViewModel.moviePreferenceSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
         
-        movieDetailViewModel?.spinnerSubject
+        movieDetailViewModel.spinnerSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (isVisible) in
@@ -147,7 +147,7 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel?.alertSubject
+        movieDetailViewModel.alertSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (errorMessage) in
@@ -155,7 +155,7 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel?.moviePreferenceSubject
+        movieDetailViewModel.moviePreferenceSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (buttonType, value) in
@@ -164,7 +164,7 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel?.refreshScreenDataSubject
+        movieDetailViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (rowUpdateState) in
@@ -185,14 +185,14 @@ extension MovieDetailViewController {
         
         favouriteButton.isSelected = !favouriteButton.isSelected
         
-        movieDetailViewModel?.moviePreferenceSubject.send((.favourite, favouriteButton.isSelected))
+        movieDetailViewModel.moviePreferenceSubject.send((.favourite, favouriteButton.isSelected))
     }
     
     @objc func watchedButtonTapped() {
         
         watchedButton.isSelected = !watchedButton.isSelected
         
-        movieDetailViewModel?.moviePreferenceSubject.send((.watched, watchedButton.isSelected))
+        movieDetailViewModel.moviePreferenceSubject.send((.watched, watchedButton.isSelected))
     }
     
     private func switchButtonImage(buttonType: PreferenceType, value: Bool){
@@ -213,12 +213,12 @@ extension MovieDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return movieDetailViewModel?.screenData.count ?? 0
+        return movieDetailViewModel.screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let item = movieDetailViewModel?.screenData[indexPath.row] else { return UITableViewCell() }
+        let item = movieDetailViewModel.screenData[indexPath.row]
         
         switch item.type {
         
