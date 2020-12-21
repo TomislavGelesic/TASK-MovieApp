@@ -45,10 +45,10 @@ class MovieListViewController: UIViewController {
         
         setupSubscribers()
         
-        movieListViewModel.initializeScreenDataSubject(with: self.movieListViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+        movieListViewModel.initializeScreenDataSubject(with: movieListViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        movieListViewModel.initializeMoviePreferenceSubject(with: self.movieListViewModel.moviePreferenceSubject.eraseToAnyPublisher())
+        movieListViewModel.initializeMoviePreferenceSubject(with: movieListViewModel.moviePreferenceSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
         

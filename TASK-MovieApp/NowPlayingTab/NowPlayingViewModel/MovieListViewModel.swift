@@ -42,11 +42,13 @@ extension MovieListViewModel {
             .receive(on: RunLoop.main)
             .subscribe(on: DispatchQueue.global(qos: .background))
             .map { [unowned self] (movieResponse) -> [MovieRowItem] in
+                
                 return self.createScreenData(from: movieResponse.results)
             }
             .catch({ [unowned self] (error) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 self.spinnerSubject.send(false)
+                
                 switch (error) {
                 case .decodingError:
                     self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
@@ -60,7 +62,6 @@ extension MovieListViewModel {
                     self.alertSubject.send("Error: \(error.localizedDescription)")
                     break
                 }
-                
                 
                 return Just([]).eraseToAnyPublisher()
             })
