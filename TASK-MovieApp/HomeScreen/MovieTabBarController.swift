@@ -19,11 +19,11 @@ extension MovieTabBarController {
                                                                  selected:       UIImage(systemName: "video.circle.fill"),
                                                                  unselected:     UIImage(systemName: "video.circle"))
         
-        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(/*viewModel: FavouriteMoviesViewModel()*/),
+        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(viewModel: MovieListWithPreferenceViewModel(preferenceType: .favourite)),
                                                                   selected:       UIImage(named: "star_filled"),
                                                                   unselected:     UIImage(named: "star_unfilled"))
         
-        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(/*viewModel: WatchedMoviesViewModel()*/),
+        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(viewModel: MovieListWithPreferenceViewModel(preferenceType: .watched)),
                                                                selected:       UIImage(named: "watched_filled"),
                                                                unselected:     UIImage(named: "watched_unfilled"))
         

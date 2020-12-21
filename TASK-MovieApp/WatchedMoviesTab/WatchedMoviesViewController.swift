@@ -13,7 +13,7 @@ class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    private var watchedMoviesViewModel = MovieListWithPreferenceViewModel(preferenceType: .watched)
+    private var watchedMoviesViewModel: MovieListWithPreferenceViewModel
     
     private var disposeBag = Set<AnyCancellable>()
     
@@ -25,6 +25,15 @@ class WatchedMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
+    
+    init(viewModel: MovieListWithPreferenceViewModel) {
+        watchedMoviesViewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
