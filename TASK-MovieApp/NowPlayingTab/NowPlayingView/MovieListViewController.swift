@@ -48,7 +48,7 @@ class MovieListViewController: UIViewController {
         movieListViewModel.initializeScreenDataSubject(with: movieListViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        movieListViewModel.initializeMoviePreferenceSubject(with: movieListViewModel.moviePreferenceSubject.eraseToAnyPublisher())
+        movieListViewModel.initializeMoviePreferenceSubject(with: movieListViewModel.moviePreferenceChangeSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
         
@@ -169,7 +169,7 @@ extension MovieListViewController: UICollectionViewDataSource {
        
         cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
-            self.movieListViewModel.moviePreferenceSubject.send((id: item.id, on: buttonType, to: value))
+            self.movieListViewModel.moviePreferenceChangeSubject.send((id: item.id, on: buttonType, to: value))
         }
 
         return cell

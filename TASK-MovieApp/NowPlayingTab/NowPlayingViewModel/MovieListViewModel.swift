@@ -17,7 +17,7 @@ class MovieListViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
-    var moviePreferenceSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
+    var moviePreferenceChangeSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
