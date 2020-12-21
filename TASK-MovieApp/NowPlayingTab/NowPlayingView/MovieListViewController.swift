@@ -158,11 +158,13 @@ extension MovieListViewController: UICollectionViewDataSource {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
        
-        cell.configure(with: movieListViewModel.screenData[indexPath.row])
+        let item = movieListViewModel.screenData[indexPath.row]
+        
+        cell.configure(with: item)
        
         cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
-            self.movieListViewModel.moviePreferenceSubject.send((id: self.movieListViewModel.screenData[indexPath.row].id, on: buttonType, to: value))
+            self.movieListViewModel.moviePreferenceSubject.send((id: item.id, on: buttonType, to: value))
         }
 
         return cell
