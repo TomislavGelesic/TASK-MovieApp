@@ -21,7 +21,7 @@ class MovieDetailViewModel {
     
     var spinnerSubject = PassthroughSubject<Bool, Never>()
     
-    var alertSubject = PassthroughSubject<Void, Never>()
+    var alertSubject = PassthroughSubject<String, Never>()
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
@@ -69,13 +69,25 @@ extension MovieDetailViewModel {
                     .eraseToAnyPublisher()
             }
             .catch({ [unowned self] (error) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
-                
-                self.spinnerSubject.send(false)
-                
-                self.alertSubject.send()
-                
-                return Just([]).eraseToAnyPublisher()
-            })
+                    
+                    self.spinnerSubject.send(false)
+                    switch (error) {
+                    case .decodingError:
+                        self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
+                        break
+                        
+                    case .noDataError:
+                        self.alertSubject.send("There is no data for network request made.")
+                        break
+                        
+                    case .other(let error):
+                        self.alertSubject.send("Error: \(error.localizedDescription)")
+                        break
+                    }
+                    
+                    
+                    return Just([]).eraseToAnyPublisher()
+                })
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (newTableViewData) in

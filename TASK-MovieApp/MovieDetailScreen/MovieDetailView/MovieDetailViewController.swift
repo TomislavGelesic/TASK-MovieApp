@@ -151,7 +151,7 @@ extension MovieDetailViewController {
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (errorMessage) in
-//                self.showAPIFailedAlert(for: errorMessage)
+                self.showAPIFailedAlert(for: errorMessage)
             })
             .store(in: &disposeBag)
         
