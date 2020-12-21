@@ -24,22 +24,12 @@ class WatchedMoviesViewController: UIViewController {
         return tableView
     }()
     
-    private let pullToRefreshControl: UIRefreshControl = {
-        let control = UIRefreshControl()
-        control.tintColor = .white
-        control.backgroundColor = .darkGray
-        control.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        return control
-    }()
-    
     //MARK: Life-cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupTableView()
-        
-        setupPullToRefreshControl()
         
         setupViewSubscribers()
     }
@@ -66,9 +56,6 @@ extension WatchedMoviesViewController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         
-        
-        tableView.addSubview(pullToRefreshControl)
-        
         tableView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
         }
@@ -94,19 +81,8 @@ extension WatchedMoviesViewController {
                     self.tableView.reloadRows(at: [indexPath], with: .automatic)
                     break
                 }
-                self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
-    }
-    
-    private func setupPullToRefreshControl() {
-        
-        pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
-    }
-    
-    @objc func refreshMovies() {
-        
-        watchedMoviesViewModel.getNewScreenDataSubject.send()
     }
 }
 
