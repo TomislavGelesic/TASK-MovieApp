@@ -15,15 +15,15 @@ extension MovieTabBarController {
     
     private func setupMovieTabBarController() {
         
-        let movieListController = createNavigationViewController(viewController: MovieListViewController(),
+        let movieListController = createNavigationViewController(viewController: MovieListViewController(viewModel: MovieListViewModel()),
                                                                  selected:       UIImage(systemName: "video.circle.fill"),
                                                                  unselected:     UIImage(systemName: "video.circle"))
         
-        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(),
+        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(/*viewModel: FavouriteMoviesViewModel()*/),
                                                                   selected:       UIImage(named: "star_filled"),
                                                                   unselected:     UIImage(named: "star_unfilled"))
         
-        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(),
+        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(/*viewModel: WatchedMoviesViewModel()*/),
                                                                selected:       UIImage(named: "watched_filled"),
                                                                unselected:     UIImage(named: "watched_unfilled"))
         
