@@ -33,14 +33,10 @@ extension MovieListViewModel {
         guard let nowPlayingURLPath = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
         
         return subject
-            .receive(on: RunLoop.main)
-            .subscribe(on: DispatchQueue.global(qos: .background))
             .flatMap { [unowned self] (_) -> AnyPublisher<MovieResponse, MovieAPIError> in
                 self.spinnerSubject.send(true)
                 return self.movieAPIManager.fetch(url: nowPlayingURLPath, as: MovieResponse.self)
             }
-            .receive(on: RunLoop.main)
-            .subscribe(on: DispatchQueue.global(qos: .background))
             .map { [unowned self] (movieResponse) -> [MovieRowItem] in
                 
                 return self.createScreenData(from: movieResponse.results)
@@ -97,8 +93,6 @@ extension MovieListViewModel {
     func initializeMoviePreferenceSubject (with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
     
         return subject
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
             .flatMap { [unowned self] (id, buttonType, value) -> AnyPublisher<IndexPath?, Never> in
                 
                 if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: !value) {
@@ -106,6 +100,8 @@ extension MovieListViewModel {
                 }
                 return Just(nil).eraseToAnyPublisher()
             }
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
             .sink { (completion) in
                 
                 switch (completion) {
