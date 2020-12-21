@@ -33,11 +33,6 @@ class FavouriteMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
-    deinit {
-        for cancellable in disposeBag {
-            cancellable.cancel()
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +47,7 @@ class FavouriteMoviesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        favouriteMoviesViewModel.getNewScreenData()
+        favouriteMoviesViewModel.getNewScreenDataSubject.send()
     }
 }
 
@@ -78,10 +73,25 @@ extension FavouriteMoviesViewController {
     
     private func setupViewModelSubscribers() {
         
-        favouriteMoviesViewModel.updateScreenDataSubject
+        favouriteMoviesViewModel.initializeScreenDataSubject(with: self.favouriteMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        favouriteMoviesViewModel.initializeMoviePreferenceSubject(with: self.favouriteMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        favouriteMoviesViewModel.refreshScreenDataSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (_) in
-                self.tableView.reloadData()
+            .sink { [unowned self] (rowUpdateType) in
+                switch (rowUpdateType) {
+                case .all:
+                    self.tableView.reloadData()
+                    break
+                case .cellWith(let indexPath):
+                    #warning("Should i use animation to reload specific cells?")
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                    break
+                }
                 self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
@@ -94,7 +104,7 @@ extension FavouriteMoviesViewController {
     
     @objc func refreshMovies() {
         
-        favouriteMoviesViewModel.getNewScreenData()
+        favouriteMoviesViewModel.getNewScreenDataSubject.send()
     }
 }
 
@@ -109,18 +119,17 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row])
+        cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row], enable: [.favourite])
         
-        cell.buttonTappedSubject
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] (buttonType) in
-                
-                self.favouriteMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
-            }
-            .store(in: &disposeBag)
+        cell.preferanceChanged = { [unowned self] (buttonType, value) in
+            
+            let id = self.favouriteMoviesViewModel.screenData[indexPath.row].id
+            
+            self.favouriteMoviesViewModel.movieReferenceSubject.send((id, buttonType, value))
+        }
         
         return cell
-    }    
+    }
 }
 
 

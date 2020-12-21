@@ -33,11 +33,6 @@ class WatchedMoviesViewController: UIViewController {
     }()
     
     //MARK: Life-cycle
-    deinit {
-        for cancellable in disposeBag {
-            cancellable.cancel()
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,13 +41,14 @@ class WatchedMoviesViewController: UIViewController {
         
         setupPullToRefreshControl()
         
-        setupViewModelSubscribers()
+        setupViewSubscribers()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        watchedMoviesViewModel.getNewScreenData()
+        watchedMoviesViewModel.getNewScreenDataSubject.send()
+            
     }
 }
 
@@ -76,14 +72,29 @@ extension WatchedMoviesViewController {
         tableView.snp.makeConstraints { (make) in
             make.edges.equalTo(view)
         }
-    }    
+    }
     
-    private func setupViewModelSubscribers() {
+    private func setupViewSubscribers() {
         
-        watchedMoviesViewModel.updateScreenDataSubject
+        watchedMoviesViewModel.initializeScreenDataSubject(with: self.watchedMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        watchedMoviesViewModel.initializeMoviePreferenceSubject(with: self.watchedMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        watchedMoviesViewModel.refreshScreenDataSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (_) in
-                self.tableView.reloadData()
+            .sink { [unowned self] (rowUpdateType) in
+                switch (rowUpdateType) {
+                case .all:
+                    self.tableView.reloadData()
+                    break
+                case .cellWith(let indexPath):
+                    #warning("Should i use animation to reload specific cells?")
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                    break
+                }
                 self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
@@ -96,7 +107,7 @@ extension WatchedMoviesViewController {
     
     @objc func refreshMovies() {
         
-        watchedMoviesViewModel.getNewScreenData()
+        watchedMoviesViewModel.getNewScreenDataSubject.send()
     }
 }
 
@@ -111,15 +122,14 @@ extension WatchedMoviesViewController: UITableViewDataSource {
         
         let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row])
+        cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row], enable: [.watched])
         
-        cell.buttonTappedSubject
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] (buttonType) in
-                
-                self.watchedMoviesViewModel.switchPreference(at: indexPath, on: buttonType)
-            }
-            .store(in: &disposeBag)
+        cell.preferanceChanged = { [unowned self] (buttonType, value) in
+            
+            let id = self.watchedMoviesViewModel.screenData[indexPath.row].id
+            
+            self.watchedMoviesViewModel.movieReferenceSubject.send((id, buttonType, value))
+        }
         
         return cell
     }
