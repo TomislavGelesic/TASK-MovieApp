@@ -20,6 +20,8 @@ class MovieListViewModel {
     var moviePreferenceSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
+    
+    var pullToRefreshControlSubject = PassthroughSubject<Bool, Never>()
 }
 
 extension MovieListViewModel {
@@ -113,8 +115,11 @@ extension MovieListViewModel {
                 }
                 
             } receiveValue: { [unowned self] (indexPath) in
+                
                 if let indexPath = indexPath {
+                    
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
+                    self.pullToRefreshControlSubject.send(false)
                 }
             }
 

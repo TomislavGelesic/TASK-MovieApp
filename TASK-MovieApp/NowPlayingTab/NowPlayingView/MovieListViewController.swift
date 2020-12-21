@@ -131,11 +131,17 @@ extension MovieListViewController {
                     self.movieCollectionView.reloadItems(at: [indexPath])
                     break
                 }
-                
-                self.pullToRefreshControl.endRefreshing()
             }
             .store(in: &disposeBag)
         
+        movieListViewModel.pullToRefreshControlSubject
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] (shouldBeRunning) in
+                
+                shouldBeRunning ? self.pullToRefreshControl.beginRefreshing() : self.pullToRefreshControl.endRefreshing()
+            }
+            .store(in: &disposeBag)
     }
 }
 
