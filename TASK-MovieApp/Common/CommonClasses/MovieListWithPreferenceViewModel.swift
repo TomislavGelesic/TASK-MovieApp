@@ -54,17 +54,12 @@ extension MovieListWithPreferenceViewModel {
     func initializeMoviePreferenceSubject(with subject: AnyPublisher<(Int64, PreferenceType, Bool), Never>) -> AnyCancellable {
         
         return subject
-            .flatMap { [unowned self] (id, buttonType, value) -> AnyPublisher<IndexPath?, Never> in
-                
-                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: value) {
-                    return Just(indexPath).eraseToAnyPublisher()
-                }
-                return Just(nil).eraseToAnyPublisher()
-            }
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (indexPath) in
-                if let indexPath = indexPath {
+            .sink { [unowned self] (id, buttonType, value) in
+                
+                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: value) {
+                    
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
                 }
             }
