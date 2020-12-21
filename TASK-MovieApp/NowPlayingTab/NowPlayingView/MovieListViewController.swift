@@ -114,8 +114,8 @@ extension MovieListViewController {
         movieListViewModel.alertSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] _ in
-                self.showAPIFailedAlert()
+            .sink { [unowned self] (errorMessage) in
+                self.showAPIFailedAlert(for: errorMessage)
             }
             .store(in: &disposeBag)
         

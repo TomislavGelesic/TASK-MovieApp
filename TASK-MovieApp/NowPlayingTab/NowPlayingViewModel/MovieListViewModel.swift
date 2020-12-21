@@ -13,7 +13,7 @@ class MovieListViewModel {
     
     var spinnerSubject = PassthroughSubject<Bool, Never>()
     
-    var alertSubject = PassthroughSubject<Void, Never>()
+    var alertSubject = PassthroughSubject<String, Never>()
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
@@ -46,7 +46,20 @@ extension MovieListViewModel {
                 
                 self.spinnerSubject.send(false)
                 
-                self.alertSubject.send()
+                switch (error) {
+                case .decodingError:
+                    self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
+                    break
+                    
+                case .noDataError:
+                    self.alertSubject.send("There is no data for network request made.")
+                    break
+                    
+                case .other(let error):
+                    self.alertSubject.send("Error: \(error.localizedDescription)")
+                    break
+                }
+                
                 
                 return Just([]).eraseToAnyPublisher()
             })

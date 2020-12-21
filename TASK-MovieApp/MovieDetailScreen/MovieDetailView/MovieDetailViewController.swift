@@ -150,8 +150,8 @@ extension MovieDetailViewController {
         movieDetailViewModel?.alertSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { _ in
-                self.showAPIFailedAlert()
+            .sink(receiveValue: { [unowned self] (errorMessage) in
+//                self.showAPIFailedAlert(for: errorMessage)
             })
             .store(in: &disposeBag)
         
