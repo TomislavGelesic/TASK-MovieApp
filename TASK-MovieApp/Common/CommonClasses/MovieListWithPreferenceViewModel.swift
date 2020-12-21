@@ -26,8 +26,6 @@ extension MovieListWithPreferenceViewModel {
     func initializeScreenDataSubject(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         
         return subject
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
             .flatMap { [unowned self] (_) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 switch (labelMovieViewModel) {
@@ -56,8 +54,6 @@ extension MovieListWithPreferenceViewModel {
     func initializeMoviePreferenceSubject(with subject: AnyPublisher<(Int64, PreferenceType, Bool), Never>) -> AnyCancellable {
         
         return subject
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
             .flatMap { [unowned self] (id, buttonType, value) -> AnyPublisher<IndexPath?, Never> in
                 
                 if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: value) {
