@@ -1,15 +1,9 @@
-//
-//  FavouriteMoviesPresenter.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 24.11.2020..
-//
 
-import UIKit
-import SnapKit
+import Foundation
 import Combine
-
-class FavouriteMoviesViewModel {
+class MovieListWithPreferenceViewModel {
+    
+    private var labelMovieViewModel: PreferenceType
     
     private var coreDataManager = CoreDataManager.sharedInstance
     
@@ -17,13 +11,17 @@ class FavouriteMoviesViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
     
-    var movieReferenceSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
+    var movieReferenceSubject = PassthroughSubject<(Int64, PreferenceType, Bool), Never>()
     
-   var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
+    var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
+    init(preferenceType: PreferenceType) {
+        
+        labelMovieViewModel = preferenceType
+    }
 }
 
-extension FavouriteMoviesViewModel {
+extension MovieListWithPreferenceViewModel {
     
     func initializeScreenDataSubject(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         
@@ -31,8 +29,19 @@ extension FavouriteMoviesViewModel {
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .flatMap { [unowned self] (_) -> AnyPublisher<[MovieRowItem], Never> in
-                if let savedMovie = self.coreDataManager.getMovies(.favourite) {
-                    return Just(savedMovie).eraseToAnyPublisher()
+                
+                switch (labelMovieViewModel) {
+                case .favourite:
+                    if let savedMovie = self.coreDataManager.getMovies(.favourite) {
+                        return Just(savedMovie).eraseToAnyPublisher()
+                    }
+                    break
+                    
+                case .watched:
+                    if let savedMovie = self.coreDataManager.getMovies(.watched) {
+                        return Just(savedMovie).eraseToAnyPublisher()
+                    }
+                    break
                 }
                 return Just([]).eraseToAnyPublisher()
             }
@@ -44,7 +53,7 @@ extension FavouriteMoviesViewModel {
             }
     }
     
-    func initializeMoviePreferenceSubject(with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
+    func initializeMoviePreferenceSubject(with subject: AnyPublisher<(Int64, PreferenceType, Bool), Never>) -> AnyCancellable {
         
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
@@ -65,20 +74,21 @@ extension FavouriteMoviesViewModel {
             }
     }
     
-    private func updateMoviePreference(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
+    private func updateMoviePreference(for id: Int64, on preferenceType: PreferenceType, with value: Bool) -> IndexPath? {
 
         for (index,item) in screenData.enumerated() {
 
             if item.id == id {
 
-                switch buttonType {
+                switch preferenceType {
                 case .favourite:
                     item.favourite = value
                     break
                 case .watched:
+                    item.watched = value
                     break
                 }
-                print("saving button tap on \(buttonType) with value \(value)")
+                print("saving button tap on \(preferenceType) with value \(value)")
                 coreDataManager.updateMovie(item)
                 
                 return IndexPath(row: index, section: 0)
@@ -88,5 +98,3 @@ extension FavouriteMoviesViewModel {
         return nil
     }
 }
-
-

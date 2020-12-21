@@ -195,7 +195,7 @@ extension MovieDetailViewController {
         movieDetailViewModel?.moviePreferenceSubject.send((.watched, watchedButton.isSelected))
     }
     
-    private func switchButtonImage(buttonType: ButtonType, value: Bool){
+    private func switchButtonImage(buttonType: PreferenceType, value: Bool){
         
         switch buttonType {
         case .favourite:

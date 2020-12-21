@@ -12,7 +12,7 @@ import Combine
 
 class MovieTableViewCell: UITableViewCell {
     
-    var preferanceChanged: ((ButtonType, Bool) -> ())?
+    var preferenceChanged: ((PreferenceType, Bool) -> ())?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -113,17 +113,17 @@ extension MovieTableViewCell {
         
         favouriteButton.isSelected = !favouriteButton.isSelected
         
-        preferanceChanged?(.favourite, favouriteButton.isSelected)
+        preferenceChanged?(.favourite, favouriteButton.isSelected)
     }
     
     @objc func watchedButtonTapped() {
         
         watchedButton.isSelected = !watchedButton.isSelected
         
-        preferanceChanged?(.watched, watchedButton.isSelected)
+        preferenceChanged?(.watched, watchedButton.isSelected)
     }
     
-    func configure(with item: MovieRowItem, enable enabledButtons: [ButtonType]) {
+    func configure(with item: MovieRowItem, enable enabledButtons: [PreferenceType]) {
         
         imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
         
@@ -139,7 +139,7 @@ extension MovieTableViewCell {
         }
     }
     
-    func setButtonImage(on type: ButtonType, selected: Bool) {
+    func setButtonImage(on type: PreferenceType, selected: Bool) {
     
         switch type {
         case .favourite:

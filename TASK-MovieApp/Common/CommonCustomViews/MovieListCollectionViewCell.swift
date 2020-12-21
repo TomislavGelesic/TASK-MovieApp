@@ -6,7 +6,7 @@ import Combine
 
 class MovieListCollectionViewCell: UICollectionViewCell {
     
-    var preferenceChanged: ((ButtonType, Bool) -> ())?
+    var preferenceChanged: ((PreferenceType, Bool) -> ())?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
@@ -118,7 +118,7 @@ extension MovieListCollectionViewCell {
         
     }
     
-    private func setButtonImage(on type: ButtonType, selected: Bool) {
+    private func setButtonImage(on type: PreferenceType, selected: Bool) {
         
         switch type {
         case .favourite:

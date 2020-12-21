@@ -8,5 +8,5 @@
 import Foundation
 
 protocol ButtonTapped {
-    func buttonTapped(for id: Int64, type: ButtonType)
+    func buttonTapped(for id: Int64, type: PreferenceType)
 }

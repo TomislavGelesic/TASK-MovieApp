@@ -13,7 +13,7 @@ class WatchedMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    private var watchedMoviesViewModel = WatchedMoviesViewModel()
+    private var watchedMoviesViewModel = MovieListWithPreferenceViewModel(preferenceType: .watched)
     
     private var disposeBag = Set<AnyCancellable>()
     
@@ -91,7 +91,6 @@ extension WatchedMoviesViewController {
                     self.tableView.reloadData()
                     break
                 case .cellWith(let indexPath):
-                    #warning("Should i use animation to reload specific cells?")
                     self.tableView.reloadRows(at: [indexPath], with: .automatic)
                     break
                 }
@@ -124,7 +123,7 @@ extension WatchedMoviesViewController: UITableViewDataSource {
         
         cell.configure(with: watchedMoviesViewModel.screenData[indexPath.row], enable: [.watched])
         
-        cell.preferanceChanged = { [unowned self] (buttonType, value) in
+        cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
             let id = self.watchedMoviesViewModel.screenData[indexPath.row].id
             

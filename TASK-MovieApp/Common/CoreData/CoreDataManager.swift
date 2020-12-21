@@ -123,7 +123,7 @@ extension CoreDataManager {
         }
     }
     
-    func saveMoviePreference(id: Int64, on buttonType: ButtonType, value: Bool) {
+    func saveMoviePreference(id: Int64, on buttonType: PreferenceType, value: Bool) {
     
         if let savedMovie = getMovie(for: id) {
             
@@ -188,7 +188,7 @@ extension CoreDataManager {
     }
     
     
-    private func saveMovie(id: Int64, preference: Bool, buttonType: ButtonType) {
+    private func saveMovie(id: Int64, preference: Bool, buttonType: PreferenceType) {
         
         let managedContext = persistentContainer.viewContext
         

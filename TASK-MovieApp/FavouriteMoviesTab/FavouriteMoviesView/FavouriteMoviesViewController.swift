@@ -1,9 +1,3 @@
-//
-//  FavouriteMoviesViewController.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 04/11/2020.
-//
 
 import UIKit
 import SnapKit
@@ -13,7 +7,7 @@ class FavouriteMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    private var favouriteMoviesViewModel = FavouriteMoviesViewModel()
+    private var favouriteMoviesViewModel = MovieListWithPreferenceViewModel(preferenceType: .favourite)
     
     private var disposeBag = Set<AnyCancellable>()
     
@@ -88,7 +82,6 @@ extension FavouriteMoviesViewController {
                     self.tableView.reloadData()
                     break
                 case .cellWith(let indexPath):
-                    #warning("Should i use animation to reload specific cells?")
                     self.tableView.reloadRows(at: [indexPath], with: .automatic)
                     break
                 }
@@ -121,7 +114,7 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
         
         cell.configure(with: favouriteMoviesViewModel.screenData[indexPath.row], enable: [.favourite])
         
-        cell.preferanceChanged = { [unowned self] (buttonType, value) in
+        cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
             let id = self.favouriteMoviesViewModel.screenData[indexPath.row].id
             

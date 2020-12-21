@@ -25,7 +25,7 @@ class MovieDetailViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
-    var moviePreferenceSubject = PassthroughSubject<(ButtonType, Bool), Never>()
+    var moviePreferenceSubject = PassthroughSubject<(PreferenceType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
@@ -141,7 +141,7 @@ extension MovieDetailViewModel {
         return newScreenData
     }
     
-    func initializeMoviePreferanceSubject (with subject: AnyPublisher<(ButtonType, Bool), Never>) -> AnyCancellable {
+    func initializeMoviePreferanceSubject (with subject: AnyPublisher<(PreferenceType, Bool), Never>) -> AnyCancellable {
     
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
@@ -153,11 +153,11 @@ extension MovieDetailViewModel {
 
     }
     
-    private func saveMoviePreferences(for id: Int64, on buttonType: ButtonType, value: Bool ) {
+    private func saveMoviePreferences(for id: Int64, on buttonType: PreferenceType, value: Bool ) {
         coreDataManager.saveMoviePreference(id: id, on: buttonType, value: value)
     }
     
-    private func getMoviePreference(on buttonType: ButtonType) -> Bool? {
+    private func getMoviePreference(on buttonType: PreferenceType) -> Bool? {
 
         if let savedMovie = coreDataManager.getMovie(for: movieID) {
             switch buttonType {

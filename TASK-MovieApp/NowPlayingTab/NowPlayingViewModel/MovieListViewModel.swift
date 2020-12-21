@@ -17,7 +17,7 @@ class MovieListViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
-    var moviePreferenceChangeSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
+    var moviePreferenceChangeSubject = PassthroughSubject<(Int64, PreferenceType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
@@ -90,7 +90,7 @@ extension MovieListViewModel {
         return newScreenData
     }
     
-    func initializeMoviePreferenceSubject (with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
+    func initializeMoviePreferenceSubject (with subject: AnyPublisher<(Int64, PreferenceType, Bool), Never>) -> AnyCancellable {
     
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
@@ -105,7 +105,7 @@ extension MovieListViewModel {
     }
     
     
-    private func updateMoviePreference(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
+    private func updateMoviePreference(for id: Int64, on buttonType: PreferenceType, with value: Bool) -> IndexPath? {
 
         for (index,item) in screenData.enumerated() {
 
