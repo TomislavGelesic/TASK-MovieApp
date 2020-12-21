@@ -10,10 +10,5 @@ import Foundation
 enum MovieAPIError: Error {
     case noDataError
     case decodingError
-    case functionalError
     case other(Error)
-    
-    func map(_ error: Error) -> MovieAPIError {
-        return (error as? MovieAPIError) ?? .other(error)
-    }
 }

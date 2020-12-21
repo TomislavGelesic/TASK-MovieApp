@@ -38,34 +38,37 @@ extension MovieDetailViewModel {
     
     func initializeScreenData(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         
-        let url = "\(Constants.MOVIE_API.BASE)\(Constants.MOVIE_API.GET_DETAILS_ON)\(Int(movieID))\(Constants.MOVIE_API.KEY)"
+        let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movieID))" + "\(Constants.MOVIE_API.KEY)"
+        let similarMoviesPath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movieID))" + "\(Constants.MOVIE_API.GET_SIMILAR)" + "\(Constants.MOVIE_API.KEY)"
 
-        guard let movieDetailURLPath = URL(string: url) else { fatalError("ERROR getNewScreenData: DETAILS SCREEN") }
-            
-        spinnerSubject.send(true)
+        guard let detailsMovieURLPath = URL(string: detailsMoviePath) else { fatalError("ERROR getNewScreenData: DETAILS URL path") }
+        
+        guard let similarMoviesURLPath = URL(string: similarMoviesPath) else { fatalError("ERROR getNewScreenData: SIMILAR URL path") }
         
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .flatMap { [unowned self] (_) -> AnyPublisher<MovieDetailsResponse, MovieAPIError> in
+            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieAPIError> in
                 
                 self.spinnerSubject.send(true)
-                return movieAPIManager.fetch(url: movieDetailURLPath, as: MovieDetailsResponse.self)
-            }
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
-            .map { [unowned self] (movieDetails) -> [RowItem<MovieDetailsRowType, Any>] in
                 
-                if let shouldBeFavourite = getMoviePreference(on: .favourite) {
-                    self.moviePreferenceSubject.send((.favourite, shouldBeFavourite))
-                }
-                if let shouldBeWatched = getMoviePreference(on: .watched) {
-                    self.moviePreferenceSubject.send((.watched, shouldBeWatched))
-                }
-                
-                return self.createScreenData(from: movieDetails)
+                return Publishers
+                    .CombineLatest( movieAPIManager.fetch(url: detailsMovieURLPath, as: MovieDetailsResponse.self), movieAPIManager.fetch(url: similarMoviesURLPath, as: MovieResponse.self))
+                    .subscribe(on: DispatchQueue.global(qos: .background))
+                    .receive(on: RunLoop.main)
+                    .map { [unowned self] newMovieDetails, newSimilarMovies in
+                        
+                        if let shouldBeFavourite = getMoviePreference(on: .favourite) {
+                            self.moviePreferenceSubject.send((.favourite, shouldBeFavourite))
+                        }
+                        if let shouldBeWatched = getMoviePreference(on: .watched) {
+                            self.moviePreferenceSubject.send((.watched, shouldBeWatched))
+                        }
+                        return (self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results)))
+                    }
+                    .eraseToAnyPublisher()
             }
-            .catch({ [unowned self] (error) -> AnyPublisher<[RowItem<MovieDetailsRowType, Any>], Never> in
+            .catch({ [unowned self] (error) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
                 
                 self.spinnerSubject.send(false)
                 
@@ -75,9 +78,9 @@ extension MovieDetailViewModel {
             })
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (newScreenData) in
+            .sink { [unowned self] (newTableViewData) in
                 
-                self.screenData = newScreenData
+                self.screenData = newTableViewData
                 
                 self.spinnerSubject.send(false)
                 
@@ -86,7 +89,7 @@ extension MovieDetailViewModel {
         
     }
     
-    private func createScreenData(from movieDetails: MovieDetailsResponse) -> [RowItem<MovieDetailsRowType, Any>] {
+    private func createScreenData(from movieDetails: MovieDetailsResponse, and newSimilarMovies: [MovieRowItem]) -> [RowItem<MovieDetailsRowType, Any>] {
         
         var newScreenData = [RowItem<MovieDetailsRowType, Any>]()
         
@@ -104,6 +107,24 @@ extension MovieDetailViewModel {
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .quote, value: movieDetails.tagline))
         
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .description, value: movieDetails.overview))
+        
+        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .similarMovies, value: newSimilarMovies))
+        
+        return newScreenData
+    }
+    
+    private func createCollectionViewData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
+        
+        var newScreenData = [MovieRowItem]()
+        
+        for item in newMovieResponseItems {
+            if let savedMovie = coreDataManager.getMovie(for: Int64(item.id)) {
+                newScreenData.append(MovieRowItem(savedMovie))
+            }
+            else {
+                newScreenData.append(MovieRowItem(item))
+            }
+        }
         
         return newScreenData
     }

@@ -92,7 +92,7 @@ extension MovieDetailViewController {
         navigationController?.navigationBar.isTranslucent = true
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.backgroundColor = .darkGray
+        navigationController?.navigationBar.backgroundColor = .clear
         
         
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: favouriteButton), UIBarButtonItem(customView: watchedButton)]
@@ -111,6 +111,7 @@ extension MovieDetailViewController {
         tableView.register(GenreCellMovieDetail.self, forCellReuseIdentifier: GenreCellMovieDetail.reuseIdentifier)
         tableView.register(QuoteCellMovieDetail.self, forCellReuseIdentifier: QuoteCellMovieDetail.reuseIdentifier)
         tableView.register(DescriptionCellMovieDetail.self, forCellReuseIdentifier: DescriptionCellMovieDetail.reuseIdentifier)
+        tableView.register(SimilarMoviesCellMovieDetail.self, forCellReuseIdentifier: SimilarMoviesCellMovieDetail.reuseIdentifier)
         
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 300
@@ -149,8 +150,8 @@ extension MovieDetailViewController {
         movieDetailViewModel?.alertSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { _ in
-                self.showAPIFailedAlert()
+            .sink(receiveValue: { [unowned self] (errorMessage) in
+//                self.showAPIFailedAlert(for: errorMessage)
             })
             .store(in: &disposeBag)
         
@@ -177,6 +178,7 @@ extension MovieDetailViewController {
                 }
             })
             .store(in: &disposeBag)
+        
     }
     
     @objc func favouriteButtonTapped() {
@@ -259,6 +261,15 @@ extension MovieDetailViewController: UITableViewDataSource {
                 cell.configure(with: description)
             }
             return cell
+            
+        case .similarMovies:
+            
+            let cell: SimilarMoviesCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
+            if let similarMovies = item.value as? [MovieRowItem] {
+                cell.configure(with: similarMovies)
+            }
+            return cell
+            
         }
     }
 }
