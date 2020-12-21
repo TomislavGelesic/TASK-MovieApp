@@ -45,7 +45,7 @@ extension MovieListViewModel {
             .catch({ [unowned self] (error) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 self.spinnerSubject.send(false)
-                
+                //pushed this but forgot to merge existing PR and create new branch for code review
                 switch (error) {
                 case .decodingError:
                     self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
