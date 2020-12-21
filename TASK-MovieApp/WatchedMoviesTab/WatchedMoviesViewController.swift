@@ -72,17 +72,23 @@ extension WatchedMoviesViewController {
         watchedMoviesViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (rowUpdateType) in
-                switch (rowUpdateType) {
-                case .all:
-                    self.tableView.reloadData()
-                    break
-                case .cellWith(let indexPath):
-                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
-                    break
-                }
+            .sink { [unowned self] (positionToUpdate) in
+                
+                self.reloadTableView(at: positionToUpdate)
             }
             .store(in: &disposeBag)
+    }
+    
+    func reloadTableView(at position: RowUpdateState) {
+        
+        switch (position) {
+        case .all:
+            self.tableView.reloadData()
+            break
+        case .cellWith(let indexPath):
+            self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            break
+        }
     }
 }
 
