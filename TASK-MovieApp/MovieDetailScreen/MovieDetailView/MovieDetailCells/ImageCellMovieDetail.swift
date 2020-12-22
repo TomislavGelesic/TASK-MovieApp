@@ -7,6 +7,8 @@ class ImageCellMovieDetail: UITableViewCell {
     
     var preferenceChanged: ((PreferenceType, Bool) -> ())?
     
+    var backButtonTapped: (()->())?
+    
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 20
@@ -35,6 +37,16 @@ class ImageCellMovieDetail: UITableViewCell {
         return button
     }()
     
+    let backButton: UIButton = {
+        let buttonImage = UIImage(named: "arrow-left")?.withConfiguration(UIImage.SymbolConfiguration(scale: .large))
+        let button = UIButton()
+        button.setImage(buttonImage, for: .normal)
+        button.tintColor = .white
+        button.addTarget(self, action: #selector(returnToParent), for: .touchUpInside)
+        return button
+    }()
+    
+    
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -53,7 +65,7 @@ extension ImageCellMovieDetail {
         
         contentView.backgroundColor = .black
         
-        contentView.addSubviews([imageViewMovie, favouriteButton, watchedButton])
+        contentView.addSubviews([imageViewMovie, favouriteButton, watchedButton, backButton])
         
         imageViewMovie.addSubview(gradientOverlay)
         
@@ -70,6 +82,10 @@ extension ImageCellMovieDetail {
     @objc func watchedButtonTapped() {
         
         preferenceChanged?(.watched, watchedButton.isSelected)
+    }
+    
+    @objc func returnToParent() {
+        self.removeFromSuperview()
     }
     
     private func setImageViewMovieConstraints() {
@@ -98,6 +114,11 @@ extension ImageCellMovieDetail {
         watchedButton.snp.makeConstraints { (make) in
             make.bottom.equalTo(contentView).offset(-10)
             make.trailing.equalTo(favouriteButton.snp.leading).offset(-15)
+            make.width.height.equalTo(50)
+        }
+        
+        backButton.snp.makeConstraints { (make) in
+            make.leading.top.equalTo(contentView).offset(15)
             make.width.height.equalTo(50)
         }
     }

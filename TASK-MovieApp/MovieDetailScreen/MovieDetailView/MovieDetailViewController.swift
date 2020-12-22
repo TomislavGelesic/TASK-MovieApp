@@ -176,6 +176,11 @@ extension MovieDetailViewController: UITableViewDataSource {
                 self.movieDetailViewModel.moviePreferenceChangeSubject.send((preferenceType, value))
             }
             
+            cell.backButtonTapped = { [unowned self] () in
+                
+                self.removeFromParent()
+            }
+            
             return cell
             
         case .title:

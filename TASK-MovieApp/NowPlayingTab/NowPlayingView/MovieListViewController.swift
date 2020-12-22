@@ -194,7 +194,7 @@ extension MovieListViewController: UICollectionViewDelegate {
         
         let movieDetailScreen = MovieDetailViewController(viewModel: MovieDetailViewModel(id: id))
         
-        self.navigationController?.pushViewController(movieDetailScreen, animated: true)
+        self.navigationController?.setViewControllers([movieDetailScreen], animated: true)
         
         
     }
