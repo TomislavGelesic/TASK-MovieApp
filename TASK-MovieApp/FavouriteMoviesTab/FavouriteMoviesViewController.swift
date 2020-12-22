@@ -15,6 +15,7 @@ class FavouriteMoviesViewController: UIViewController {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
+        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         return tableView
     }()
     
@@ -31,6 +32,8 @@ class FavouriteMoviesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationController?.navigationBar.barStyle = .black
         
         setupTableView()
         
@@ -53,7 +56,6 @@ extension FavouriteMoviesViewController {
         view.addSubview(tableView)
         
         tableView.dataSource = self
-        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         

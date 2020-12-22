@@ -90,8 +90,8 @@ extension MovieTableViewCell {
     
     //MARK: Functions
     private func setupViews() {
-    
-        contentView.backgroundColor = .darkGray
+        
+        backgroundColor = .darkGray
     
         setupButtons()
         

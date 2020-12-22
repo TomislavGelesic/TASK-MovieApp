@@ -48,6 +48,8 @@ class MovieListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.barStyle = .black
+        
         setupCollectionView()
         
         setupPullToRefreshControl()

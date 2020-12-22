@@ -11,9 +11,8 @@ class ImageCellMovieDetail: UITableViewCell {
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
+        imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 20
-        imageView.layer.masksToBounds = true
         return imageView
     }()
     
@@ -47,6 +46,11 @@ class ImageCellMovieDetail: UITableViewCell {
         return button
     }()
     
+    let container: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+        return view
+    }()
     
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -62,14 +66,18 @@ class ImageCellMovieDetail: UITableViewCell {
 }
 
 extension ImageCellMovieDetail {
+    
     private func setupViews() {
         
-        contentView.backgroundColor = .black
+        backgroundColor = .black
         
-        contentView.addSubviews([imageViewMovie, favouriteButton, watchedButton, backButton])
+        contentView.addSubview(container)
+        
+        container.addSubviews([imageViewMovie, favouriteButton, watchedButton, backButton])
         
         imageViewMovie.addSubview(gradientOverlay)
         
+        setContainerConstraints()
         setImageViewMovieConstraints()
         setGradientOverlayConstraints()
         setButtonsConstraints()
@@ -89,11 +97,29 @@ extension ImageCellMovieDetail {
         self.removeFromSuperview()
     }
     
+    
+    func configure(with imagePath: String, isFavourite: Bool, isWatched: Bool) {
+        
+        imageViewMovie.setImage(with: imagePath)
+        
+        favouriteButton.isSelected = isFavourite
+        
+        watchedButton.isSelected = isWatched
+    
+    }
+    
+    private func setContainerConstraints() {
+        
+        container.snp.makeConstraints { (make) in
+            make.edges.equalTo(contentView)
+            make.height.equalTo(300)
+        }
+    }
+    
     private func setImageViewMovieConstraints() {
         
         imageViewMovie.snp.makeConstraints { (make) in
-            make.edges.equalTo(contentView)
-            make.height.equalTo(300)
+            make.edges.equalTo(container)
         }
     }
     
@@ -107,34 +133,21 @@ extension ImageCellMovieDetail {
     private func setButtonsConstraints() {
         
         favouriteButton.snp.makeConstraints { (make) in
-            make.trailing.equalTo(contentView).offset(-15)
-            make.bottom.equalTo(contentView).offset(-10)
+            make.trailing.equalTo(container).offset(-15)
+            make.top.equalTo(container).offset(10)
             make.width.height.equalTo(50)
         }
         
         watchedButton.snp.makeConstraints { (make) in
-            make.bottom.equalTo(contentView).offset(-10)
+            make.top.equalTo(container).offset(10)
             make.trailing.equalTo(favouriteButton.snp.leading).offset(-15)
             make.width.height.equalTo(50)
         }
         
         backButton.snp.makeConstraints { (make) in
-            make.leading.top.equalTo(contentView).offset(15)
+            make.leading.top.equalTo(container).offset(15)
             make.width.height.equalTo(50)
         }
     }
 }
 
-
-extension ImageCellMovieDetail {
-    
-    func configure(with imagePath: String, isFavourite: Bool, isWatched: Bool) {
-        
-        imageViewMovie.setImage(with: imagePath)
-        
-        favouriteButton.isSelected = isFavourite
-        
-        watchedButton.isSelected = isWatched
-    
-    }
-}

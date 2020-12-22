@@ -267,8 +267,8 @@
 		607CBFAE258211ED00AE5B7B /* NowPlayingView */ = {
 			isa = PBXGroup;
 			children = (
-				6023D1BB25929832001E7ADB /* NowPlayingCells */,
 				605C508825543B93009D923F /* MovieListViewController.swift */,
+				6023D1BB25929832001E7ADB /* NowPlayingCells */,
 			);
 			path = NowPlayingView;
 			sourceTree = "<group>";

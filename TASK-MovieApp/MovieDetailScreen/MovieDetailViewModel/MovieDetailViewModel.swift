@@ -71,7 +71,7 @@ extension MovieDetailViewModel {
                     self.spinnerSubject.send(false)
                     switch (error) {
                     case .decodingError:
-                        self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
+                        self.alertSubject.send("Decoder couldn't decode data from network request.")
                         break
                         
                     case .noDataError:

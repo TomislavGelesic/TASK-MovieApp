@@ -52,34 +52,17 @@ class MovieDetailViewController: UIViewController {
         
         setupSubscribers()
         
-        setupNavigationBarButtons()
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         movieDetailViewModel.getNewScreenDataSubject.send()
-        navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        navigationController?.setNavigationBarHidden(true, animated: false)
-    }
 }
 
 extension MovieDetailViewController {
-    
-    private func setupNavigationBarButtons() {
-        
-        navigationController?.navigationBar.isTranslucent = true
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.backgroundColor = .clear
-    }
     
     private func setupTableView() {
         
@@ -96,7 +79,7 @@ extension MovieDetailViewController {
     private func tableViewConstraints(){
         
         tableView.snp.makeConstraints { (make) in
-            make.edges.equalTo(view).inset(UIEdgeInsets(top: -44, left: 0, bottom: 0, right: 0))
+            make.edges.equalTo(view)
         }
     }
     
@@ -178,7 +161,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             
             cell.backButtonTapped = { [unowned self] () in
                 
-                self.removeFromParent()
+                #warning("missing logic")
             }
             
             return cell

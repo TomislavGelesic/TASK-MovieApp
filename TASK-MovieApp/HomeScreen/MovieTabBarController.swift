@@ -41,8 +41,8 @@ extension MovieTabBarController {
         let controller = UINavigationController(rootViewController: viewController)
         controller.tabBarItem.image = unselected
         controller.tabBarItem.selectedImage = selected
-        controller.view.backgroundColor = .darkGray
-        controller.navigationBar.backgroundColor = .black
+        controller.navigationBar.barStyle = .black
+        controller.navigationBar.isTranslucent = false
         return controller
     }
     
