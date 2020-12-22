@@ -18,7 +18,7 @@ class MovieDetailViewController: UIViewController {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .darkGray
+        tableView.backgroundColor = .black
         tableView.register(ImageCellMovieDetail.self, forCellReuseIdentifier: ImageCellMovieDetail.reuseIdentifier)
         tableView.register(TitleCellMovieDetail.self, forCellReuseIdentifier: TitleCellMovieDetail.reuseIdentifier)
         tableView.register(GenreCellMovieDetail.self, forCellReuseIdentifier: GenreCellMovieDetail.reuseIdentifier)
@@ -43,11 +43,10 @@ class MovieDetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupViewController()
+        navigationController?.navigationBar.barStyle = .black
         
         setupTableView()
         
@@ -73,12 +72,6 @@ class MovieDetailViewController: UIViewController {
 }
 
 extension MovieDetailViewController {
-    //MARK: Functions
-    
-    private func setupViewController() {
-        
-        view.backgroundColor = .darkGray
-    }
     
     private func setupNavigationBarButtons() {
         
@@ -148,10 +141,10 @@ extension MovieDetailViewController {
         
         switch (position) {
         case .all:
-            self.tableView.reloadData()
+            tableView.reloadData()
             break
         case .cellWith(let indexPath):
-            self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
             break
         }
     }

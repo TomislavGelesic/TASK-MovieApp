@@ -64,7 +64,6 @@ extension SimilarMoviesCellMovieDetail {
         
         similarMoviesCollectionView.snp.makeConstraints { (make) in
             make.edges.equalTo(contentView)
-            print("frame: \(contentView.frame.width)")
             make.height.equalTo(contentView.frame.width)
         }
     }
