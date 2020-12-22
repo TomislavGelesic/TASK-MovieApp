@@ -8,10 +8,6 @@
 import UIKit
 import CoreData
 
-// +++++++++++++++++
-#warning("Should CoreData be refactored to save object with all information for DetailScreen and NowPlayingTab? How?")
-// ++++++++++++++++
-
 class CoreDataManager {
     
     static let sharedInstance = CoreDataManager()

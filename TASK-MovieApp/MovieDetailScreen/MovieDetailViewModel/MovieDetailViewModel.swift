@@ -46,8 +46,6 @@ extension MovieDetailViewModel {
         guard let similarMoviesURLPath = URL(string: similarMoviesPath) else { fatalError("ERROR getNewScreenData: SIMILAR URL path") }
         
         return subject
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
             .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieAPIError> in
                 
                 self.spinnerSubject.send(true)

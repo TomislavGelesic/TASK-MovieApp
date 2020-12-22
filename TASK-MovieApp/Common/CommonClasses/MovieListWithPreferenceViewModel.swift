@@ -58,7 +58,7 @@ extension MovieListWithPreferenceViewModel {
             .receive(on: RunLoop.main)
             .sink { [unowned self] (id, buttonType, value) in
                 
-                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: value) {
+                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: !value) {
                     
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
                 }

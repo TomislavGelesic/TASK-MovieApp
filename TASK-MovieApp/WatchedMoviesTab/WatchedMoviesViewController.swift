@@ -114,7 +114,7 @@ extension WatchedMoviesViewController: UITableViewDataSource {
         
         let item = watchedMoviesViewModel.screenData[indexPath.row]
         
-        cell.configure(with: item, enable: [.favourite])
+        cell.configure(with: item, enable: [.watched])
         
         cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
