@@ -19,22 +19,15 @@ class MovieDetailViewController: UIViewController {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
+        tableView.register(ImageCellMovieDetail.self, forCellReuseIdentifier: ImageCellMovieDetail.reuseIdentifier)
+        tableView.register(TitleCellMovieDetail.self, forCellReuseIdentifier: TitleCellMovieDetail.reuseIdentifier)
+        tableView.register(GenreCellMovieDetail.self, forCellReuseIdentifier: GenreCellMovieDetail.reuseIdentifier)
+        tableView.register(QuoteCellMovieDetail.self, forCellReuseIdentifier: QuoteCellMovieDetail.reuseIdentifier)
+        tableView.register(DescriptionCellMovieDetail.self, forCellReuseIdentifier: DescriptionCellMovieDetail.reuseIdentifier)
+        tableView.register(SimilarMoviesCellMovieDetail.self, forCellReuseIdentifier: SimilarMoviesCellMovieDetail.reuseIdentifier)
         return tableView
     }()
     
-    let favouriteButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        button.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
-        return button
-    }()
-    
-    let watchedButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        button.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
-        return button
-    }()
     
     //MARK: init
     
@@ -93,28 +86,14 @@ extension MovieDetailViewController {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.backgroundColor = .clear
-        
-        
-        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: favouriteButton), UIBarButtonItem(customView: watchedButton)]
-        
-        favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
-        
-        watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
     }
     
     private func setupTableView() {
         
         tableView.dataSource = self
         
-        tableView.register(ImageCellMovieDetail.self, forCellReuseIdentifier: ImageCellMovieDetail.reuseIdentifier)
-        tableView.register(TitleCellMovieDetail.self, forCellReuseIdentifier: TitleCellMovieDetail.reuseIdentifier)
-        tableView.register(GenreCellMovieDetail.self, forCellReuseIdentifier: GenreCellMovieDetail.reuseIdentifier)
-        tableView.register(QuoteCellMovieDetail.self, forCellReuseIdentifier: QuoteCellMovieDetail.reuseIdentifier)
-        tableView.register(DescriptionCellMovieDetail.self, forCellReuseIdentifier: DescriptionCellMovieDetail.reuseIdentifier)
-        tableView.register(SimilarMoviesCellMovieDetail.self, forCellReuseIdentifier: SimilarMoviesCellMovieDetail.reuseIdentifier)
-        
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 300
+        tableView.estimatedRowHeight = 150
         
         view.addSubview(tableView)
         
@@ -124,7 +103,7 @@ extension MovieDetailViewController {
     private func tableViewConstraints(){
         
         tableView.snp.makeConstraints { (make) in
-            make.edges.equalTo(view)
+            make.edges.equalTo(view).inset(UIEdgeInsets(top: -44, left: 0, bottom: 0, right: 0))
         }
     }
     
@@ -134,7 +113,7 @@ extension MovieDetailViewController {
             .store(in: &disposeBag)
         
         
-        movieDetailViewModel.initializeMoviePreferanceSubject(with: self.movieDetailViewModel.moviePreferenceSubject.eraseToAnyPublisher())
+        movieDetailViewModel.initializeMoviePreferanceChangeSubject(with: self.movieDetailViewModel.moviePreferenceChangeSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
         
@@ -155,54 +134,24 @@ extension MovieDetailViewController {
             })
             .store(in: &disposeBag)
         
-        movieDetailViewModel.moviePreferenceSubject
-            .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (buttonType, value) in
-                
-                self.switchButtonImage(buttonType: buttonType, value: value)
-            })
-            .store(in: &disposeBag)
-        
         movieDetailViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] (rowUpdateState) in
+            .sink(receiveValue: { [unowned self] (position) in
                 
-                switch (rowUpdateState) {
-                case .all:
-                    self.tableView.reloadData()
-                    break
-                case .cellWith(_):
-                    break
-                }
+                self.reloadTableView(at: position)
             })
             .store(in: &disposeBag)
-        
     }
     
-    @objc func favouriteButtonTapped() {
+    private func reloadTableView(at position: RowUpdateState) {
         
-        favouriteButton.isSelected = !favouriteButton.isSelected
-        
-        movieDetailViewModel.moviePreferenceSubject.send((.favourite, favouriteButton.isSelected))
-    }
-    
-    @objc func watchedButtonTapped() {
-        
-        watchedButton.isSelected = !watchedButton.isSelected
-        
-        movieDetailViewModel.moviePreferenceSubject.send((.watched, watchedButton.isSelected))
-    }
-    
-    private func switchButtonImage(buttonType: PreferenceType, value: Bool){
-        
-        switch buttonType {
-        case .favourite:
-            favouriteButton.isSelected = value
+        switch (position) {
+        case .all:
+            self.tableView.reloadData()
             break
-        case .watched:
-            watchedButton.isSelected = value
+        case .cellWith(let indexPath):
+            self.tableView.reloadRows(at: [indexPath], with: .automatic)
             break
         }
     }
@@ -225,9 +174,15 @@ extension MovieDetailViewController: UITableViewDataSource {
         case .imagePath:
             
             let cell: ImageCellMovieDetail = tableView.dequeueReusableCell(for: indexPath)
-            if let imagePath = item.value as? String {
-                cell.configure(with: imagePath)
+            
+            guard let data = item.value as? (String, Bool, Bool) else { return UITableViewCell() }
+            
+            cell.configure(with: data.0, isFavourite: data.1, isWatched: data.2)
+            
+            cell.preferenceChanged = { [unowned self] (preferenceType, value) in
+                self.movieDetailViewModel.moviePreferenceChangeSubject.send((preferenceType, value))
             }
+            
             return cell
             
         case .title:
@@ -272,6 +227,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             
         }
     }
+    
 }
 
 

@@ -25,7 +25,7 @@ class MovieDetailViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
-    var moviePreferenceSubject = PassthroughSubject<(PreferenceType, Bool), Never>()
+    var moviePreferenceChangeSubject = PassthroughSubject<(PreferenceType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
@@ -59,10 +59,10 @@ extension MovieDetailViewModel {
                     .map { [unowned self] newMovieDetails, newSimilarMovies in
                         
                         if let shouldBeFavourite = getMoviePreference(on: .favourite) {
-                            self.moviePreferenceSubject.send((.favourite, shouldBeFavourite))
+                            self.moviePreferenceChangeSubject.send((.favourite, shouldBeFavourite))
                         }
                         if let shouldBeWatched = getMoviePreference(on: .watched) {
-                            self.moviePreferenceSubject.send((.watched, shouldBeWatched))
+                            self.moviePreferenceChangeSubject.send((.watched, shouldBeWatched))
                         }
                         return (self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results)))
                     }
@@ -108,8 +108,11 @@ extension MovieDetailViewModel {
         if let posterPath = movieDetails.posterPath {
             
             let imagePath = Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + posterPath
+            
+            let favouriteStatus = getMoviePreference(on: .favourite) ?? false
+            let watchedStatus = getMoviePreference(on: .watched) ?? false
 
-            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePath, value: imagePath))
+            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePath, value: (imagePath, favouriteStatus, watchedStatus)))
         }
         
         newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .title, value: movieDetails.title))
@@ -141,23 +144,51 @@ extension MovieDetailViewModel {
         return newScreenData
     }
     
-    func initializeMoviePreferanceSubject (with subject: AnyPublisher<(PreferenceType, Bool), Never>) -> AnyCancellable {
+    func initializeMoviePreferanceChangeSubject (with subject: AnyPublisher<(PreferenceType, Bool), Never>) -> AnyCancellable {
     
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (buttonType, value) in
                 
-                self.saveMoviePreferences(for: movieID, on: buttonType, value: value)
+                if let indexPath = self.updateMoviePreference(for: movieID, on: buttonType, with: !value) {
+                    
+                    self.refreshScreenDataSubject.send(.cellWith(indexPath))
+                    
+                }
             }
+    }
+    
+    
+    private func updateMoviePreference(for id: Int64, on buttonType: PreferenceType, with value: Bool) -> IndexPath? {
 
+        for (index,item) in screenData.enumerated() {
+
+            if item.type == .imagePath {
+
+                guard var data = item.value as? (String, Bool, Bool) else { return nil }
+                
+                switch buttonType {
+                case .favourite:
+                    data.1 = value
+                    break
+                case .watched:
+                    data.2 = value
+                    break
+                }
+                
+                screenData[index].value = data
+                
+                coreDataManager.saveMoviePreference(id: movieID, on: buttonType, value: value)
+                
+                return IndexPath(row: index, section: 0)
+            }
+        }
+        
+        return nil
     }
     
-    private func saveMoviePreferences(for id: Int64, on buttonType: PreferenceType, value: Bool ) {
-        coreDataManager.saveMoviePreference(id: id, on: buttonType, value: value)
-    }
-    
-    private func getMoviePreference(on buttonType: PreferenceType) -> Bool? {
+    func getMoviePreference(on buttonType: PreferenceType) -> Bool? {
 
         if let savedMovie = coreDataManager.getMovie(for: movieID) {
             switch buttonType {
