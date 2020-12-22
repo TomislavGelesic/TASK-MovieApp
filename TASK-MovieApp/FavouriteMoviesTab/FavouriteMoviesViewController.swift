@@ -97,6 +97,16 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
+        if favouriteMoviesViewModel.screenData.isEmpty {
+            let messageLabel = UILabel()
+            messageLabel.text = "Sorry, no prefered movies for this list. \nGo and add one..."
+            messageLabel.numberOfLines = 2
+            messageLabel.textColor = .white
+            messageLabel.textAlignment = .center
+            tableView.backgroundView = messageLabel
+            return 0
+        }
+        tableView.backgroundView = nil
         return favouriteMoviesViewModel.screenData.count
     }
     

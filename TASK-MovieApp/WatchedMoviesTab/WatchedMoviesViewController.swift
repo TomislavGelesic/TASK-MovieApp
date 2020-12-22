@@ -1,17 +1,9 @@
-//
-//  WatchedMoviesViewController.swift
-//  TASK-MovieApp
-//
-//  Created by Tomislav Gelesic on 04/11/2020.
-//
 
 import UIKit
 import SnapKit
 import Combine
 
 class WatchedMoviesViewController: UIViewController {
-    
-    //MARK: Properties
     
     private var watchedMoviesViewModel: MovieListWithPreferenceViewModel
     
@@ -21,10 +13,9 @@ class WatchedMoviesViewController: UIViewController {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
+        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         return tableView
     }()
-    
-    //MARK: Life-cycle
     
     init(viewModel: MovieListWithPreferenceViewModel) {
         watchedMoviesViewModel = viewModel
@@ -53,15 +44,11 @@ class WatchedMoviesViewController: UIViewController {
 
 extension WatchedMoviesViewController {
     
-    //MARK: Private Functions
-    
     private func setupTableView() {
-        
         
         view.addSubview(tableView)
         
         tableView.dataSource = self
-        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         
@@ -105,6 +92,16 @@ extension WatchedMoviesViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
+        if watchedMoviesViewModel.screenData.isEmpty {
+            let messageLabel = UILabel()
+            messageLabel.text = "Sorry, no prefered movies for this list. \nGo and add one..."
+            messageLabel.numberOfLines = 2
+            messageLabel.textColor = .white
+            messageLabel.textAlignment = .center
+            tableView.backgroundView = messageLabel
+            return 0
+        }
+        tableView.backgroundView = nil
         return watchedMoviesViewModel.screenData.count
     }
     
