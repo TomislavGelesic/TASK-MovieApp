@@ -104,13 +104,15 @@ extension CoreDataManager {
     
     func updateMovie(_ movie: MovieRowItem) {
         
-        if !movie.favourite,!movie.watched {
-            deleteMovie(movie)
-        }
-        else if let savedMovie = getMovie(for: movie.id) {
+        if let savedMovie = getMovie(for: movie.id) {
             
             savedMovie.favourite = movie.favourite
             savedMovie.watched = movie.watched
+            
+            if !savedMovie.favourite,!savedMovie.watched {
+                deleteMovie(movie)
+                return
+            }
             saveContext()
         }
         else {

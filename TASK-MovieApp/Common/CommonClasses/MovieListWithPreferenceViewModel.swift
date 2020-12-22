@@ -79,7 +79,9 @@ extension MovieListWithPreferenceViewModel {
                     item.watched = value
                     break
                 }
-                print("saving button tap on \(preferenceType) with value \(value)")
+                
+                screenData[index] = item
+                
                 coreDataManager.updateMovie(item)
                 
                 return IndexPath(row: index, section: 0)

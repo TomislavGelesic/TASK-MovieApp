@@ -16,8 +16,8 @@ extension MovieTabBarController {
     private func setupMovieTabBarController() {
         
         let movieListController = createNavigationViewController(viewController: MovieListViewController(viewModel: MovieListViewModel()),
-                                                                 selected:       UIImage(systemName: "video.circle.fill"),
-                                                                 unselected:     UIImage(systemName: "video.circle"))
+                                                                 selected:       UIImage(named: "house_filled")?.withConfiguration(UIImage.SymbolConfiguration(scale: .large)),
+                                                                 unselected:     UIImage(named: "house_unfilled")?.withConfiguration(UIImage.SymbolConfiguration(scale: .large)))
         
         let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(viewModel: MovieListWithPreferenceViewModel(preferenceType: .favourite)),
                                                                   selected:       UIImage(named: "star_filled"),
