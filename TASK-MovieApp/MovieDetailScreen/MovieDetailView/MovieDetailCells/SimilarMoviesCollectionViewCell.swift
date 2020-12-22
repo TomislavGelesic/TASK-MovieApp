@@ -14,6 +14,7 @@ class SimilarMoviesCollectionViewCell: UICollectionViewCell {
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
         return imageView

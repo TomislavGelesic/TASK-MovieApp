@@ -46,8 +46,8 @@
             filePath = "TASK-MovieApp/MovieDetailScreen/MovieDetailView/MovieDetailCells/ImageCellMovieDetail.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "79"
-            endingLineNumber = "79"
+            startingLineNumber = "80"
+            endingLineNumber = "80"
             landmarkName = "favouriteButtonTapped()"
             landmarkType = "7">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "TASK-MovieApp/MovieDetailScreen/MovieDetailView/MovieDetailCells/ImageCellMovieDetail.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "84"
-            endingLineNumber = "84"
+            startingLineNumber = "85"
+            endingLineNumber = "85"
             landmarkName = "watchedButtonTapped()"
             landmarkType = "7">
          </BreakpointContent>

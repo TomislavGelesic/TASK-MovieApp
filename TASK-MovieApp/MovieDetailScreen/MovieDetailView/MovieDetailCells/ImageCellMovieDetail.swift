@@ -11,6 +11,7 @@ class ImageCellMovieDetail: UITableViewCell {
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
         return imageView
@@ -23,16 +24,16 @@ class ImageCellMovieDetail: UITableViewCell {
     
     let favouriteButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        button.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        button.setImage(UIImage(named: "star_unfilled"), for: .normal)
+        button.setImage(UIImage(named: "star_filled"), for: .selected)
         button.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
         return button
     }()
     
     let watchedButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        button.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        button.setImage(UIImage(named: "watched_unfilled"), for: .normal)
+        button.setImage(UIImage(named: "watched_filled"), for: .selected)
         button.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
         return button
     }()

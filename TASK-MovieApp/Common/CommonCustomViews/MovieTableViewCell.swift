@@ -16,6 +16,7 @@ class MovieTableViewCell: UITableViewCell {
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
         return imageView
@@ -52,8 +53,8 @@ class MovieTableViewCell: UITableViewCell {
     let favouriteButton: UIButton = {
         let favouriteButton = UIButton()
         favouriteButton.layer.cornerRadius = 20
-        favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
+        favouriteButton.setImage(UIImage(named: "star_filled"), for: .selected)
         favouriteButton.isHidden = true
         return favouriteButton
     }()
@@ -61,8 +62,8 @@ class MovieTableViewCell: UITableViewCell {
     let watchedButton: UIButton = {
         let watchedButton = UIButton()
         watchedButton.layer.cornerRadius = 20
-        watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        watchedButton.setImage(UIImage(named: "watched_unfilled"), for: .normal)
+        watchedButton.setImage(UIImage(named: "watched_filled"), for: .selected)
         watchedButton.isHidden = true
         return watchedButton
     }()
