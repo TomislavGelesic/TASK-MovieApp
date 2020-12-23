@@ -190,11 +190,13 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let item = movieListViewModel.screenData[indexPath.row]
+        let movie = movieListViewModel.screenData[indexPath.row]
         
-        let movieDetailScreen = MovieDetailViewController(viewModel: MovieDetailViewModel(for: item))
+        let viewModel = MovieDetailViewModel(for: movie)
         
-        self.navigationController?.pushViewController(movieDetailScreen, animated: true)
+        let movieDetailViewController = MovieDetailViewController(viewModel: viewModel)
+        
+        self.navigationController?.pushViewController(movieDetailViewController, animated: true)
         
         
     }
