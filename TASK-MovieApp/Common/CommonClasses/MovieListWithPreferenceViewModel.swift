@@ -74,9 +74,13 @@ extension MovieListWithPreferenceViewModel {
                 switch preferenceType {
                 case .favourite:
                     item.favourite = value
+                    
+                    print("updateMoviePreference on movie \(id) set favourite to \(value)")
                     break
                 case .watched:
                     item.watched = value
+                    
+                    print("updateMoviePreference on movie \(id) set watched to \(value)")
                     break
                 }
                 

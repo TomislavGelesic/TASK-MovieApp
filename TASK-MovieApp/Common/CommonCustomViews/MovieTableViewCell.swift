@@ -132,7 +132,14 @@ extension MovieTableViewCell {
         
         for button in enabledButtons {
             
-            setButtonImage(on: button, selected: item.favourite)
+            switch button {
+            case .favourite:
+                setButtonImage(on: .favourite, selected: item.favourite)
+                break
+            case .watched:
+                setButtonImage(on: .watched, selected: item.watched)
+                break
+            }
         }
     }
     
