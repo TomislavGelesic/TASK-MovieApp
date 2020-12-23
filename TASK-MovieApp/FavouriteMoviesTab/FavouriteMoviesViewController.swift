@@ -33,8 +33,6 @@ class FavouriteMoviesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.navigationBar.barStyle = .black
-        
         setupTableView()
         
         setupViewModelSubscribers()

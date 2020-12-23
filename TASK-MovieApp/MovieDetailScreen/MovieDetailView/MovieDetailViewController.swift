@@ -13,7 +13,7 @@ class MovieDetailViewController: UIViewController {
     
     var movieDetailViewModel: MovieDetailViewModel
     
-    var disposeBag = Set<AnyCancellable>()
+    private var disposeBag = Set<AnyCancellable>()
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -46,20 +46,17 @@ class MovieDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        addBackButton(self)
-        
-        navigationController?.navigationBar.barStyle = .black
+        setupNavigationBar()
         
         setupTableView()
         
         setupSubscribers()
         
+        movieDetailViewModel.getNewScreenDataSubject.send()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        movieDetailViewModel.getNewScreenDataSubject.send()
         
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
@@ -74,8 +71,8 @@ class MovieDetailViewController: UIViewController {
 
 extension MovieDetailViewController {
     
-    private func addBackButton(_ viewController: UIViewController)
-    {
+    
+    private func setupNavigationBar() {
         
         let backButton: UIBarButtonItem = {
             let buttonImage = UIImage(named: "arrow-left")?.withConfiguration(UIImage.SymbolConfiguration(scale: .large))
@@ -84,12 +81,21 @@ extension MovieDetailViewController {
             return button
         }()
         
-        self.navigationItem.setLeftBarButton(backButton, animated: true)
+        let coloredAppearance = UINavigationBarAppearance()
+        coloredAppearance.configureWithTransparentBackground()
+        coloredAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.clear]
+        
+        navigationController?.navigationBar.standardAppearance = coloredAppearance
+        navigationController?.navigationBar.compactAppearance = coloredAppearance
+        navigationController?.navigationBar.scrollEdgeAppearance = coloredAppearance
+        
+        navigationItem.setLeftBarButton(backButton, animated: true)
+        navigationController?.navigationBar.barStyle = .black
     }
     
     @objc func backButtonPressed() {
         
-        let _ = navigationController?.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
     
     private func setupTableView() {
@@ -134,7 +140,9 @@ extension MovieDetailViewController {
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (errorMessage) in
-                self.showAPIFailedAlert(for: errorMessage)
+                self.showAPIFailedAlert(for: errorMessage) { [unowned self] in
+                    self.backButtonPressed()
+                }
             })
             .store(in: &disposeBag)
         
@@ -184,6 +192,7 @@ extension MovieDetailViewController: UITableViewDataSource {
             cell.configure(with: data.0, isFavourite: data.1, isWatched: data.2)
             
             cell.preferenceChanged = { [unowned self] (preferenceType, value) in
+                
                 self.movieDetailViewModel.moviePreferenceChangeSubject.send((preferenceType, value))
             }
             

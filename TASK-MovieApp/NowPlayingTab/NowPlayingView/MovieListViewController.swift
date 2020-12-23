@@ -48,8 +48,6 @@ class MovieListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.navigationBar.barStyle = .black
-        
         setupCollectionView()
         
         setupPullToRefreshControl()
@@ -128,7 +126,7 @@ extension MovieListViewController {
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (errorMessage) in
-                self.showAPIFailedAlert(for: errorMessage)
+                self.showAPIFailedAlert(for: errorMessage, completion: nil)
             }
             .store(in: &disposeBag)
         
@@ -192,9 +190,9 @@ extension MovieListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let id = movieListViewModel.screenData[indexPath.row].id
+        let item = movieListViewModel.screenData[indexPath.row]
         
-        let movieDetailScreen = MovieDetailViewController(viewModel: MovieDetailViewModel(id: id))
+        let movieDetailScreen = MovieDetailViewController(viewModel: MovieDetailViewModel(for: item))
         
         self.navigationController?.pushViewController(movieDetailScreen, animated: true)
         

@@ -41,7 +41,6 @@ extension MovieTabBarController {
         let controller = UINavigationController(rootViewController: viewController)
         controller.tabBarItem.image = unselected
         controller.tabBarItem.selectedImage = selected
-        controller.navigationBar.barStyle = .black
         controller.setNavigationBarHidden(true, animated: false)
         return controller
     }

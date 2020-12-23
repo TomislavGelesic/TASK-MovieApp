@@ -101,7 +101,9 @@ extension WatchedMoviesViewController: UITableViewDataSource {
             tableView.backgroundView = messageLabel
             return 0
         }
+        
         tableView.backgroundView = nil
+        
         return watchedMoviesViewModel.screenData.count
     }
     

@@ -15,7 +15,7 @@ class MovieDetailViewModel {
     
     private var movieAPIManager = MovieAPIManager()
     
-    private var movieID: Int64
+    private var movie: MovieRowItem
     
     var screenData = [RowItem<MovieDetailsRowType, Any>]()
     
@@ -29,8 +29,8 @@ class MovieDetailViewModel {
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
-    init(id: Int64) {
-        self.movieID = id
+    init(for movie: MovieRowItem) {
+        self.movie = movie
     }
 }
 
@@ -38,8 +38,9 @@ extension MovieDetailViewModel {
     
     func initializeScreenData(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         
-        let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movieID))" + "\(Constants.MOVIE_API.KEY)"
-        let similarMoviesPath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movieID))" + "\(Constants.MOVIE_API.GET_SIMILAR)" + "\(Constants.MOVIE_API.KEY)"
+        let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.KEY)"
+        
+        let similarMoviesPath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.GET_SIMILAR)" + "\(Constants.MOVIE_API.KEY)"
 
         guard let detailsMovieURLPath = URL(string: detailsMoviePath) else { fatalError("ERROR getNewScreenData: DETAILS URL path") }
         
@@ -62,13 +63,14 @@ extension MovieDetailViewModel {
                         if let shouldBeWatched = getMoviePreference(on: .watched) {
                             self.moviePreferenceChangeSubject.send((.watched, shouldBeWatched))
                         }
-                        return (self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results)))
+                        return self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results))
                     }
                     .eraseToAnyPublisher()
             }
             .catch({ [unowned self] (error) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
                     
                     self.spinnerSubject.send(false)
+                
                     switch (error) {
                     case .decodingError:
                         self.alertSubject.send("Decoder couldn't decode data from network request.")
@@ -149,7 +151,7 @@ extension MovieDetailViewModel {
             .receive(on: RunLoop.main)
             .sink { [unowned self] (buttonType, value) in
                 
-                if let indexPath = self.updateMoviePreference(for: movieID, on: buttonType, with: !value) {
+                if let indexPath = self.updateMoviePreference(for: movie.id, on: buttonType, with: !value) {
                     
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
                     
@@ -169,15 +171,17 @@ extension MovieDetailViewModel {
                 switch buttonType {
                 case .favourite:
                     data.1 = value
+                    movie.favourite = value
                     break
                 case .watched:
                     data.2 = value
+                    movie.watched = value
                     break
                 }
                 
                 screenData[index].value = data
                 
-                coreDataManager.saveMoviePreference(id: movieID, on: buttonType, value: value)
+                coreDataManager.updateMovie(movie)
                 
                 return IndexPath(row: index, section: 0)
             }
@@ -188,7 +192,7 @@ extension MovieDetailViewModel {
     
     func getMoviePreference(on buttonType: PreferenceType) -> Bool? {
 
-        if let savedMovie = coreDataManager.getMovie(for: movieID) {
+        if let savedMovie = coreDataManager.getMovie(for: movie.id) {
             switch buttonType {
             case .favourite:
                 return savedMovie.favourite
