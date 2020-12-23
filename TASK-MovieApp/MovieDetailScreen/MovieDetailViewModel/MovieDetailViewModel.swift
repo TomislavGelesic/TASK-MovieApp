@@ -39,60 +39,30 @@ extension MovieDetailViewModel {
     func initializeScreenData(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         
         return subject
-//            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieAPIError> in
-//
-//                print(movie.id)
-//
-//                let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.KEY)"
-//
-//                let similarMoviesPath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.GET_SIMILAR)" + "\(Constants.MOVIE_API.KEY)"
-//
-//                guard let detailsMovieURLPath = URL(string: detailsMoviePath) else { fatalError("ERROR getNewScreenData: DETAILS URL path") }
-//
-//                guard let similarMoviesURLPath = URL(string: similarMoviesPath) else { fatalError("ERROR getNewScreenData: SIMILAR URL path") }
-//
-//                self.spinnerSubject.send(true)
-//
-//                return Publishers
-//                    .CombineLatest( movieAPIManager.fetch(url: detailsMovieURLPath, as: MovieDetailsResponse.self), movieAPIManager.fetch(url: similarMoviesURLPath, as: MovieResponse.self))
-//                    .subscribe(on: DispatchQueue.global(qos: .background))
-//                    .receive(on: RunLoop.main)
-//                    .map { [unowned self] newMovieDetails, newSimilarMovies in
-//
-//                        return self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results))
-//                    }
-//                    .eraseToAnyPublisher()
-//            }
             .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieAPIError> in
-                           let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.KEY)"
-                           
-                           let similarMoviesPath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.GET_SIMILAR)" + "\(Constants.MOVIE_API.KEY)"
 
-                           guard let detailsMovieURLPath = URL(string: detailsMoviePath) else { fatalError("ERROR getNewScreenData: DETAILS URL path") }
-                           
-                           guard let similarMoviesURLPath = URL(string: similarMoviesPath) else { fatalError("ERROR getNewScreenData: SIMILAR URL path") }
+                print(movie.id)
 
-                           
-                           self.spinnerSubject.send(true)
-                           let a = movieAPIManager.fetch(url: detailsMovieURLPath, as: MovieDetailsResponse.self)
+                let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.KEY)"
 
-                           let b = movieAPIManager.fetch(url: similarMoviesURLPath, as: MovieResponse.self)
-                   
-                           
-                           return Publishers
-                               .CombineLatest(a, b)
-                               .map { [unowned self] newMovieDetails, newSimilarMovies in
-                                   
-                                   if let shouldBeFavourite = getMoviePreference(on: .favourite) {
-                                       self.moviePreferenceChangeSubject.send((.favourite, shouldBeFavourite))
-                                   }
-                                   if let shouldBeWatched = getMoviePreference(on: .watched) {
-                                       self.moviePreferenceChangeSubject.send((.watched, shouldBeWatched))
-                                   }
-                                   return self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results))
-                               }
-                               .eraseToAnyPublisher()
-                       }
+                let similarMoviesPath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.GET_SIMILAR)" + "\(Constants.MOVIE_API.KEY)"
+
+                guard let detailsMovieURLPath = URL(string: detailsMoviePath) else { fatalError("ERROR getNewScreenData: DETAILS URL path") }
+
+                guard let similarMoviesURLPath = URL(string: similarMoviesPath) else { fatalError("ERROR getNewScreenData: SIMILAR URL path") }
+
+                self.spinnerSubject.send(true)
+
+                return Publishers
+                    .CombineLatest( movieAPIManager.fetch(url: detailsMovieURLPath, as: MovieDetailsResponse.self), movieAPIManager.fetch(url: similarMoviesURLPath, as: MovieResponse.self))
+                    .subscribe(on: DispatchQueue.global(qos: .background))
+                    .receive(on: RunLoop.main)
+                    .map { [unowned self] newMovieDetails, newSimilarMovies in
+
+                        return self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results))
+                    }
+                    .eraseToAnyPublisher()
+            }
             .catch({ [unowned self] (error) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
                     
                     self.spinnerSubject.send(false)
