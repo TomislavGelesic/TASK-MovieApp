@@ -42,7 +42,7 @@ extension MovieTabBarController {
         controller.tabBarItem.image = unselected
         controller.tabBarItem.selectedImage = selected
         controller.navigationBar.barStyle = .black
-        controller.navigationBar.isTranslucent = false
+        controller.setNavigationBarHidden(true, animated: false)
         return controller
     }
     

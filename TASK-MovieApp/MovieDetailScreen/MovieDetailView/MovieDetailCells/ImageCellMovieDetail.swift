@@ -25,7 +25,6 @@ class ImageCellMovieDetail: UITableViewCell {
         let button = UIButton()
         button.setImage(UIImage(named: "star_unfilled"), for: .normal)
         button.setImage(UIImage(named: "star_filled"), for: .selected)
-        button.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -33,16 +32,6 @@ class ImageCellMovieDetail: UITableViewCell {
         let button = UIButton()
         button.setImage(UIImage(named: "watched_unfilled"), for: .normal)
         button.setImage(UIImage(named: "watched_filled"), for: .selected)
-        button.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
-        return button
-    }()
-    
-    let backButton: UIButton = {
-        let buttonImage = UIImage(named: "arrow-left")?.withConfiguration(UIImage.SymbolConfiguration(scale: .large))
-        let button = UIButton()
-        button.setImage(buttonImage, for: .normal)
-        button.tintColor = .white
-        button.addTarget(self, action: #selector(returnToParent), for: .touchUpInside)
         return button
     }()
     
@@ -73,7 +62,9 @@ extension ImageCellMovieDetail {
         
         contentView.addSubview(container)
         
-        container.addSubviews([imageViewMovie, favouriteButton, watchedButton, backButton])
+        container.addSubviews([imageViewMovie, favouriteButton, watchedButton])
+        favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
+        watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
         
         imageViewMovie.addSubview(gradientOverlay)
         
@@ -93,10 +84,6 @@ extension ImageCellMovieDetail {
         preferenceChanged?(.watched, watchedButton.isSelected)
     }
     
-    @objc func returnToParent() {
-        self.removeFromSuperview()
-    }
-    
     
     func configure(with imagePath: String, isFavourite: Bool, isWatched: Bool) {
         
@@ -112,7 +99,7 @@ extension ImageCellMovieDetail {
         
         container.snp.makeConstraints { (make) in
             make.edges.equalTo(contentView)
-            make.height.equalTo(300)
+            make.height.equalTo(400)
         }
     }
     
@@ -141,11 +128,6 @@ extension ImageCellMovieDetail {
         watchedButton.snp.makeConstraints { (make) in
             make.top.equalTo(container).offset(10)
             make.trailing.equalTo(favouriteButton.snp.leading).offset(-15)
-            make.width.height.equalTo(50)
-        }
-        
-        backButton.snp.makeConstraints { (make) in
-            make.leading.top.equalTo(container).offset(15)
             make.width.height.equalTo(50)
         }
     }

@@ -46,6 +46,8 @@ class MovieDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        addBackButton(self)
+        
         navigationController?.navigationBar.barStyle = .black
         
         setupTableView()
@@ -58,11 +60,37 @@ class MovieDetailViewController: UIViewController {
         super.viewWillAppear(animated)
         
         movieDetailViewModel.getNewScreenDataSubject.send()
+        
+        navigationController?.setNavigationBarHidden(false, animated: false)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
 }
 
 extension MovieDetailViewController {
+    
+    private func addBackButton(_ viewController: UIViewController)
+    {
+        
+        let backButton: UIBarButtonItem = {
+            let buttonImage = UIImage(named: "arrow-left")?.withConfiguration(UIImage.SymbolConfiguration(scale: .large))
+            let button = UIBarButtonItem(image: buttonImage, style: .plain, target: self, action: #selector(backButtonPressed))
+            button.tintColor = .white
+            return button
+        }()
+        
+        self.navigationItem.setLeftBarButton(backButton, animated: true)
+    }
+    
+    @objc func backButtonPressed() {
+        
+        let _ = navigationController?.popViewController(animated: true)
+    }
     
     private func setupTableView() {
         
@@ -157,11 +185,6 @@ extension MovieDetailViewController: UITableViewDataSource {
             
             cell.preferenceChanged = { [unowned self] (preferenceType, value) in
                 self.movieDetailViewModel.moviePreferenceChangeSubject.send((preferenceType, value))
-            }
-            
-            cell.backButtonTapped = { [unowned self] () in
-                
-                #warning("missing logic")
             }
             
             return cell
