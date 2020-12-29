@@ -52,7 +52,7 @@ class MovieDetailViewController: UIViewController {
         
         setupSubscribers()
         
-        movieDetailViewModel.getNewScreenDataSubject.send()
+        movieDetailViewModel.getNewScreenDataSubject.send(true)
     }
     
     override func viewWillAppear(_ animated: Bool) {

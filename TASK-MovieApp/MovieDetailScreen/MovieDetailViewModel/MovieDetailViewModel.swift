@@ -27,7 +27,7 @@ class MovieDetailViewModel {
 
     var moviePreferenceChangeSubject = PassthroughSubject<(PreferenceType, Bool), Never>()
     
-    var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
+    var getNewScreenDataSubject = CurrentValueSubject<Bool, Never>(true) //race condition - need to use currentValueSubject
     
     init(for movie: MovieRowItem) {
         self.movie = movie
@@ -36,12 +36,10 @@ class MovieDetailViewModel {
 
 extension MovieDetailViewModel {
     
-    func initializeScreenData(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
+    func initializeScreenData(with subject: AnyPublisher<Bool, Never>) -> AnyCancellable {
         
         return subject
             .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieAPIError> in
-
-                print(movie.id)
 
                 let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.KEY)"
 

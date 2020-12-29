@@ -122,7 +122,6 @@ extension MovieListViewModel {
                 case .watched:
                     item.watched = value
                 }
-                print("saving button tap on \(buttonType) with value \(value)")
                 coreDataManager.updateMovie(item)
                 
                 return IndexPath(row: index, section: 0)
