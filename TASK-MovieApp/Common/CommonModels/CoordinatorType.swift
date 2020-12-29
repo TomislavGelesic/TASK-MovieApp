@@ -8,8 +8,7 @@
 import Foundation
 
 enum CoordinatorType {
-    case FavouriteScene
-    case WatchedScene
-    case NowPlayingScene
-    case DetailScene
+    case app
+    case tab
+    case detail
 }

@@ -15,16 +15,18 @@ extension MovieTabBarController {
     
     private func setupMovieTabBarController() {
         
-        let movieListController = createNavigationViewController(viewController: MovieListViewController(
-                                                                    viewModel: MovieListViewModel()),
-                                                                    selected: UIImage(systemName: "house"),
-                                                                    unselected: UIImage(systemName: "house.fill"))
+        let movieListController = createNavigationViewController(viewController: NowPlayingMoviesViewController(
+                                                                 viewModel: NowPlayingMoviesViewModel()),
+                                                                 selected: UIImage(systemName: "house"),
+                                                                 unselected: UIImage(systemName: "house.fill"))
         
-        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(viewModel: MovieListWithPreferenceViewModel(preferenceType: .favourite)),
+        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(
+                                                                  viewModel: MovieListWithPreferenceViewModel(preferenceType: .favourite)),
                                                                   selected:       UIImage(systemName: "star"),
                                                                   unselected:     UIImage(systemName: "star.fill"))
         
-        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(viewModel: MovieListWithPreferenceViewModel(preferenceType: .watched)),
+        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(
+                                                               viewModel: MovieListWithPreferenceViewModel(preferenceType: .watched)),
                                                                selected:       UIImage(systemName: "checkmark.seal"),
                                                                unselected:     UIImage(systemName: "checkmark.seal.fill"))
         

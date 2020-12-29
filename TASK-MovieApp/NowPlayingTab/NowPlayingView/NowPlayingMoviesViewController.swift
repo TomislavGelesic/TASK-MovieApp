@@ -3,11 +3,11 @@ import UIKit
 import SnapKit
 import Combine
 
-class MovieListViewController: UIViewController {
+class NowPlayingMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    private var movieListViewModel: MovieListViewModel
+    private var movieListViewModel: NowPlayingMoviesViewModel
         
     private var disposeBag = Set<AnyCancellable>()
     
@@ -36,7 +36,7 @@ class MovieListViewController: UIViewController {
     
     //MARK: Life-cycle
     
-    init(viewModel: MovieListViewModel) {
+    init(viewModel: NowPlayingMoviesViewModel) {
         movieListViewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -71,7 +71,7 @@ class MovieListViewController: UIViewController {
     
 }
 
-extension MovieListViewController {
+extension NowPlayingMoviesViewController {
     
     //MARK: Functions
     
@@ -161,7 +161,7 @@ extension MovieListViewController {
     }
 }
 
-extension MovieListViewController: UICollectionViewDataSource {
+extension NowPlayingMoviesViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
@@ -186,7 +186,7 @@ extension MovieListViewController: UICollectionViewDataSource {
     
 }
 
-extension MovieListViewController: UICollectionViewDelegate {
+extension NowPlayingMoviesViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
@@ -202,7 +202,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     }
 }
 
-extension MovieListViewController: UICollectionViewDelegateFlowLayout {
+extension NowPlayingMoviesViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
                 
