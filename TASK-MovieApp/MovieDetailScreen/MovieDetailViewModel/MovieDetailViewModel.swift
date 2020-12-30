@@ -13,7 +13,7 @@ class MovieDetailViewModel {
     
     private var coreDataManager = CoreDataManager.sharedInstance
     
-    private var movieAPIManager = MovieAPIManager()
+    private var movieNetworkService = MovieNetworkService()
     
     private var movie: MovieRowItem
     
@@ -52,7 +52,7 @@ extension MovieDetailViewModel {
                 self.spinnerSubject.send(true)
 
                 return Publishers
-                    .CombineLatest( movieAPIManager.fetch(url: detailsMovieURLPath, as: MovieDetailsResponse.self), movieAPIManager.fetch(url: similarMoviesURLPath, as: MovieResponse.self))
+                    .CombineLatest( movieNetworkService.fetch(url: detailsMovieURLPath, as: MovieDetailsResponse.self), movieNetworkService.fetch(url: similarMoviesURLPath, as: MovieResponse.self))
                     .subscribe(on: DispatchQueue.global(qos: .background))
                     .receive(on: RunLoop.main)
                     .map { [unowned self] newMovieDetails, newSimilarMovies in

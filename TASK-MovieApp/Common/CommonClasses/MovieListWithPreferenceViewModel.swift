@@ -3,7 +3,7 @@ import Foundation
 import Combine
 class MovieListWithPreferenceViewModel {
     
-    private var labelMovieViewModel: PreferenceType
+    var preference: PreferenceType
     
     private var coreDataManager = CoreDataManager.sharedInstance
     
@@ -17,7 +17,7 @@ class MovieListWithPreferenceViewModel {
     
     init(preferenceType: PreferenceType) {
         
-        labelMovieViewModel = preferenceType
+        preference = preferenceType
     }
 }
 
@@ -28,7 +28,7 @@ extension MovieListWithPreferenceViewModel {
         return subject
             .flatMap { [unowned self] (_) -> AnyPublisher<[MovieRowItem], Never> in
                 
-                switch (labelMovieViewModel) {
+                switch (preference) {
                 case .favourite:
                     if let savedMovie = self.coreDataManager.getMovies(.favourite) {
                         return Just(savedMovie).eraseToAnyPublisher()

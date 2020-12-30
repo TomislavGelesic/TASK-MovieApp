@@ -9,26 +9,15 @@ import UIKit
 
 class AppCoordinator: Coordinator {
     
+    var parentCoordinator: Coordinator? = nil
+    
     var childCoordinators: [Coordinator] = []
     
     var navigationController: UINavigationController
     
-    var finishDelegate: CoordinatorFinishDelegate? = nil
-    
-    var type: CoordinatorType = .app
-    
-    
-    
-    func finish() {
-        
-    }
-    
     func start() {
         
-        let tabBarCoordinator = TabBarCoordinator(navigationController: navigationController)
-        tabBarCoordinator.finishDelegate = self
-        tabBarCoordinator.start()
-        childCoordinators.append(tabBarCoordinator)
+        goToTabBarCoordinator()
     }
     
     init(presenter: UINavigationController) {
@@ -37,12 +26,22 @@ class AppCoordinator: Coordinator {
     }
 }
 
-extension AppCoordinator: CoordinatorFinishDelegate {
+extension AppCoordinator {
     
-    func didFinish(childCoordinator: Coordinator) {
-        
-        childCoordinators = childCoordinators.filter({ $0.type != childCoordinator.type }) //removes childCoordinator which called finish
+    func goToDetailCoordinator(item: MovieRowItem){
+
+        let child = MovieDetailCoordinator(navigationController: navigationController, item: item)
+        child.parentCoordinator = self
+        childCoordinators.append(child)
+        child.start()
     }
     
-    
+    func goToTabBarCoordinator() {
+        
+        let child = TabBarCoordinator(navigationController: navigationController)
+        child.parentCoordinator = self
+        childCoordinators.append(child)
+        child.start()
+    }
 }
+

@@ -7,17 +7,11 @@
 
 import UIKit
 
-protocol Coordinator {
+protocol Coordinator: class {
     
     var childCoordinators: [Coordinator] { set get }
     
     var navigationController: UINavigationController { set get }
-    
-    var finishDelegate: CoordinatorFinishDelegate? { get set }
-    
-    var type: CoordinatorType { get }
-    
-    func finish()
     
     func start()
 }

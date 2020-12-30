@@ -7,7 +7,7 @@ class NowPlayingMoviesViewModel {
     
     private var coreDataManager = CoreDataManager.sharedInstance
     
-    private var movieAPIManager = MovieAPIManager()
+    private var movieAPIManager = MovieNetworkService()
     
     var screenData = [MovieRowItem]()
     

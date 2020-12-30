@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol TabBarCoordinatorProtocol: class, Coordinator {
+protocol TabBarCoordinatorProtocol: Coordinator {
     
     var tabBarController: UITabBarController { get set }
     
