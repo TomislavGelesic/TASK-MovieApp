@@ -7,7 +7,7 @@ class MovieListWithPreferenceViewController: UIViewController {
     
     //MARK: Properties
     
-    weak var coordinator: TabBarCoordinator?
+    weak var coordinator: Coordinator?
     
     private var viewModel: MovieListWithPreferenceViewModel
     
@@ -17,13 +17,14 @@ class MovieListWithPreferenceViewController: UIViewController {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
+        tableView.allowsSelection = false
         tableView.register(MovieListWithPreferenceTableViewCell.self, forCellReuseIdentifier: MovieListWithPreferenceTableViewCell.reuseIdentifier)
         return tableView
     }()
     
     //MARK: Life-cycle
     
-    init(coordinator: TabBarCoordinator, viewModel: MovieListWithPreferenceViewModel) {
+    init(coordinator: Coordinator, viewModel: MovieListWithPreferenceViewModel) {
         self.coordinator = coordinator
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -57,7 +58,6 @@ extension MovieListWithPreferenceViewController {
         view.addSubview(tableView)
         
         tableView.dataSource = self
-        tableView.delegate = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         
@@ -131,15 +131,6 @@ extension MovieListWithPreferenceViewController: UITableViewDataSource {
     }
 }
 
-extension MovieListWithPreferenceViewController: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        let movie = viewModel.screenData[indexPath.row]
-        
-        coordinator?.showDetailOn(movie)
-    }
-}
 
 
 

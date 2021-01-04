@@ -29,7 +29,9 @@ class AppCoordinator: Coordinator {
 extension AppCoordinator {
     
     func goToDetailCoordinator(item: MovieRowItem){
-
+        
+        childCoordinators.removeAll()
+        
         let child = MovieDetailCoordinator(navigationController: navigationController, item: item)
         child.parentCoordinator = self
         childCoordinators.append(child)
@@ -37,6 +39,8 @@ extension AppCoordinator {
     }
     
     func goToTabBarCoordinator() {
+        
+        childCoordinators.removeAll()
         
         let child = TabBarCoordinator(navigationController: navigationController)
         child.parentCoordinator = self
