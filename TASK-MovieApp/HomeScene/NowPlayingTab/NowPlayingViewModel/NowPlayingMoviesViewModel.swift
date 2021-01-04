@@ -37,7 +37,7 @@ extension NowPlayingMoviesViewModel {
                 
                 self.spinnerSubject.send(true)
                 
-                return self.movieRepository.getNetworkSubject(for: nowPlayingURLPath)
+                return self.movieRepository.getNetworkSubject(ofType: MovieResponse.self, for: nowPlayingURLPath)
             }
             .map { [unowned self] (movieResponse) -> [MovieRowItem] in
                 

@@ -10,6 +10,6 @@ import Combine
 
 protocol NetworkMovieRepository {
     
-    func getNetworkSubject<DATA_TYPE: Codable>(for url: URL) -> AnyPublisher<DATA_TYPE, MovieNetworkError> 
+    func getNetworkSubject<DATA_TYPE: Codable> (ofType type: DATA_TYPE.Type, for url: URL) -> AnyPublisher<DATA_TYPE, MovieNetworkError>
 
 }

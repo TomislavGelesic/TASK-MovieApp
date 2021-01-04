@@ -11,10 +11,10 @@ import Combine
 
 class MovieDetailViewModel {
     
-    private var coreDataManager = CoreDataManager.sharedInstance
-    
-    private var movieNetworkService = MovieNetworkService()
-    
+    private var coreDataService = CoreDataManager.sharedInstance
+
+    private var movieRepository = MovieRepositoryImpl()
+
     private var movie: MovieRowItem
     
     var screenData = [RowItem<MovieDetailsRowType, Any>]()
@@ -52,7 +52,8 @@ extension MovieDetailViewModel {
                 self.spinnerSubject.send(true)
 
                 return Publishers
-                    .CombineLatest( movieNetworkService.fetch(url: detailsMovieURLPath, as: MovieDetailsResponse.self), movieNetworkService.fetch(url: similarMoviesURLPath, as: MovieResponse.self))
+                    .CombineLatest(movieRepository.getNetworkSubject(ofType: MovieDetailsResponse.self, for: detailsMovieURLPath),
+                                   movieRepository.getNetworkSubject(ofType: MovieResponse.self, for: similarMoviesURLPath))
                     .subscribe(on: DispatchQueue.global(qos: .background))
                     .receive(on: RunLoop.main)
                     .map { [unowned self] newMovieDetails, newSimilarMovies in
@@ -126,7 +127,7 @@ extension MovieDetailViewModel {
         var newScreenData = [MovieRowItem]()
         
         for item in newMovieResponseItems {
-            if let savedMovie = coreDataManager.getMovie(for: Int64(item.id)) {
+            if let savedMovie = coreDataService.getMovie(for: Int64(item.id)) {
                 newScreenData.append(MovieRowItem(savedMovie))
             }
             else {
@@ -174,7 +175,7 @@ extension MovieDetailViewModel {
                 
                 screenData[index].value = data
                 
-                coreDataManager.updateMovie(movie)
+                coreDataService.updateMovie(movie)
                 
                 return IndexPath(row: index, section: 0)
             }
@@ -185,7 +186,7 @@ extension MovieDetailViewModel {
     
     func getMoviePreference(on buttonType: PreferenceType) -> Bool? {
 
-        if let savedMovie = coreDataManager.getMovie(for: movie.id) {
+        if let savedMovie = coreDataService.getMovie(for: movie.id) {
             switch buttonType {
             case .favourite:
                 return savedMovie.favourite
