@@ -39,7 +39,7 @@ extension MovieDetailViewModel {
     func initializeScreenData(with subject: AnyPublisher<Bool, Never>) -> AnyCancellable {
         
         return subject
-            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieAPIError> in
+            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieNetworkError> in
 
                 let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.KEY)"
 

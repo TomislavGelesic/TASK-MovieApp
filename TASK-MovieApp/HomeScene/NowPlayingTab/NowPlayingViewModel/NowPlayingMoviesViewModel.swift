@@ -4,10 +4,10 @@ import Alamofire
 import Combine
 
 class NowPlayingMoviesViewModel {
-    
+
     private var coreDataManager = CoreDataManager.sharedInstance
-    
-    private var movieAPIManager = MovieNetworkService()
+
+    var movieRepository = MovieRepositoryImpl()
     
     var screenData = [MovieRowItem]()
     
@@ -33,11 +33,11 @@ extension NowPlayingMoviesViewModel {
         guard let nowPlayingURLPath = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
         
         return subject
-            .flatMap { [unowned self] (_) -> AnyPublisher<MovieResponse, MovieAPIError> in
+            .flatMap { [unowned self] (_) -> AnyPublisher<MovieResponse, MovieNetworkError> in
                 
                 self.spinnerSubject.send(true)
                 
-                return self.movieAPIManager.fetch(url: nowPlayingURLPath, as: MovieResponse.self) // returns AnyPublisher<T, MovieAPIError>
+                return self.movieRepository.getNetworkSubject(for: nowPlayingURLPath)
             }
             .map { [unowned self] (movieResponse) -> [MovieRowItem] in
                 
