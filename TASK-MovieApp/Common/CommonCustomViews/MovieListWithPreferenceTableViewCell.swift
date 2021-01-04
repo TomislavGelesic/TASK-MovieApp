@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Combine
 
-class MovieTableViewCell: UITableViewCell {
+class MovieListWithPreferenceTableViewCell: UITableViewCell {
     
     var preferenceChanged: ((PreferenceType, Bool) -> ())?
     
@@ -86,7 +86,7 @@ class MovieTableViewCell: UITableViewCell {
     }
 }
 
-extension MovieTableViewCell {
+extension MovieListWithPreferenceTableViewCell {
     
     //MARK: Functions
     private func setupViews() {

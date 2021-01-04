@@ -3,11 +3,13 @@ import UIKit
 import SnapKit
 import Combine
 
-class FavouriteMoviesViewController: UIViewController {
+class MovieListWithPreferenceViewController: UIViewController {
     
     //MARK: Properties
     
-    private var favouriteMoviesViewModel = MovieListWithPreferenceViewModel(preferenceType: .favourite)
+    weak var coordinator: TabBarCoordinator?
+    
+    private var viewModel: MovieListWithPreferenceViewModel
     
     private var disposeBag = Set<AnyCancellable>()
     
@@ -15,14 +17,15 @@ class FavouriteMoviesViewController: UIViewController {
         let tableView = UITableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .darkGray
-        tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.reuseIdentifier)
+        tableView.register(MovieListWithPreferenceTableViewCell.self, forCellReuseIdentifier: MovieListWithPreferenceTableViewCell.reuseIdentifier)
         return tableView
     }()
     
     //MARK: Life-cycle
     
-    init(viewModel: MovieListWithPreferenceViewModel) {
-        favouriteMoviesViewModel = viewModel
+    init(coordinator: TabBarCoordinator, viewModel: MovieListWithPreferenceViewModel) {
+        self.coordinator = coordinator
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -41,11 +44,11 @@ class FavouriteMoviesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        favouriteMoviesViewModel.getNewScreenDataSubject.send()
+        viewModel.getNewScreenDataSubject.send()
     }
 }
 
-extension FavouriteMoviesViewController {
+extension MovieListWithPreferenceViewController {
     
     //MARK: Private Functions
     
@@ -54,6 +57,7 @@ extension FavouriteMoviesViewController {
         view.addSubview(tableView)
         
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 170
         
@@ -64,13 +68,13 @@ extension FavouriteMoviesViewController {
     
     private func setupViewModelSubscribers() {
         
-        favouriteMoviesViewModel.initializeScreenDataSubject(with: self.favouriteMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+        viewModel.initializeScreenDataSubject(with: self.viewModel.getNewScreenDataSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        favouriteMoviesViewModel.initializeMoviePreferenceSubject(with: self.favouriteMoviesViewModel.movieReferenceSubject.eraseToAnyPublisher())
+        viewModel.initializeMoviePreferenceSubject(with: self.viewModel.movieReferenceSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        favouriteMoviesViewModel.refreshScreenDataSubject
+        viewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (positionToUpdate) in
@@ -93,11 +97,11 @@ extension FavouriteMoviesViewController {
     }
 }
 
-extension FavouriteMoviesViewController: UITableViewDataSource {
+extension MovieListWithPreferenceViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if favouriteMoviesViewModel.screenData.isEmpty {
+        if viewModel.screenData.isEmpty {
             let messageLabel = UILabel()
             messageLabel.text = "Sorry, no prefered movies for this list. \nGo and add one..."
             messageLabel.numberOfLines = 2
@@ -107,23 +111,33 @@ extension FavouriteMoviesViewController: UITableViewDataSource {
             return 0
         }
         tableView.backgroundView = nil
-        return favouriteMoviesViewModel.screenData.count
+        return viewModel.screenData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell: MovieTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: MovieListWithPreferenceTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         
-        let item = favouriteMoviesViewModel.screenData[indexPath.row]
+        let item = viewModel.screenData[indexPath.row]
         
-        cell.configure(with: item, enable: [.favourite])
+        cell.configure(with: item, enable: [viewModel.preference])
         
         cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
-            self.favouriteMoviesViewModel.movieReferenceSubject.send((item.id, buttonType, value))
+            self.viewModel.movieReferenceSubject.send((item.id, buttonType, value))
         }
         
         return cell
+    }
+}
+
+extension MovieListWithPreferenceViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let movie = viewModel.screenData[indexPath.row]
+        
+        coordinator?.showDetailOn(movie)
     }
 }
 

@@ -3,11 +3,13 @@ import UIKit
 import SnapKit
 import Combine
 
-class MovieListViewController: UIViewController {
+class NowPlayingMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    private var movieListViewModel: MovieListViewModel
+    weak var coordinator: TabBarCoordinator?
+    
+    private var nowPlayingMoviesViewModel: NowPlayingMoviesViewModel
         
     private var disposeBag = Set<AnyCancellable>()
     
@@ -36,8 +38,9 @@ class MovieListViewController: UIViewController {
     
     //MARK: Life-cycle
     
-    init(viewModel: MovieListViewModel) {
-        movieListViewModel = viewModel
+    init(coordinator: TabBarCoordinator, viewModel: NowPlayingMoviesViewModel) {
+        self.coordinator = coordinator
+        nowPlayingMoviesViewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -54,10 +57,10 @@ class MovieListViewController: UIViewController {
         
         setupSubscribers()
         
-        movieListViewModel.initializeScreenDataSubject(with: movieListViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+        nowPlayingMoviesViewModel.initializeScreenDataSubject(with: nowPlayingMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
-        movieListViewModel.initializeMoviePreferenceSubject(with: movieListViewModel.moviePreferenceChangeSubject.eraseToAnyPublisher())
+        nowPlayingMoviesViewModel.initializeMoviePreferenceSubject(with: nowPlayingMoviesViewModel.moviePreferenceChangeSubject.eraseToAnyPublisher())
             .store(in: &disposeBag)
         
         
@@ -66,12 +69,12 @@ class MovieListViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        movieListViewModel.getNewScreenDataSubject.send()
+        nowPlayingMoviesViewModel.getNewScreenDataSubject.send()
     }
     
 }
 
-extension MovieListViewController {
+extension NowPlayingMoviesViewController {
     
     //MARK: Functions
     
@@ -108,12 +111,12 @@ extension MovieListViewController {
         
         self.showSpinner()
         
-        self.movieListViewModel.getNewScreenDataSubject.send()
+        self.nowPlayingMoviesViewModel.getNewScreenDataSubject.send()
     }
     
     private func setupSubscribers() {
         
-        movieListViewModel.spinnerSubject
+        nowPlayingMoviesViewModel.spinnerSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (isVisible) in
@@ -122,7 +125,7 @@ extension MovieListViewController {
             })
             .store(in: &disposeBag)
         
-        movieListViewModel.alertSubject
+        nowPlayingMoviesViewModel.alertSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (errorMessage) in
@@ -130,7 +133,7 @@ extension MovieListViewController {
             }
             .store(in: &disposeBag)
         
-        movieListViewModel.refreshScreenDataSubject
+        nowPlayingMoviesViewModel.refreshScreenDataSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (position) in
@@ -139,7 +142,7 @@ extension MovieListViewController {
             }
             .store(in: &disposeBag)
         
-        movieListViewModel.pullToRefreshControlSubject
+        nowPlayingMoviesViewModel.pullToRefreshControlSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (shouldBeRunning) in
@@ -161,24 +164,24 @@ extension MovieListViewController {
     }
 }
 
-extension MovieListViewController: UICollectionViewDataSource {
+extension NowPlayingMoviesViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return movieListViewModel.screenData.count
+        return nowPlayingMoviesViewModel.screenData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
        
-        let item = movieListViewModel.screenData[indexPath.row]
+        let item = nowPlayingMoviesViewModel.screenData[indexPath.row]
         
         cell.configure(with: item)
        
         cell.preferenceChanged = { [unowned self] (buttonType, value) in
             
-            self.movieListViewModel.moviePreferenceChangeSubject.send((id: item.id, on: buttonType, to: value))
+            self.nowPlayingMoviesViewModel.moviePreferenceChangeSubject.send((id: item.id, on: buttonType, to: value))
         }
 
         return cell
@@ -186,11 +189,11 @@ extension MovieListViewController: UICollectionViewDataSource {
     
 }
 
-extension MovieListViewController: UICollectionViewDelegate {
+extension NowPlayingMoviesViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let movie = movieListViewModel.screenData[indexPath.row]
+        let movie = nowPlayingMoviesViewModel.screenData[indexPath.row]
         
         let viewModel = MovieDetailViewModel(for: movie)
         
@@ -202,7 +205,7 @@ extension MovieListViewController: UICollectionViewDelegate {
     }
 }
 
-extension MovieListViewController: UICollectionViewDelegateFlowLayout {
+extension NowPlayingMoviesViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
                 

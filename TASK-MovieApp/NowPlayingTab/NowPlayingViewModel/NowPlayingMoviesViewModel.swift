@@ -3,11 +3,11 @@ import Foundation
 import Alamofire
 import Combine
 
-class MovieListViewModel {
+class NowPlayingMoviesViewModel {
     
     private var coreDataManager = CoreDataManager.sharedInstance
     
-    private var movieAPIManager = MovieAPIManager()
+    private var movieAPIManager = MovieNetworkService()
     
     var screenData = [MovieRowItem]()
     
@@ -24,7 +24,7 @@ class MovieListViewModel {
     var pullToRefreshControlSubject = PassthroughSubject<Bool, Never>()
 }
 
-extension MovieListViewModel {
+extension NowPlayingMoviesViewModel {
     
     func initializeScreenDataSubject(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
         

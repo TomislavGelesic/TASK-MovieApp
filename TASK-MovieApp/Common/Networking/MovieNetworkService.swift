@@ -11,7 +11,7 @@ import Alamofire
 
 
 
-class MovieAPIManager {
+class MovieNetworkService {
     
     func fetch<T: Codable>(url: URL, as: T.Type) -> AnyPublisher<T, MovieAPIError> {
         
