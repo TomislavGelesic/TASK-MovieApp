@@ -92,7 +92,7 @@ extension MovieListWithPreferenceTableViewCell {
     private func setupViews() {
         
         backgroundColor = .darkGray
-    
+        
         setupButtons()
         
         contentView.addSubview(container)

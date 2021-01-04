@@ -7,7 +7,7 @@ class NowPlayingMoviesViewController: UIViewController {
     
     //MARK: Properties
     
-    weak var coordinator: TabBarCoordinator?
+    weak var coordinator: NowPlayingMoviesCoordinator?
     
     private var nowPlayingMoviesViewModel: NowPlayingMoviesViewModel
         
@@ -38,7 +38,7 @@ class NowPlayingMoviesViewController: UIViewController {
     
     //MARK: Life-cycle
     
-    init(coordinator: TabBarCoordinator, viewModel: NowPlayingMoviesViewModel) {
+    init(coordinator: NowPlayingMoviesCoordinator, viewModel: NowPlayingMoviesViewModel) {
         self.coordinator = coordinator
         nowPlayingMoviesViewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -195,11 +195,13 @@ extension NowPlayingMoviesViewController: UICollectionViewDelegate {
         
         let movie = nowPlayingMoviesViewModel.screenData[indexPath.row]
         
-        let viewModel = MovieDetailViewModel(for: movie)
+        coordinator?.showDetails(for: movie)
         
-        let movieDetailViewController = MovieDetailViewController(viewModel: viewModel)
-        
-        self.navigationController?.pushViewController(movieDetailViewController, animated: true)
+//        let viewModel = MovieDetailViewModel(for: movie)
+//
+//        let movieDetailViewController = MovieDetailViewController(viewModel: viewModel)
+//
+//        self.navigationController?.pushViewController(movieDetailViewController, animated: true)
         
         
     }
