@@ -15,7 +15,7 @@ class SimilarMoviesCellMovieDetail: UITableViewCell {
     
     private let flowLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
+        layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 10
         layout.minimumInteritemSpacing = 10
         layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
@@ -24,7 +24,8 @@ class SimilarMoviesCellMovieDetail: UITableViewCell {
     
     private let similarMoviesCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.backgroundColor = .darkGray
+        collectionView.backgroundColor = .black
+        collectionView.register(SimilarMoviesCollectionViewCell.self, forCellWithReuseIdentifier: SimilarMoviesCollectionViewCell.reuseIdentifier)
         return collectionView
     }()
     
@@ -52,7 +53,7 @@ extension SimilarMoviesCellMovieDetail {
         
         similarMoviesCollectionView.dataSource = self
         
-        similarMoviesCollectionView.register(MovieListCollectionViewCell.self, forCellWithReuseIdentifier: MovieListCollectionViewCell.reuseIdentifier)
+        similarMoviesCollectionView.delegate = self
         
         contentView.addSubview(similarMoviesCollectionView)
         
@@ -63,6 +64,7 @@ extension SimilarMoviesCellMovieDetail {
         
         similarMoviesCollectionView.snp.makeConstraints { (make) in
             make.edges.equalTo(contentView)
+            make.height.equalTo(contentView.frame.width)
         }
     }
 }
@@ -76,7 +78,7 @@ extension SimilarMoviesCellMovieDetail: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell: MovieListCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
+        let cell: SimilarMoviesCollectionViewCell = collectionView.dequeueReusableCell(for: indexPath)
        
         cell.configure(with: similarMovies[indexPath.row])
 
@@ -85,13 +87,17 @@ extension SimilarMoviesCellMovieDetail: UICollectionViewDataSource {
     
 }
 
+extension SimilarMoviesCellMovieDetail: UICollectionViewDelegate {
+
+}
+
 extension SimilarMoviesCellMovieDetail: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-                
-        #warning("couldn't se this up because my emulator didn't show table view contents")
-        let cellWidth = contentView.frame.width/2
+        let cellWidth = (similarMoviesCollectionView.frame.width - 30) / 2
         let cellHeight = cellWidth * 1.5
         return CGSize(width: cellWidth, height: cellHeight)
     }
+    
 }
+

@@ -15,17 +15,18 @@ extension MovieTabBarController {
     
     private func setupMovieTabBarController() {
         
-        let movieListController = createNavigationViewController(viewController: MovieListViewController(),
-                                                                 selected:       UIImage(systemName: "video.circle.fill"),
-                                                                 unselected:     UIImage(systemName: "video.circle"))
+        let movieListController = createNavigationViewController(viewController: MovieListViewController(
+                                                                    viewModel: MovieListViewModel()),
+                                                                    selected: UIImage(systemName: "house"),
+                                                                    unselected: UIImage(systemName: "house.fill"))
         
-        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(),
-                                                                  selected:       UIImage(named: "star_filled"),
-                                                                  unselected:     UIImage(named: "star_unfilled"))
+        let favouritesController = createNavigationViewController(viewController: FavouriteMoviesViewController(viewModel: MovieListWithPreferenceViewModel(preferenceType: .favourite)),
+                                                                  selected:       UIImage(systemName: "star"),
+                                                                  unselected:     UIImage(systemName: "star.fill"))
         
-        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(),
-                                                               selected:       UIImage(named: "watched_filled"),
-                                                               unselected:     UIImage(named: "watched_unfilled"))
+        let watchedController = createNavigationViewController(viewController: WatchedMoviesViewController(viewModel: MovieListWithPreferenceViewModel(preferenceType: .watched)),
+                                                               selected:       UIImage(systemName: "checkmark.seal"),
+                                                               unselected:     UIImage(systemName: "checkmark.seal.fill"))
         
         viewControllers = [favouritesController, movieListController, watchedController]
         
@@ -41,8 +42,7 @@ extension MovieTabBarController {
         let controller = UINavigationController(rootViewController: viewController)
         controller.tabBarItem.image = unselected
         controller.tabBarItem.selectedImage = selected
-        controller.view.backgroundColor = .darkGray
-        controller.navigationBar.backgroundColor = .black
+        controller.setNavigationBarHidden(true, animated: false)
         return controller
     }
     

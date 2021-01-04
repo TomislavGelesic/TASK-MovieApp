@@ -6,10 +6,11 @@ import Combine
 
 class MovieListCollectionViewCell: UICollectionViewCell {
     
-    var preferenceChanged: ((ButtonType, Bool) -> ())?
+    var preferenceChanged: ((PreferenceType, Bool) -> ())?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
         return imageView
@@ -46,16 +47,16 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     let favouriteButton: UIButton = {
         let favouriteButton = UIButton()
         favouriteButton.layer.cornerRadius = 20
-        favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
+        favouriteButton.setImage(UIImage(named: "star_filled"), for: .selected)
         return favouriteButton
     }()
     
     let watchedButton: UIButton = {
         let watchedButton = UIButton()
         watchedButton.layer.cornerRadius = 20
-        watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        watchedButton.setImage(UIImage(named: "watched_unfilled"), for: .normal)
+        watchedButton.setImage(UIImage(named: "watched_filled"), for: .selected)
         return watchedButton
     }()
     
@@ -94,13 +95,11 @@ extension MovieListCollectionViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        favouriteButton.isSelected = !favouriteButton.isSelected
         preferenceChanged?(.favourite, favouriteButton.isSelected)
     }
     
     @objc func watchedButtonTapped() {
         
-        watchedButton.isSelected = !watchedButton.isSelected
         preferenceChanged?(.watched, watchedButton.isSelected)
     }
     
@@ -120,7 +119,7 @@ extension MovieListCollectionViewCell {
         
     }
     
-    private func setButtonImage(on type: ButtonType, selected: Bool) {
+    private func setButtonImage(on type: PreferenceType, selected: Bool) {
         
         switch type {
         case .favourite:

@@ -17,9 +17,11 @@ class MovieListViewModel {
     
     var refreshScreenDataSubject = PassthroughSubject<RowUpdateState, Never>()
 
-    var moviePreferenceSubject = PassthroughSubject<(Int64, ButtonType, Bool), Never>()
+    var moviePreferenceChangeSubject = PassthroughSubject<(Int64, PreferenceType, Bool), Never>()
     
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
+    
+    var pullToRefreshControlSubject = PassthroughSubject<Bool, Never>()
 }
 
 extension MovieListViewModel {
@@ -31,45 +33,47 @@ extension MovieListViewModel {
         guard let nowPlayingURLPath = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
         
         return subject
-            .receive(on: RunLoop.main)
-            .subscribe(on: DispatchQueue.global(qos: .background))
             .flatMap { [unowned self] (_) -> AnyPublisher<MovieResponse, MovieAPIError> in
+                
                 self.spinnerSubject.send(true)
-                return self.movieAPIManager.fetch(url: nowPlayingURLPath, as: MovieResponse.self)
+                
+                return self.movieAPIManager.fetch(url: nowPlayingURLPath, as: MovieResponse.self) // returns AnyPublisher<T, MovieAPIError>
             }
-            .receive(on: RunLoop.main)
-            .subscribe(on: DispatchQueue.global(qos: .background))
             .map { [unowned self] (movieResponse) -> [MovieRowItem] in
+                
                 return self.createScreenData(from: movieResponse.results)
             }
-            .catch({ [unowned self] (error) -> AnyPublisher<[MovieRowItem], Never> in
-                
-                self.spinnerSubject.send(false)
-                
-                switch (error) {
-                case .decodingError:
-                    self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
-                    break
-                    
-                case .noDataError:
-                    self.alertSubject.send("There is no data for network request made.")
-                    break
-                    
-                case .other(let error):
-                    self.alertSubject.send("Error: \(error.localizedDescription)")
-                    break
-                }
-                
-                
-                return Just([]).eraseToAnyPublisher()
-            })
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (newScreenData) in
+            .sink { [unowned self] (completion) in
+                
+                switch (completion) {
+                case .finished:
+                    break
+                    
+                case .failure(let error):
+                    
+                    switch (error) {
+                    case .decodingError:
+                        self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
+                        break
+                        
+                    case .noDataError:
+                        self.alertSubject.send("There is no data for network request made.")
+                        break
+                        
+                    case .other(let error):
+                        self.alertSubject.send("Error: \(error.localizedDescription)")
+                        break
+                    }
+                    break
+                }
+            } receiveValue: { [unowned self] (newScreenData) in
                 
                 self.screenData = newScreenData
-                self.spinnerSubject.send(false)
+                self.pullToRefreshControlSubject.send(false)
                 self.refreshScreenDataSubject.send(.all)
+                self.spinnerSubject.send(false)
             }
         
         
@@ -91,38 +95,22 @@ extension MovieListViewModel {
         return newScreenData
     }
     
-    func initializeMoviePreferenceSubject (with subject: AnyPublisher<(Int64, ButtonType, Bool), Never>) -> AnyCancellable {
+    func initializeMoviePreferenceSubject (with subject: AnyPublisher<(Int64, PreferenceType, Bool), Never>) -> AnyCancellable {
     
         return subject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .flatMap { [unowned self] (id, buttonType, value) -> AnyPublisher<IndexPath?, Never> in
+            .sink(receiveValue: { [unowned self] (id, buttonType, value) in
                 
-                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: value) {
-                    return Just(indexPath).eraseToAnyPublisher()
-                }
-                return Just(nil).eraseToAnyPublisher()
-            }
-            .sink { (completion) in
-                
-                switch (completion) {
-                case .finished:
-                    break
-                case .failure(_):
-                    print("Invalid indexPath in moviePreferenceSubject.")
-                    break
-                }
-                
-            } receiveValue: { [unowned self] (indexPath) in
-                if let indexPath = indexPath {
+                if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: !value) {
+                    
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
                 }
-            }
-
+            })
     }
     
     
-    private func updateMoviePreference(for id: Int64, on buttonType: ButtonType, with value: Bool) -> IndexPath? {
+    private func updateMoviePreference(for id: Int64, on buttonType: PreferenceType, with value: Bool) -> IndexPath? {
 
         for (index,item) in screenData.enumerated() {
 
@@ -134,7 +122,6 @@ extension MovieListViewModel {
                 case .watched:
                     item.watched = value
                 }
-                print("saving button tap on \(buttonType) with value \(value)")
                 coreDataManager.updateMovie(item)
                 
                 return IndexPath(row: index, section: 0)

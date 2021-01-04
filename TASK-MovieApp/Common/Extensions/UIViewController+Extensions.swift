@@ -21,7 +21,7 @@ extension UIViewController {
         SpinnerViewManager.removeSpinnerView()
     }
     
-    func showAPIFailedAlert(for errorMessage: String) {
+    func showAPIFailedAlert(for errorMessage: String, completion: (() -> ())?) {
         
         let alert: UIAlertController = {
             let alert = UIAlertController(title: "Error", message: "Ups, error occured!\n\(errorMessage)", preferredStyle: .alert)

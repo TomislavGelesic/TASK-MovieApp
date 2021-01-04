@@ -12,10 +12,11 @@ import Combine
 
 class MovieTableViewCell: UITableViewCell {
     
-    var preferanceChanged: ((ButtonType, Bool) -> ())?
+    var preferenceChanged: ((PreferenceType, Bool) -> ())?
     
     let imageViewMovie: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 20
         imageView.layer.masksToBounds = true
         return imageView
@@ -52,8 +53,8 @@ class MovieTableViewCell: UITableViewCell {
     let favouriteButton: UIButton = {
         let favouriteButton = UIButton()
         favouriteButton.layer.cornerRadius = 20
-        favouriteButton.setImage(UIImage(named: "star_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        favouriteButton.setImage(UIImage(named: "star_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
+        favouriteButton.setImage(UIImage(named: "star_filled"), for: .selected)
         favouriteButton.isHidden = true
         return favouriteButton
     }()
@@ -61,8 +62,8 @@ class MovieTableViewCell: UITableViewCell {
     let watchedButton: UIButton = {
         let watchedButton = UIButton()
         watchedButton.layer.cornerRadius = 20
-        watchedButton.setImage(UIImage(named: "watched_unfilled")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        watchedButton.setImage(UIImage(named: "watched_filled")?.withRenderingMode(.alwaysOriginal), for: .selected)
+        watchedButton.setImage(UIImage(named: "watched_unfilled"), for: .normal)
+        watchedButton.setImage(UIImage(named: "watched_filled"), for: .selected)
         watchedButton.isHidden = true
         return watchedButton
     }()
@@ -89,8 +90,8 @@ extension MovieTableViewCell {
     
     //MARK: Functions
     private func setupViews() {
-    
-        contentView.backgroundColor = .darkGray
+        
+        backgroundColor = .darkGray
     
         setupButtons()
         
@@ -111,19 +112,15 @@ extension MovieTableViewCell {
     
     @objc func favouriteButtonTapped() {
         
-        favouriteButton.isSelected = !favouriteButton.isSelected
-        
-        preferanceChanged?(.favourite, favouriteButton.isSelected)
+        preferenceChanged?(.favourite, favouriteButton.isSelected)
     }
     
     @objc func watchedButtonTapped() {
         
-        watchedButton.isSelected = !watchedButton.isSelected
-        
-        preferanceChanged?(.watched, watchedButton.isSelected)
+        preferenceChanged?(.watched, watchedButton.isSelected)
     }
     
-    func configure(with item: MovieRowItem, enable enabledButtons: [ButtonType]) {
+    func configure(with item: MovieRowItem, enable enabledButtons: [PreferenceType]) {
         
         imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
         
@@ -135,11 +132,18 @@ extension MovieTableViewCell {
         
         for button in enabledButtons {
             
-            setButtonImage(on: button, selected: item.favourite)
+            switch button {
+            case .favourite:
+                setButtonImage(on: .favourite, selected: item.favourite)
+                break
+            case .watched:
+                setButtonImage(on: .watched, selected: item.watched)
+                break
+            }
         }
     }
     
-    func setButtonImage(on type: ButtonType, selected: Bool) {
+    func setButtonImage(on type: PreferenceType, selected: Bool) {
     
         switch type {
         case .favourite:
