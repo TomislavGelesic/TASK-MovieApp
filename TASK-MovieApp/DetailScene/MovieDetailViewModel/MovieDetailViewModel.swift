@@ -13,7 +13,7 @@ class MovieDetailViewModel {
     
     private var coreDataService = CoreDataManager.sharedInstance
 
-    private var movieRepository = MovieRepositoryImpl()
+    private var movieRepository: NetworkMovieRepository
 
     private var movie: MovieRowItem
     
@@ -29,8 +29,9 @@ class MovieDetailViewModel {
     
     var getNewScreenDataSubject = CurrentValueSubject<Bool, Never>(true) //race condition - need to use currentValueSubject
     
-    init(for movie: MovieRowItem) {
+    init(for movie: MovieRowItem, repository: NetworkMovieRepository) {
         self.movie = movie
+        movieRepository = repository
     }
 }
 

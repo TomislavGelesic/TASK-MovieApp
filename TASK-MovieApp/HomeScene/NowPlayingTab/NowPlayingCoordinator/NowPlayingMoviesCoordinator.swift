@@ -23,7 +23,7 @@ class NowPlayingMoviesCoordinator: Coordinator {
     
     func start() {
         
-        let viewModel = NowPlayingMoviesViewModel()
+        let viewModel = NowPlayingMoviesViewModel(repository: MovieRepositoryImpl())
         
         let viewController = NowPlayingMoviesViewController(coordinator: self, viewModel: viewModel)
         

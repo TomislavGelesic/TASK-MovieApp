@@ -7,7 +7,7 @@ class NowPlayingMoviesViewModel {
 
     private var coreDataManager = CoreDataManager.sharedInstance
 
-    var movieRepository = MovieRepositoryImpl()
+    var movieRepository: NetworkMovieRepository
     
     var screenData = [MovieRowItem]()
     
@@ -22,6 +22,10 @@ class NowPlayingMoviesViewModel {
     var getNewScreenDataSubject = PassthroughSubject<Void, Never>()
     
     var pullToRefreshControlSubject = PassthroughSubject<Bool, Never>()
+    
+    init(repository: NetworkMovieRepository) {
+        movieRepository = repository
+    }
 }
 
 extension NowPlayingMoviesViewModel {
