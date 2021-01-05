@@ -1,4 +1,6 @@
 ${PODS_ROOT}/Target Support Files/Pods-TASK-MovieApp/Pods-TASK-MovieApp-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
+${BUILT_PRODUCTS_DIR}/Cuckoo/Cuckoo.framework
 ${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework
+${BUILT_PRODUCTS_DIR}/Nimble/Nimble.framework
 ${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework

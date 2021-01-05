@@ -1,24 +1,34 @@
 PODS:
   - Alamofire (4.9.1)
+  - Cuckoo (1.4.1):
+    - Cuckoo/Swift (= 1.4.1)
+  - Cuckoo/Swift (1.4.1)
   - Kingfisher (4.10.1)
+  - Nimble (9.0.0)
   - SnapKit (4.2.0)
 
 DEPENDENCIES:
   - Alamofire
+  - Cuckoo
   - Kingfisher
+  - Nimble
   - SnapKit
 
 SPEC REPOS:
   trunk:
     - Alamofire
+    - Cuckoo
     - Kingfisher
+    - Nimble
     - SnapKit
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  Cuckoo: 4625f7f54d9bb880123270e8969898d6c1d036b5
   Kingfisher: c148cd7b47ebde9989f6bc7c27dcaa79d81279a0
+  Nimble: 3b4ec3fd40f1dc178058e0981107721c615643d8
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: e4c7961b79ec2c0e5a960f43a5fe7a08935f2eae
+PODFILE CHECKSUM: 8dfd5b99d553829314e948de609e1e3af0dfae3a
 
 COCOAPODS: 1.10.0

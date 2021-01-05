@@ -10,5 +10,6 @@ target 'TASK-MovieApp' do
   pod 'SnapKit'
   pod 'Kingfisher'
   pod 'Alamofire'
-
+  pod 'Cuckoo'
+  pod 'Nimble'
 end
