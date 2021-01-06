@@ -52,6 +52,9 @@
 		6064E7EE259BF83100E58156 /* MovieListWithPreferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6064E7ED259BF83100E58156 /* MovieListWithPreferenceViewController.swift */; };
 		6064F5FA256D24E700239C5A /* MovieListWithPreferenceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6064F5F9256D24E700239C5A /* MovieListWithPreferenceViewModel.swift */; };
 		606FB20125A5D2CD0034E210 /* GeneratedMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606FB20025A5D2CD0034E210 /* GeneratedMocks.swift */; };
+		606FB21C25A5E4FC0034E210 /* NowPlayingViewModelSpecs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606FB21B25A5E4FC0034E210 /* NowPlayingViewModelSpecs.swift */; };
+		606FB22A25A5F7DA0034E210 /* DetailJSONResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 606FB22925A5F7DA0034E210 /* DetailJSONResponse.json */; };
+		606FB23625A5F8310034E210 /* NowPlayingJSONResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 606FB23525A5F8310034E210 /* NowPlayingJSONResponse.json */; };
 		606FD8062552AF8B00F5FBFF /* TASK-MovieApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 606FD8042552AF8B00F5FBFF /* TASK-MovieApp.xcdatamodeld */; };
 		6077ECA325A33732006AEB69 /* NetworkMovieRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6077ECA225A33732006AEB69 /* NetworkMovieRepository.swift */; };
 		6077ECA725A33868006AEB69 /* MovieRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6077ECA625A33868006AEB69 /* MovieRepositoryImpl.swift */; };
@@ -134,6 +137,9 @@
 		606FB1FE25A5D2CD0034E210 /* TASK-MovieAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TASK-MovieAppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		606FB20025A5D2CD0034E210 /* GeneratedMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedMocks.swift; sourceTree = "<group>"; };
 		606FB20225A5D2CD0034E210 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		606FB21B25A5E4FC0034E210 /* NowPlayingViewModelSpecs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModelSpecs.swift; sourceTree = "<group>"; };
+		606FB22925A5F7DA0034E210 /* DetailJSONResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DetailJSONResponse.json; sourceTree = "<group>"; };
+		606FB23525A5F8310034E210 /* NowPlayingJSONResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NowPlayingJSONResponse.json; sourceTree = "<group>"; };
 		606FD8052552AF8B00F5FBFF /* MovieCoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MovieCoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 		6077ECA225A33732006AEB69 /* NetworkMovieRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMovieRepository.swift; sourceTree = "<group>"; };
 		6077ECA625A33868006AEB69 /* MovieRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieRepositoryImpl.swift; sourceTree = "<group>"; };
@@ -264,10 +270,21 @@
 		606FB1FF25A5D2CD0034E210 /* TASK-MovieAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				606FB22225A5F3570034E210 /* JSON correct mock */,
 				606FB20025A5D2CD0034E210 /* GeneratedMocks.swift */,
 				606FB20225A5D2CD0034E210 /* Info.plist */,
+				606FB21B25A5E4FC0034E210 /* NowPlayingViewModelSpecs.swift */,
 			);
 			path = "TASK-MovieAppTests";
+			sourceTree = "<group>";
+		};
+		606FB22225A5F3570034E210 /* JSON correct mock */ = {
+			isa = PBXGroup;
+			children = (
+				606FB22925A5F7DA0034E210 /* DetailJSONResponse.json */,
+				606FB23525A5F8310034E210 /* NowPlayingJSONResponse.json */,
+			);
+			path = "JSON correct mock";
 			sourceTree = "<group>";
 		};
 		606FD81E2552BDBC00F5FBFF /* CoreData */ = {
@@ -629,6 +646,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				606FB23625A5F8310034E210 /* NowPlayingJSONResponse.json in Resources */,
+				606FB22A25A5F7DA0034E210 /* DetailJSONResponse.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -802,6 +821,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				606FB21C25A5E4FC0034E210 /* NowPlayingViewModelSpecs.swift in Sources */,
 				606FB20125A5D2CD0034E210 /* GeneratedMocks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
