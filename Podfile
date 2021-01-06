@@ -10,6 +10,16 @@ target 'TASK-MovieApp' do
   pod 'SnapKit'
   pod 'Kingfisher'
   pod 'Alamofire'
-  pod 'Cuckoo'
-  pod 'Nimble'
+
 end
+
+target 'TASK-MovieAppTests' do
+  
+	use_frameworks!
+	
+	pod 'Cuckoo'
+	pod 'Quick'
+	pod 'Nimble'
+end
+
+
