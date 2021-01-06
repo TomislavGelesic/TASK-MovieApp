@@ -105,7 +105,6 @@ class MovieRepositoryImplStub: MovieRepositoryImpl {
     override var networkService: MovieNetworkService {
         get {
             
-            //here i return mock json file
             return DefaultValueRegistry.defaultValue(for: (MovieNetworkService).self)
         }
         
