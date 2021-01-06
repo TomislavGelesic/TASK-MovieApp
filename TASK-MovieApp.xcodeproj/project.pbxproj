@@ -51,7 +51,7 @@
 		6064E7E2259BE58200E58156 /* TabBarCoordinatorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6064E7E1259BE58200E58156 /* TabBarCoordinatorProtocol.swift */; };
 		6064E7EE259BF83100E58156 /* MovieListWithPreferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6064E7ED259BF83100E58156 /* MovieListWithPreferenceViewController.swift */; };
 		6064F5FA256D24E700239C5A /* MovieListWithPreferenceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6064F5F9256D24E700239C5A /* MovieListWithPreferenceViewModel.swift */; };
-		606FB20125A5D2CD0034E210 /* TASK_MovieAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606FB20025A5D2CD0034E210 /* TASK_MovieAppTests.swift */; };
+		606FB20125A5D2CD0034E210 /* GeneratedMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606FB20025A5D2CD0034E210 /* GeneratedMocks.swift */; };
 		606FD8062552AF8B00F5FBFF /* TASK-MovieApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 606FD8042552AF8B00F5FBFF /* TASK-MovieApp.xcdatamodeld */; };
 		6077ECA325A33732006AEB69 /* NetworkMovieRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6077ECA225A33732006AEB69 /* NetworkMovieRepository.swift */; };
 		6077ECA725A33868006AEB69 /* MovieRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6077ECA625A33868006AEB69 /* MovieRepositoryImpl.swift */; };
@@ -132,7 +132,7 @@
 		6064E7ED259BF83100E58156 /* MovieListWithPreferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieListWithPreferenceViewController.swift; sourceTree = "<group>"; };
 		6064F5F9256D24E700239C5A /* MovieListWithPreferenceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MovieListWithPreferenceViewModel.swift; path = "TASK-MovieApp/HomeScene/WithPreferenceTab/WithPreferenceViewModel/MovieListWithPreferenceViewModel.swift"; sourceTree = SOURCE_ROOT; };
 		606FB1FE25A5D2CD0034E210 /* TASK-MovieAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TASK-MovieAppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		606FB20025A5D2CD0034E210 /* TASK_MovieAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TASK_MovieAppTests.swift; sourceTree = "<group>"; };
+		606FB20025A5D2CD0034E210 /* GeneratedMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedMocks.swift; sourceTree = "<group>"; };
 		606FB20225A5D2CD0034E210 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		606FD8052552AF8B00F5FBFF /* MovieCoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MovieCoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 		6077ECA225A33732006AEB69 /* NetworkMovieRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMovieRepository.swift; sourceTree = "<group>"; };
@@ -264,7 +264,7 @@
 		606FB1FF25A5D2CD0034E210 /* TASK-MovieAppTests */ = {
 			isa = PBXGroup;
 			children = (
-				606FB20025A5D2CD0034E210 /* TASK_MovieAppTests.swift */,
+				606FB20025A5D2CD0034E210 /* GeneratedMocks.swift */,
 				606FB20225A5D2CD0034E210 /* Info.plist */,
 			);
 			path = "TASK-MovieAppTests";
@@ -562,6 +562,7 @@
 			buildConfigurationList = 606FB20725A5D2CD0034E210 /* Build configuration list for PBXNativeTarget "TASK-MovieAppTests" */;
 			buildPhases = (
 				94698C838C385F2A787E3667 /* [CP] Check Pods Manifest.lock */,
+				606FB21425A5D4890034E210 /* ShellScript */,
 				606FB1FA25A5D2CD0034E210 /* Sources */,
 				606FB1FB25A5D2CD0034E210 /* Frameworks */,
 				606FB1FC25A5D2CD0034E210 /* Resources */,
@@ -634,6 +635,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		606FB21425A5D4890034E210 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/TASK-MovieApp/Common/CommonModels/MovieRepositoryImpl.swift",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/GeneratedMocks.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Define output file. Change \"${PROJECT_DIR}/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_DIR}/TASK-MovieAppTests/GeneratedMocks.swift\"\necho \"Generated Mocks File = ${OUTPUT_FILE}\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_DIR}/TASK-MovieApp\"\necho \"Mocks Input Directory = ${INPUT_DIR}\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"${PODS_ROOT}/Cuckoo/run\" generate --testable \"${PROJECT_NAME}\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"${INPUT_DIR}/Common/CommonModels/MovieRepositoryImpl.swift\" \n# ... and so forth, the last line should never end with a backslash\n\n# After running once, locate `GeneratedMocks.swift` and drag it into your Xcode test target group.\n";
+		};
 		94698C838C385F2A787E3667 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -782,7 +802,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				606FB20125A5D2CD0034E210 /* TASK_MovieAppTests.swift in Sources */,
+				606FB20125A5D2CD0034E210 /* GeneratedMocks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
