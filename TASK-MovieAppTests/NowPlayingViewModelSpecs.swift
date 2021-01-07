@@ -8,6 +8,7 @@
 import Quick
 import Nimble
 import Combine
+import Cuckoo
 
 @testable import TASK_MovieApp
 
@@ -17,37 +18,40 @@ class NowPlayingViewModelSpecs: QuickSpec {
         
         var sut: NowPlayingMoviesViewModel!
         
+        var mock: MockMovieRepositoryImpl!
+        
         describe ("NowPlayingViewModel") {
             
             context("Can work with valid json mock model") {
                 
                 afterEach {
-                    
+                    mock = nil
                     sut = nil
                 }
                 
                 beforeEach {
-                    
-                    sut = NowPlayingMoviesViewModel(repository: MockMovieRepositoryImpl())
+                    mock = MockMovieRepositoryImpl()
+                    sut = NowPlayingMoviesViewModel(repository: mock)
                 }
                 
                 
-//                //HERE I RETURN JSON MOCK DATA
-//
-//                if let path = Bundle.main.path(forResource: "NowPlayingJSONResponse", ofType: "json") {
-//                    do {
-//                          let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-//                          let nowPlayingResponse = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-//                          if let nowPlayingResponse = nowPlayingResponse as? Dictionary<String, AnyObject>,
-//                             let movies = nowPlayingResponse["results"] as? [MovieResponseItem] {
-//
-//                             //do stuff
-//                          }
-//                      } catch {
-//                           // handle error
-//                      }
-//                }
                 
+                stub(mock) { stub in
+                    
+                    let subject = Future<MovieResponse, MovieNetworkError> { promise in
+                        if let data = self.readLocalFile(forName: "NowPlayingJSONResponse") {
+                            
+                            promise(.success(data))
+                        }
+                        promise(.failure(MovieNetworkError.decodingError))
+                    }.eraseToAnyPublisher()
+                    
+                    when().then{ return subject}
+                    
+                }
+                
+                
+                //should stub before so there is data in 'sut.screenData'
                 it("has correct amount of movies") {
                     
                     expect(sut.screenData.count).to(equal(20))
@@ -58,8 +62,25 @@ class NowPlayingViewModelSpecs: QuickSpec {
                 
                 it("triggers alertSubject correctly") {
                     
+                    
                 }
+                
             }
         }
+    }
+    
+    private func readLocalFile(forName name: String) -> MovieResponse? {
+        do {
+            if let bundlePath = Bundle.main.path(forResource: name,
+                                                 ofType: "json"),
+                let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
+                let decodedData = try JSONDecoder().decode(MovieResponse.self, from: jsonData)
+                return decodedData
+            }
+        } catch {
+            print(error)
+        }
+        
+        return nil
     }
 }
