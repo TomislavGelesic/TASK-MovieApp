@@ -20,56 +20,87 @@ class NowPlayingViewModelSpecs: QuickSpec {
         
         var mock: MockMovieRepositoryImpl!
         
+        var screenDataPublisher: AnyPublisher<MovieResponse, MovieNetworkError>?
+        
+        var disposeBag = Set<AnyCancellable>()
+        
+        var alertCalled = false
+        
         describe ("NowPlayingViewModel") {
             
-            context("Can work with valid json mock model") {
-                
-                afterEach {
-                    mock = nil
-                    sut = nil
-                }
+            context("Works: ") {
                 
                 beforeEach {
                     mock = MockMovieRepositoryImpl()
-                    sut = NowPlayingMoviesViewModel(repository: mock)
-                }
-                
-                
-                
-                stub(mock) { stub in
                     
-                    let subject = Future<MovieResponse, MovieNetworkError> { promise in
+                    sut = NowPlayingMoviesViewModel(repository: mock)
+                    
+                    screenDataPublisher = Future<MovieResponse, MovieNetworkError> { promise in
                         if let data = self.readLocalFile(forName: "NowPlayingJSONResponse") {
-                            
+
                             promise(.success(data))
                         }
                         promise(.failure(MovieNetworkError.decodingError))
                     }.eraseToAnyPublisher()
-                    
-                    when().then{ return subject}
-                    
                 }
+
+                sut.alertSubject
+                    .receive(on: RunLoop.main)
+                    .subscribe(on: DispatchQueue.global(qos: .background))
+                    .sink { (errorMessage) in
+                        alertCalled = true
+                    }
+                    .store(in: &disposeBag)
                 
                 
-                //should stub before so there is data in 'sut.screenData'
-                it("has correct amount of movies") {
+                if let publisher = screenDataPublisher {
                     
-                    expect(sut.screenData.count).to(equal(20))
-                }
-                it("has correct data") {
-                    expect(sut.screenData[1].id).to(equal(464052))
+                    publisher
+                        .receive(on: RunLoop.main)
+                        .subscribe(on: DispatchQueue.global(qos: .background))
+                        .sink { (completion) in
+                            switch (completion) {
+                            case .finished:
+                                break
+                            case .failure(_):
+                                sut.alertSubject.send("")
+                                break
+                            }
+                        } receiveValue: { (movieResponse) in
+                            sut.screenData = sut.createScreenData(from: movieResponse.results)
+                            
+                            it(" - has correct number of data") {
+                                
+                                expect(sut.screenData.count).to(equal(20))
+                            }
+                            it(" - has correct data") {
+                                expect(sut.screenData[1].id).to(equal(464052))
+                            }
+                        }
+                        .store(in: &disposeBag)
                 }
                 
-                it("triggers alertSubject correctly") {
-                    
-                    
+                it(" - triggers alertSubject correctly") {
+                    expect(alertCalled).to(equal(true))
                 }
                 
+                afterEach {
+                    
+                    mock = nil
+                    
+                    sut = nil
+                    
+                    screenDataPublisher = nil
+                    
+                    for cancellable in disposeBag {
+                        cancellable.cancel()
+                    }
+                }
             }
         }
     }
     
-    private func readLocalFile(forName name: String) -> MovieResponse? {
+    func readLocalFile(forName name: String) -> MovieResponse? {
         do {
             if let bundlePath = Bundle.main.path(forResource: name,
                                                  ofType: "json"),
