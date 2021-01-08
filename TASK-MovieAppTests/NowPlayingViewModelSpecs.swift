@@ -26,57 +26,52 @@ class NowPlayingViewModelSpecs: QuickSpec {
         
         describe ("NowPlayingViewModel") {
             
-            beforeSuite {
-                mock = MockMovieRepositoryImpl()
+            mock = MockMovieRepositoryImpl()
+            
+            sut = NowPlayingMoviesViewModel(repository: mock)
+            
+            stub(mock) { mock in
+                when(mock.getNetworkSubject(ofType: any(), for: any())).then { (_) -> AnyPublisher<MovieResponse, MovieNetworkError> in
+                    return  Future<MovieResponse,MovieNetworkError> { [unowned self] promise in
+                        if let response = self.readLocalFile(forName: "NowPlayingJSONResponse")  {
+                            promise(.success(response))
+                        }
+                        alertCalled = true
+                        promise(.failure(.decodingError))
+                    }.eraseToAnyPublisher()
+                }
                 
-                sut = NowPlayingMoviesViewModel(repository: mock)
                 
-                sut.initializeScreenDataSubject(with: sut.getNewScreenDataSubject.eraseToAnyPublisher())
-                    .store(in: &disposeBag)
+                it(" - has correct number of data") {
+                    
+                    expect(sut.screenData.count).toEventually(equal(20))
+                }
+                
+                it(" - has correct data") {
+                    expect(sut.screenData[1].id).toEventually(equal(464052))
+                }
             }
             
-            guard let response = readLocalFile(forName: "NowPlayingJSONResponse") else { return }
-            
-            let expectedScreenData = sut.createScreenData(from: response.results)
-            
-            
-            sut.alertSubject
-                .sink { (errorMessage) in
-                    alertCalled = true
-                }
+            sut.initializeScreenDataSubject(with: sut.getNewScreenDataSubject.eraseToAnyPublisher())
                 .store(in: &disposeBag)
             
+            sut.alertSubject.sink { (message) in
+                alertCalled = true
+            }
+            .store(in: &disposeBag)
             
             
-            //                stub(YOUR_MOCKED_REPOSITORY) { (mock) in
-            //                                    let response: YOUR_RESPONSE_TYPE = LOAD_JSON_FILE
-            //                                    let publisher = Just(response).eraseToAnyPublisher()
-            //                                    when(mock).REPOSITORY_FUNCTION_WHICH_IS_BEEING_USED().thenReturn(publisher)
-            //                                }
+            sut.getNewScreenDataSubject.send()
             
+            //  why oh why is error occuring??
+            
+            // i should stub with incorrect json to get call on alert to equal true
             it(" - triggers alertSubject correctly") {
                 expect(alertCalled).to(equal(true))
             }
             
-            it(" - has correct number of data") {
-                
-                expect(sut.screenData.count).to(equal(20))
-            }
+
             
-            it(" - has correct data") {
-                expect(sut.screenData[1].id).to(equal(464052))
-            }
-            
-            afterSuite {
-                
-                mock = nil
-                
-                sut = nil
-    
-                for cancellable in disposeBag {
-                    cancellable.cancel()
-                }
-            }            
         }
     }
     
