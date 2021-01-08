@@ -20,95 +20,63 @@ class NowPlayingViewModelSpecs: QuickSpec {
         
         var mock: MockMovieRepositoryImpl!
         
-        var screenDataPublisher: AnyPublisher<MovieResponse, MovieNetworkError>?
-        
         var disposeBag = Set<AnyCancellable>()
         
         var alertCalled = false
         
         describe ("NowPlayingViewModel") {
             
-            context("Works: ") {
+            beforeSuite {
+                mock = MockMovieRepositoryImpl()
                 
-                beforeEach {
-                    mock = MockMovieRepositoryImpl()
-                    
-                    sut = NowPlayingMoviesViewModel(repository: mock)
-                    
-                }
-
-                sut.alertSubject
-                    .receive(on: RunLoop.main)
-                    .subscribe(on: DispatchQueue.global(qos: .background))
-                    .sink { (errorMessage) in
-                        alertCalled = true
-                    }
+                sut = NowPlayingMoviesViewModel(repository: mock)
+                
+                sut.initializeScreenDataSubject(with: sut.getNewScreenDataSubject.eraseToAnyPublisher())
                     .store(in: &disposeBag)
-                
-                
-                if let publisher = screenDataPublisher {
-                    
-                    publisher
-                        .receive(on: RunLoop.main)
-                        .subscribe(on: DispatchQueue.global(qos: .background))
-                        .sink { (completion) in
-                            switch (completion) {
-                            case .finished:
-                                break
-                            case .failure(_):
-                                sut.alertSubject.send("")
-                                break
-                            }
-                        } receiveValue: { (movieResponse) in
-                            sut.screenData = sut.createScreenData(from: movieResponse.results)
-                            
-                            it(" - has correct number of data") {
-                                
-                                expect(sut.screenData.count).to(equal(20))
-                            }
-                            it(" - has correct data") {
-                                expect(sut.screenData[1].id).to(equal(464052))
-                            }
-                        }
-                        .store(in: &disposeBag)
-                }
-                
-//                stub(YOUR_MOCKED_REPOSITORY) { (mock) in
-//                                    let response: YOUR_RESPONSE_TYPE = LOAD_JSON_FILE
-//                                    let publisher = Just(response).eraseToAnyPublisher()
-//                                    when(mock).REPOSITORY_FUNCTION_WHICH_IS_BEEING_USED().thenReturn(publisher)
-//                                }
-                
-                stub(mock) { (mock) in
-                    
-                    let publisher = Future<MovieResponse, MovieNetworkError> { promise in
-                        if let data = self.readLocalFile(forName: "NowPlayingJSONResponse") {
-                            
-                            promise(.success(data))
-                        }
-                        promise(.failure(MovieNetworkError.decodingError))
-                    }.eraseToAnyPublisher()
-                    
-                    
-                }
-                
-                it(" - triggers alertSubject correctly") {
-                    expect(alertCalled).to(equal(true))
-                }
-                
-                afterEach {
-                    
-                    mock = nil
-                    
-                    sut = nil
-                    
-                    screenDataPublisher = nil
-                    
-                    for cancellable in disposeBag {
-                        cancellable.cancel()
-                    }
-                }
             }
+            
+            guard let response = readLocalFile(forName: "NowPlayingJSONResponse") else { return }
+            
+            let expectedScreenData = sut.createScreenData(from: response.results)
+            
+            
+            sut.alertSubject
+                .sink { (errorMessage) in
+                    alertCalled = true
+                }
+                .store(in: &disposeBag)
+            
+            
+            
+            //                stub(YOUR_MOCKED_REPOSITORY) { (mock) in
+            //                                    let response: YOUR_RESPONSE_TYPE = LOAD_JSON_FILE
+            //                                    let publisher = Just(response).eraseToAnyPublisher()
+            //                                    when(mock).REPOSITORY_FUNCTION_WHICH_IS_BEEING_USED().thenReturn(publisher)
+            //                                }
+            
+            it(" - triggers alertSubject correctly") {
+                expect(alertCalled).to(equal(true))
+            }
+            
+            it(" - has correct number of data") {
+                
+                expect(sut.screenData.count).to(equal(20))
+            }
+            
+            it(" - has correct data") {
+                expect(sut.screenData[1].id).to(equal(464052))
+            }
+            
+            afterSuite {
+                
+                mock = nil
+                
+                sut = nil
+    
+                for cancellable in disposeBag {
+                    cancellable.cancel()
+                }
+            }            
         }
     }
     
