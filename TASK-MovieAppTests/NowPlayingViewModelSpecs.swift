@@ -35,13 +35,6 @@ class NowPlayingViewModelSpecs: QuickSpec {
                     
                     sut = NowPlayingMoviesViewModel(repository: mock)
                     
-                    screenDataPublisher = Future<MovieResponse, MovieNetworkError> { promise in
-                        if let data = self.readLocalFile(forName: "NowPlayingJSONResponse") {
-
-                            promise(.success(data))
-                        }
-                        promise(.failure(MovieNetworkError.decodingError))
-                    }.eraseToAnyPublisher()
                 }
 
                 sut.alertSubject
@@ -78,6 +71,25 @@ class NowPlayingViewModelSpecs: QuickSpec {
                             }
                         }
                         .store(in: &disposeBag)
+                }
+                
+//                stub(YOUR_MOCKED_REPOSITORY) { (mock) in
+//                                    let response: YOUR_RESPONSE_TYPE = LOAD_JSON_FILE
+//                                    let publisher = Just(response).eraseToAnyPublisher()
+//                                    when(mock).REPOSITORY_FUNCTION_WHICH_IS_BEEING_USED().thenReturn(publisher)
+//                                }
+                
+                stub(mock) { (mock) in
+                    
+                    let publisher = Future<MovieResponse, MovieNetworkError> { promise in
+                        if let data = self.readLocalFile(forName: "NowPlayingJSONResponse") {
+                            
+                            promise(.success(data))
+                        }
+                        promise(.failure(MovieNetworkError.decodingError))
+                    }.eraseToAnyPublisher()
+                    
+                    
                 }
                 
                 it(" - triggers alertSubject correctly") {
