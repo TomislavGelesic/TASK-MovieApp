@@ -13,9 +13,9 @@ import Alamofire
 
 class MovieNetworkService {
     
-    func fetch<T: Codable>(url: URL, as: T.Type) -> AnyPublisher<T, MovieAPIError> {
+    func fetch<T: Codable>(url: URL, as: T.Type) -> AnyPublisher<T, MovieNetworkError> {
         
-        return Future<T, MovieAPIError> { promise in
+        return Future<T, MovieNetworkError> { promise in
             Alamofire
                 .request(url)
                 .validate()
@@ -33,12 +33,12 @@ class MovieNetworkService {
                             
                         } catch {
                             
-                            promise(.failure(MovieAPIError.decodingError))
+                            promise(.failure(MovieNetworkError.decodingError))
                         }
                     }
                     else {
                         
-                        promise(.failure(MovieAPIError.noDataError))
+                        promise(.failure(MovieNetworkError.noDataError))
                     }
                 }
         }
