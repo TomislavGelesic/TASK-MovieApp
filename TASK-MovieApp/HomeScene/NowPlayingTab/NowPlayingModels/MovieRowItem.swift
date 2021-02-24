@@ -51,9 +51,9 @@ class MovieRowItem {
     init(_ movie: MovieResponseItem) {
         
         self.id = Int64(movie.id)
-        self.imagePath = movie.posterPath
+        self.imagePath = movie.poster_path
         self.title = movie.title
-        self.year = getReleaseYear(releaseDate: movie.releaseDate)
+        self.year = getReleaseYear(releaseDate: movie.release_date)
         self.overview = movie.overview
         self.favourite = false
         self.watched = false

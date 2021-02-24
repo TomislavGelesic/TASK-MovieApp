@@ -56,14 +56,6 @@ class NowPlayingMoviesViewController: UIViewController {
         setupPullToRefreshControl()
         
         setupSubscribers()
-        
-        nowPlayingMoviesViewModel.initializeScreenDataSubject(with: nowPlayingMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
-            .store(in: &disposeBag)
-        
-        nowPlayingMoviesViewModel.initializeMoviePreferenceSubject(with: nowPlayingMoviesViewModel.moviePreferenceChangeSubject.eraseToAnyPublisher())
-            .store(in: &disposeBag)
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -101,26 +93,28 @@ extension NowPlayingMoviesViewController {
     }
     
     private func setupPullToRefreshControl() {
-        
         pullToRefreshControl.addTarget(self, action: #selector(refreshMovies), for: .valueChanged)
-        
         movieCollectionView.addSubview(pullToRefreshControl)
     }
     
     @objc func refreshMovies() {
-        
         self.showSpinner()
-        
         self.nowPlayingMoviesViewModel.getNewScreenDataSubject.send()
     }
     
     private func setupSubscribers() {
         
+        
+        nowPlayingMoviesViewModel.initializeScreenDataSubject(with: nowPlayingMoviesViewModel.getNewScreenDataSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
+        nowPlayingMoviesViewModel.initializeMoviePreferenceSubject(with: nowPlayingMoviesViewModel.moviePreferenceChangeSubject.eraseToAnyPublisher())
+            .store(in: &disposeBag)
+        
         nowPlayingMoviesViewModel.spinnerSubject
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (isVisible) in
-                
                 isVisible ? self.showSpinner() : self.hideSpinner()
             })
             .store(in: &disposeBag)
@@ -137,7 +131,6 @@ extension NowPlayingMoviesViewController {
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (position) in
-                
                 self.reloadCollectionView(at: position)
             }
             .store(in: &disposeBag)

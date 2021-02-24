@@ -13,7 +13,7 @@ class MovieDetailViewModel {
     
     private var coreDataService = CoreDataManager.sharedInstance
 
-    private var movieRepository: NetworkMovieRepository
+    private var movieRepository: MovieDetailRepositoryImpl
 
     private var movie: MovieRowItem
     
@@ -29,7 +29,7 @@ class MovieDetailViewModel {
     
     var getNewScreenDataSubject = CurrentValueSubject<Bool, Never>(true) //race condition - need to use currentValueSubject
     
-    init(for movie: MovieRowItem, repository: NetworkMovieRepository) {
+    init(for movie: MovieRowItem, repository: MovieDetailRepositoryImpl) {
         self.movie = movie
         movieRepository = repository
     }
@@ -40,90 +40,64 @@ extension MovieDetailViewModel {
     func initializeScreenData(with subject: AnyPublisher<Bool, Never>) -> AnyCancellable {
         
         return subject
-            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), MovieNetworkError> in
-
-                let detailsMoviePath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.KEY)"
-
-                let similarMoviesPath = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_MOVIE_BY)" + "\(Int(movie.id))" + "\(Constants.MOVIE_API.GET_SIMILAR)" + "\(Constants.MOVIE_API.KEY)"
-
-                guard let detailsMovieURLPath = URL(string: detailsMoviePath) else { fatalError("ERROR getNewScreenData: DETAILS URL path") }
-
-                guard let similarMoviesURLPath = URL(string: similarMoviesPath) else { fatalError("ERROR getNewScreenData: SIMILAR URL path") }
-
+            .flatMap { [unowned self] (_) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
                 self.spinnerSubject.send(true)
-
-                return Publishers
-                    .CombineLatest(movieRepository.getNetworkSubject(ofType: MovieDetailsResponse.self, for: detailsMovieURLPath),
-                                   movieRepository.getNetworkSubject(ofType: MovieResponse.self, for: similarMoviesURLPath))
-                    .subscribe(on: DispatchQueue.global(qos: .background))
-                    .receive(on: RunLoop.main)
-                    .map { [unowned self] newMovieDetails, newSimilarMovies in
-
-                        return self.createScreenData(from: newMovieDetails, and: self.createCollectionViewData(from: newSimilarMovies.results))
-                    }
-                    .eraseToAnyPublisher()
+                let detailPublisher: AnyPublisher<Swift.Result<MovieDetailsResponse, AFError>, Never> = movieRepository.fetchDetails(for: Int(movie.id))
+                let similarsPublisher: AnyPublisher<Swift.Result<MovieResponse, AFError>, Never> = movieRepository.fetchSimilars(for: Int(movie.id))
+                return Publishers.Zip(detailPublisher, similarsPublisher)
+                    .flatMap { [unowned self] (detailsResult, similarsResult) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
+                        var detailResponse: MovieDetailsResponse = .init()
+                        var similarsResponse: [MovieResponseItem] = .init()
+                        switch detailsResult {
+                        case .success(let response):
+                            detailResponse = response
+                        case .failure(_):
+                            self.alertSubject.send("Can't get data from internet.")
+                        }
+                        switch similarsResult {
+                        case .success(let response):
+                            similarsResponse = response.results
+                        case .failure(_):
+                            self.alertSubject.send("Can't get data from internet.")
+                        }
+                        return Just(self.createScreenData(from: detailResponse,
+                                                          and: similarsResponse)).eraseToAnyPublisher()
+                    }.eraseToAnyPublisher()
             }
-            .catch({ [unowned self] (error) -> AnyPublisher<([RowItem<MovieDetailsRowType, Any>]), Never> in
-                    
-                    self.spinnerSubject.send(false)
-                
-                    switch (error) {
-                    case .decodingError:
-                        self.alertSubject.send("Decoder couldn't decode data from network request.")
-                        break
-                        
-                    case .noDataError:
-                        self.alertSubject.send("There is no data for network request made.")
-                        break
-                        
-                    case .other(let error):
-                        self.alertSubject.send("Error: \(error.localizedDescription)")
-                        break
-                    }
-                    
-                    return Just([]).eraseToAnyPublisher()
-                })
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink { [unowned self] (newTableViewData) in
-                
                 self.screenData = newTableViewData
-                
-                self.spinnerSubject.send(false)
-                
                 self.refreshScreenDataSubject.send(.all)
+                self.spinnerSubject.send(false)
             }
         
     }
     
-    private func createScreenData(from movieDetails: MovieDetailsResponse, and newSimilarMovies: [MovieRowItem]) -> [RowItem<MovieDetailsRowType, Any>] {
+    private func createScreenData(from movieDetails: MovieDetailsResponse, and newSimilarMovies: [MovieResponseItem]) -> [RowItem<MovieDetailsRowType, Any>] {
         
         var newScreenData = [RowItem<MovieDetailsRowType, Any>]()
-        
         if let posterPath = movieDetails.posterPath {
-            
             let imagePath = Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + posterPath
-            
             let favouriteStatus = getMoviePreference(on: .favourite) ?? false
             let watchedStatus = getMoviePreference(on: .watched) ?? false
-
-            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePath, value: (imagePath, favouriteStatus, watchedStatus)))
+            newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .imagePath,
+                                                                   value: (imagePath, favouriteStatus, watchedStatus)))
         }
-        
-        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .title, value: movieDetails.title))
-        
-        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .genre, value: movieDetails.genres.map{ $0.name }.joined(separator: ", ")))
-        
-        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .quote, value: movieDetails.tagline))
-        
-        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .description, value: movieDetails.overview))
-        
-        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .similarMovies, value: newSimilarMovies))
-        
+        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .title,
+                                                               value: movieDetails.title))
+        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .genre,
+                                                               value: movieDetails.genres.map{ $0.name }.joined(separator: ", ")))
+        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .quote,
+                                                               value: movieDetails.tagline))
+        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .description,
+                                                               value: movieDetails.overview))
+        newScreenData.append(RowItem<MovieDetailsRowType, Any>(type: .similarMovies,
+                                                               value: createSimiralMoviesScreenData(from: newSimilarMovies)))
         return newScreenData
     }
     
-    private func createCollectionViewData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
+    private func createSimiralMoviesScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
         
         var newScreenData = [MovieRowItem]()
         

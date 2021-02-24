@@ -5,52 +5,68 @@
 //  Created by Tomislav Gelesic on 06.01.2021..
 //
 
+@testable import TASK_MovieApp
 import Quick
 import Nimble
 import Combine
 import Cuckoo
+import Alamofire
 
-@testable import TASK_MovieApp
 
 class NowPlayingViewModelSpecs: QuickSpec {
     
     override func spec() {
         
         var sut: NowPlayingMoviesViewModel!
-        
         var mock: MockMovieRepositoryImpl!
-        
         var disposeBag = Set<AnyCancellable>()
-        
-        var alertCalled = false
+        var alertCalled: Bool!
         
         describe ("NowPlayingViewModel") {
-            
-            mock = MockMovieRepositoryImpl()
-            
-            sut = NowPlayingMoviesViewModel(repository: mock)
-            
-            stub(mock) { mock in
-                when(mock.getNetworkSubject(ofType: any(), for: any())).then { (_) -> AnyPublisher<MovieResponse, MovieNetworkError> in
-                    return  Future<MovieResponse,MovieNetworkError> { [unowned self] promise in
-                        if let response = self.readLocalFile(forName: "NowPlayingJSONResponse")  {
-                            promise(.success(response))
+            context("has") {
+                beforeEach {
+                    initialize()
+                    stub(mock) { mock in
+                        when(mock.fetchNowPlaying()).then { (_) -> AnyPublisher<Result<MovieResponse, AFError>, Never> in
+                            if let data: MovieResponse = getResource("NowPlayingJSONResponse"){
+                                return Just(Result<MovieResponse, AFError>.success(data)).eraseToAnyPublisher()
+                            } else {
+                                return Just(Result<MovieResponse, AFError>.success(MovieResponse.init(results: [MovieResponseItem]()))).eraseToAnyPublisher()
+                            }
                         }
-                        alertCalled = true
-                        promise(.failure(.decodingError))
-                    }.eraseToAnyPublisher()
+                    }
+                    print("SETUP SETUP SETUP")
                 }
-                
-                
-                it(" - has correct number of data") {
-                    
+                it("correct number of data") {
+                    sut.getNewScreenDataSubject.send()
                     expect(sut.screenData.count).toEventually(equal(20))
                 }
                 
-                it(" - has correct data") {
-                    expect(sut.screenData[1].id).toEventually(equal(464052))
+                it("correct data") {
+                    let expected: Int64 = 508442
+                    expect(sut.screenData[1].id).toEventually(equal(expected))
                 }
             }
+            
+            context("triggers") {
+                beforeEach {
+                    initialize()
+                }
+                it("alertSubject correctly") {
+                    sut.alertSubject.send("")
+                    expect(alertCalled).toEventually(equal(true))
+                }
+            }
+        }
+        
+        
+        func initialize() {
+            for cancellable in disposeBag {
+                cancellable.cancel()
+            }
+            mock = MockMovieRepositoryImpl()
+            sut = NowPlayingMoviesViewModel(repository: mock)
+            alertCalled = false
             
             sut.initializeScreenDataSubject(with: sut.getNewScreenDataSubject.eraseToAnyPublisher())
                 .store(in: &disposeBag)
@@ -59,34 +75,14 @@ class NowPlayingViewModelSpecs: QuickSpec {
                 alertCalled = true
             }
             .store(in: &disposeBag)
-            
-            
-            sut.getNewScreenDataSubject.send()
-            
-            //  why oh why is error occuring??
-            
-            // i should stub with incorrect json to get call on alert to equal true
-            it(" - triggers alertSubject correctly") {
-                expect(alertCalled).to(equal(true))
-            }
-            
-
-            
-        }
-    }
-    
-    func readLocalFile(forName name: String) -> MovieResponse? {
-        do {
-            if let bundlePath = Bundle.main.path(forResource: name,
-                                                 ofType: "json"),
-                let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
-                let decodedData = try JSONDecoder().decode(MovieResponse.self, from: jsonData)
-                return decodedData
-            }
-        } catch {
-            print(error)
         }
         
-        return nil
+        func getResource<T: Codable>(_ fileName: String) -> T? {
+            let bundle = Bundle.init(for: NowPlayingViewModelSpecs.self)
+            guard let resourcePath = bundle.url(forResource: fileName, withExtension: "json"),
+                  let data = try? Data(contentsOf: resourcePath),
+                  let parsedData: T = SerializationManager.parseData(jsonData: data) else { return nil }
+            return parsedData
+        }
     }
 }

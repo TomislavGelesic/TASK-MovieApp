@@ -7,6 +7,14 @@
 
 import UIKit
 
+#warning("ReadMe - AppFixes")
+/*
+ - In this implementation coordinators are not used as they could've been.
+ - DetailScene should present modally.
+ - Coordinators should be in view models classes.
+ - Shouldn't remove HomeSCene from childCoordinators, app state and flow.
+ - Debug proper deinit cals with print in deinit() of vm, vc, coord classes.
+ */
 class AppCoordinator: Coordinator {
     
     var parentCoordinator: Coordinator? = nil
