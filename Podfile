@@ -12,3 +12,14 @@ target 'TASK-MovieApp' do
   pod 'Alamofire'
 
 end
+
+target 'TASK-MovieAppTests' do
+  
+	use_frameworks!
+	
+	pod 'Cuckoo'
+	pod 'Quick'
+	pod 'Nimble'
+end
+
+

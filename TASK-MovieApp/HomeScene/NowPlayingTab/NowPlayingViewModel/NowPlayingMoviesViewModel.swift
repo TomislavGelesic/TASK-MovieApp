@@ -83,7 +83,7 @@ extension NowPlayingMoviesViewModel {
         
     }
     
-    private func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
+    func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
         
         var newScreenData = [MovieRowItem]()
         
@@ -114,7 +114,7 @@ extension NowPlayingMoviesViewModel {
     }
     
     
-    private func updateMoviePreference(for id: Int64, on buttonType: PreferenceType, with value: Bool) -> IndexPath? {
+    func updateMoviePreference(for id: Int64, on buttonType: PreferenceType, with value: Bool) -> IndexPath? {
 
         for (index,item) in screenData.enumerated() {
 
