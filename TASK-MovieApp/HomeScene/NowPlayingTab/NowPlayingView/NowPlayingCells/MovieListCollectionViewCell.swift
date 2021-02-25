@@ -46,6 +46,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     let favouriteButton: UIButton = {
         let favouriteButton = UIButton()
+        favouriteButton.accessibilityLabel = "favourite"
         favouriteButton.layer.cornerRadius = 20
         favouriteButton.setImage(UIImage(named: "star_unfilled"), for: .normal)
         favouriteButton.setImage(UIImage(named: "star_filled"), for: .selected)
@@ -54,6 +55,7 @@ class MovieListCollectionViewCell: UICollectionViewCell {
     
     let watchedButton: UIButton = {
         let watchedButton = UIButton()
+        watchedButton.accessibilityLabel = "watched"
         watchedButton.layer.cornerRadius = 20
         watchedButton.setImage(UIImage(named: "watched_unfilled"), for: .normal)
         watchedButton.setImage(UIImage(named: "watched_filled"), for: .selected)
@@ -88,53 +90,36 @@ extension MovieListCollectionViewCell {
     }
     
     private func setupButtons() {
-        
         favouriteButton.addTarget(self, action: #selector(favouriteButtonTapped), for: .touchUpInside)
         watchedButton.addTarget(self, action: #selector(watchedButtonTapped), for: .touchUpInside)
     }
     
     @objc func favouriteButtonTapped() {
-        
         preferenceChanged?(.favourite, favouriteButton.isSelected)
     }
     
     @objc func watchedButtonTapped() {
-        
         preferenceChanged?(.watched, watchedButton.isSelected)
     }
     
     func configure(with item: MovieRowItem) {
-        
         imageViewMovie.setImage(with: Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + item.imagePath)
-        
         yearLabel.text = item.year
-        
         titleLabel.text = item.title
-        
         descriptionLabel.text = item.overview
-        
         setButtonImage(on: .favourite, selected: item.favourite)
-        
         setButtonImage(on: .watched, selected: item.watched)
-        
     }
     
     private func setButtonImage(on type: PreferenceType, selected: Bool) {
-        
         switch type {
-        case .favourite:
-            favouriteButton.isSelected = selected
-            break
-        case .watched:
-            watchedButton.isSelected = selected
-            break
-            
+        case .favourite: favouriteButton.isSelected = selected
+        case .watched: watchedButton.isSelected = selected
         }
     }
     
     //MARK: Constraints
-    private func setupConstraints() {
-        
+    private func setupConstraints() {        
         imageViewConstraints()
         overlayConstraints()
         titleLabelCOnstraints()
