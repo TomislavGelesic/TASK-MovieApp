@@ -7,12 +7,14 @@
 
 import UIKit
 import Combine
+import Alamofire
 
-class MovieRepositoryImpl: NetworkMovieRepository {
-    
-    func getNetworkSubject<DATA_TYPE: Codable> (ofType type: DATA_TYPE.Type, for url: URL) -> AnyPublisher<DATA_TYPE, MovieNetworkError> {
-        
-        return MovieNetworkService().fetch(url: url, as: DATA_TYPE.self)
-        
+class MovieRepositoryImpl: MovieNowPlayingRepository {
+    func fetchNowPlaying() -> AnyPublisher<Result<MovieResponse, AFError>, Never> {
+        var url = String()
+        url.append("\(Constants.MOVIE_API.BASE)")
+        url.append("\(Constants.MOVIE_API.GET_NOW_PLAYING)")
+        url.append("\(Constants.MOVIE_API.KEY)")
+        return RestManager.requestObservable(url: url)
     }
 }

@@ -34,7 +34,7 @@ class MovieDetailCoordinator: Coordinator {
     
     func showDetails(_ movie: MovieRowItem) -> () {
         
-        let movieDetailViewController = MovieDetailViewController(viewModel: MovieDetailViewModel(for: movie, repository: MovieRepositoryImpl()))
+        let movieDetailViewController = MovieDetailViewController(viewModel: MovieDetailViewModel(for: movie, repository: MovieDetailRepositoryImpl()))
         navigationController.pushViewController(movieDetailViewController, animated: true)
     }
 }

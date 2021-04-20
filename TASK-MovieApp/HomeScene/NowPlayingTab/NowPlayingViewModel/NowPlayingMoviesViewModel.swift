@@ -7,7 +7,7 @@ class NowPlayingMoviesViewModel {
 
     private var coreDataManager = CoreDataManager.sharedInstance
 
-    var movieRepository: NetworkMovieRepository
+    var movieRepository: MovieRepositoryImpl
     
     var screenData = [MovieRowItem]()
     
@@ -23,7 +23,7 @@ class NowPlayingMoviesViewModel {
     
     var pullToRefreshControlSubject = PassthroughSubject<Bool, Never>()
     
-    init(repository: NetworkMovieRepository) {
+    init(repository: MovieRepositoryImpl) {
         movieRepository = repository
     }
 }
@@ -31,56 +31,30 @@ class NowPlayingMoviesViewModel {
 extension NowPlayingMoviesViewModel {
     
     func initializeScreenDataSubject(with subject: AnyPublisher<Void, Never>) -> AnyCancellable {
-        
-        let url = "\(Constants.MOVIE_API.BASE)" + "\(Constants.MOVIE_API.GET_NOW_PLAYING)" + "\(Constants.MOVIE_API.KEY)"
-        
-        guard let nowPlayingURLPath = URL(string: url) else { fatalError("refreshMovieList: getNowPlayingURL()") }
-        
         return subject
-            .flatMap { [unowned self] (_) -> AnyPublisher<MovieResponse, MovieNetworkError> in
+            .flatMap { [unowned self] (_) -> AnyPublisher<[MovieRowItem], Never> in
                 
                 self.spinnerSubject.send(true)
-                
-                return self.movieRepository.getNetworkSubject(ofType: MovieResponse.self, for: nowPlayingURLPath)
-            }
-            .map { [unowned self] (movieResponse) -> [MovieRowItem] in
-                
-                return self.createScreenData(from: movieResponse.results)
+                return movieRepository.fetchNowPlaying()
+                    .flatMap { [unowned self] (result) -> AnyPublisher<[MovieRowItem], Never> in
+                        switch result {
+                        case .success(let response):
+                            return Just(self.createScreenData(from: response.results)).eraseToAnyPublisher()
+                        case .failure(let error):
+                            print(error)
+                            self.alertSubject.send("Can't get data from internet.")
+                        }
+                        return Just([MovieRowItem]()).eraseToAnyPublisher()
+                    }.eraseToAnyPublisher()
             }
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
-            .sink { [unowned self] (completion) in
-                
-                switch (completion) {
-                case .finished:
-                    break
-                    
-                case .failure(let error):
-                    
-                    switch (error) {
-                    case .decodingError:
-                        self.alertSubject.send("Decoder couldn't decode data from netwrok request.")
-                        break
-                        
-                    case .noDataError:
-                        self.alertSubject.send("There is no data for network request made.")
-                        break
-                        
-                    case .other(let error):
-                        self.alertSubject.send("Error: \(error.localizedDescription)")
-                        break
-                    }
-                    break
-                }
-            } receiveValue: { [unowned self] (newScreenData) in
-                
+            .sink { [unowned self] (newScreenData) in
                 self.screenData = newScreenData
                 self.pullToRefreshControlSubject.send(false)
                 self.refreshScreenDataSubject.send(.all)
                 self.spinnerSubject.send(false)
             }
-        
-        
     }
     
     func createScreenData(from newMovieResponseItems: [MovieResponseItem]) -> [MovieRowItem] {
@@ -105,9 +79,7 @@ extension NowPlayingMoviesViewModel {
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] (id, buttonType, value) in
-                
                 if let indexPath = self.updateMoviePreference(for: id, on: buttonType, with: !value) {
-                    
                     self.refreshScreenDataSubject.send(.cellWith(indexPath))
                 }
             })
