@@ -27,7 +27,7 @@ class AppCoordinator: Coordinator {
         goToTabBarCoordinator()
     }
     
-    init(presenter: UINavigationController) {        
+    init(presenter: UINavigationController) {
         self.navigationController = presenter
     }
 }

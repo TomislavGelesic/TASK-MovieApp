@@ -23,4 +23,14 @@ target 'TASK-MovieAppTests' do
   pod 'Alamofire'
 end
 
+target 'TASK-MovieAppUITests' do
+  
+  use_frameworks!
+  pod 'Cuckoo'
+  pod 'Quick'
+  pod 'Nimble'
+  pod 'SnapKit'
+  pod 'Kingfisher'
+  pod 'Alamofire'
+end
 

@@ -52,13 +52,13 @@ extension MovieDetailViewModel {
                         case .success(let response):
                             detailResponse = response
                         case .failure(_):
-                            self.alertSubject.send("Can't get data from internet.")
+                            self.alertSubject.send("Can't get all data from internet.")
                         }
                         switch similarsResult {
                         case .success(let response):
                             similarsResponse = response.results
                         case .failure(_):
-                            self.alertSubject.send("Can't get data from internet.")
+                            self.alertSubject.send("Can't get all data from internet.")
                         }
                         return Just(self.createScreenData(from: detailResponse,
                                                           and: similarsResponse)).eraseToAnyPublisher()
@@ -77,6 +77,7 @@ extension MovieDetailViewModel {
     private func createScreenData(from movieDetails: MovieDetailsResponse, and newSimilarMovies: [MovieResponseItem]) -> [RowItem<MovieDetailsRowType, Any>] {
         
         var newScreenData = [RowItem<MovieDetailsRowType, Any>]()
+        
         if let posterPath = movieDetails.posterPath {
             let imagePath = Constants.MOVIE_API.IMAGE_BASE + Constants.MOVIE_API.IMAGE_SIZE + posterPath
             let favouriteStatus = getMoviePreference(on: .favourite) ?? false

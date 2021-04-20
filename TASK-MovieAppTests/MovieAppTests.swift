@@ -17,8 +17,9 @@ class MovieAppTests: QuickSpec {
         return parsedData
     }
     
+    //Usage of Quick and Nimble libraries
     override func spec() {
-        
+        // Preparation - Arrange_Act_Assert method used
         var sut: NowPlayingMoviesViewModel!
         var mock: MockMovieRepositoryImpl!
         var disposeBag = Set<AnyCancellable>()
@@ -75,45 +76,5 @@ class MovieAppTests: QuickSpec {
             }
         }
         
-        describe("UI_TEST HomeScene") {
-            context("User taps movie card to see details.") {
-                beforeEach { initialize() }
-                afterEach { cleanDisposeBag() }
-                it("Detail screen visible.") {
-                    
-                }
-            }
-            
-            context("User taps Watched list icon to see Watched movies screen.") {
-                beforeEach { initialize() }
-                afterEach { cleanDisposeBag() }
-                it("Watched movies screen visible") {
-                    
-                }
-            }
-            
-            context("User taps Favourite list icon to see Favourite movies screen.") {
-                beforeEach { initialize() }
-                afterEach { cleanDisposeBag() }
-                it("Favourite movies screen visible") {
-                    
-                }
-            }
-            context("User taps Watched preference.") {
-                beforeEach { initialize() }
-                afterEach { cleanDisposeBag() }
-                it("Watched preference updated.") {
-                    
-                }
-            }
-            
-            context("User taps Favourite preference.") {
-                beforeEach { initialize() }
-                afterEach { cleanDisposeBag() }
-                it("Favourite preference updated.") {
-                    
-                }
-            }
-        }
     }
 }

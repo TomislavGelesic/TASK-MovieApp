@@ -10,7 +10,6 @@ import UIKit
 
 extension UIViewController {
     
-    
     func showSpinner() {
         
         SpinnerViewManager.addSpinnerView(to: self.view)
@@ -34,9 +33,3 @@ extension UIViewController {
         present(alert, animated: true, completion: nil)
     }
 }
-
-
-
-
-
-
